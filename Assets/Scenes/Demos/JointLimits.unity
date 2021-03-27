@@ -353,7 +353,7 @@ MonoBehaviour:
   materialType: 0
   type: 0
   friction: 0
-  rolling_friction_onz: 0
+  rolling_friction: 0
   spinning_friction: 0
   restitution: 0
   cohesion: 0
@@ -528,7 +528,7 @@ MonoBehaviour:
   materialType: 0
   type: 0
   friction: 0.4
-  rolling_friction_onz: 0
+  rolling_friction: 0
   spinning_friction: 0
   restitution: 0
   cohesion: 0
