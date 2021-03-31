@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using UnityEditor;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
@@ -70,7 +69,7 @@ namespace chrono
         public bool bodyfixed;
         public bool collide = true;
         public double mass = 1;
-      //  public Vector3 COM;
+        //  public Vector3 COM;
         public Vector3 inertiaMoments;
         public Vector3 inertiaProducts;
         private double chronotime;
@@ -124,7 +123,7 @@ namespace chrono
         public virtual void Awake()
         {
             ChSystem sys = system;
-           // BodyFrame = new ChBodyFrame();
+            // BodyFrame = new ChBodyFrame();
 
             switch (materialType)
             {
@@ -161,14 +160,14 @@ namespace chrono
                     var size = transform.localScale * 1.05f;
 
                     if (automaticMass)
-                    {                        
+                    {
                         mass = density * (size.x * size.y * size.z);
                         this.SetDensity((float)density);
                         this.SetMass(mass);
                         inertiaMoments.x = (float)((1.0 / 12.0) * mass * (Math.Pow(size.y, 2) + Math.Pow(size.z, 2)));
                         inertiaMoments.y = (float)((1.0 / 12.0) * mass * (Math.Pow(size.x, 2) + Math.Pow(size.z, 2)));
                         inertiaMoments.z = (float)((1.0 / 12.0) * mass * (Math.Pow(size.x, 2) + Math.Pow(size.y, 2)));
-                    }                    
+                    }
 
                     if (collide)
                     {
@@ -177,7 +176,7 @@ namespace chrono
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
-                   
+
                     SetInertiaXX(ToChrono(inertiaMoments));
                     SetInertiaXY(ToChrono(inertiaProducts));
 
@@ -198,7 +197,7 @@ namespace chrono
                     var size2 = transform.localScale.y / 2;
 
                     if (automaticMass)
-                    {                        
+                    {
                         mass = density * ((4.0 / 3.0) * Math.PI * Math.Pow(size2, 3));
                         double inertia = (2.0 / 5.0) * mass * Math.Pow(size2, 2);
                         this.SetDensity((float)density);
@@ -227,30 +226,25 @@ namespace chrono
                     BodyFrame.SetPos_dt(ToChrono(linearVelocity));
                     BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
 
-                    sys = system;
-
                     ChSystem msystem2 = FindObjectOfType<ChSystem>();
                     msystem2.AddBody(this);
 
                     break;
                 case CollisionType.Cylinder:
 
-                    //  if (automaticMass)
-                    //  {
-
                     var height = transform.localScale.y;
                     var radiusX = transform.localScale.x / 2;
                     var radiusZ = transform.localScale.z / 2;
-                    this.SetDensity((float)density);
-                    this.SetMass(mass);
-                    mass = density * (ChMaths.CH_C_PI * Math.Pow(radiusX, 2) * height);
-                    inertiaMoments.x = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
-                    inertiaMoments.y = (float)(0.5 * mass * Math.Pow(radiusX, 2));
-                    inertiaMoments.z = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
 
-
-                    SetInertiaXX(ToChrono(inertiaMoments));
-                    SetInertiaXY(ToChrono(inertiaProducts));
+                    if (automaticMass)
+                    {
+                        this.SetDensity((float)density);
+                        this.SetMass(mass);
+                        mass = density * (ChMaths.CH_C_PI * Math.Pow(radiusX, 2) * height);
+                        inertiaMoments.x = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
+                        inertiaMoments.y = (float)(0.5 * mass * Math.Pow(radiusX, 2));
+                        inertiaMoments.z = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
+                    }
 
                     if (collide)
                     {
@@ -259,8 +253,9 @@ namespace chrono
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
-                    //}
-                    //this.SetInertiaXX(ToChrono(inertiaMoments));
+
+                    SetInertiaXX(ToChrono(inertiaMoments));
+                    SetInertiaXY(ToChrono(inertiaProducts));
 
                     SetBodyFixed(bodyfixed);
 
@@ -269,8 +264,6 @@ namespace chrono
 
                     BodyFrame.SetPos_dt(ToChrono(linearVelocity));
                     BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
-
-                    sys = system;
 
                     ChSystem msystem3 = FindObjectOfType<ChSystem>();
                     msystem3.AddBody(this);
@@ -313,7 +306,7 @@ namespace chrono
 
             GCHandle handle1 = GCHandle.Alloc(this);
             IntPtr parameter = (IntPtr)handle1;
-            BodyFrame.variables.SetUserData(parameter);            
+            BodyFrame.variables.SetUserData(parameter);
 
             body_id = 0;
         }
@@ -429,7 +422,7 @@ namespace chrono
 
             matsurface = other.matsurface;  // also copy-duplicate the material? Let the user handle this..
 
-           // density = other.density;
+            // density = other.density;
 
             Scr_force = other.Scr_force;
             Scr_torque = other.Scr_torque;
@@ -448,7 +441,7 @@ namespace chrono
         public virtual void FixedUpdate()
         {
 
-           // Test = ChQuaternion.QNULL;
+            // Test = ChQuaternion.QNULL;
             //var frame = this.GetFrame_REF_to_abs();
             //transform.position = FromChrono(frame.GetPos());
             // transform.rotation = FromChrono(frame.GetRot());
@@ -489,16 +482,16 @@ namespace chrono
             transform.position = ExtractTranslationFromMatrix(uMat);
             transform.rotation = ExtractRotationFromMatrix(uMat);
 
-           /* var frame = GetFrame_REF_to_abs();
-            transform.position = Utils.FromChrono(frame.GetPos());
-            transform.rotation = Utils.FromChrono(frame.GetRot());*/
+            /* var frame = GetFrame_REF_to_abs();
+             transform.position = Utils.FromChrono(frame.GetPos());
+             transform.rotation = Utils.FromChrono(frame.GetRot());*/
         }
 
         public static Vector3 FromChrono(ChVector v)
         {
             return new Vector3((float)v.x, (float)v.y, (float)v.z);
         }
-        public static UnityEngine.Quaternion FromChrono( ChQuaternion q)
+        public static UnityEngine.Quaternion FromChrono(ChQuaternion q)
         {
             return new UnityEngine.Quaternion((float)q.e1, (float)q.e2, (float)q.e3, (float)q.e0);
         }
@@ -757,12 +750,12 @@ namespace chrono
         /// body variables (pos, speed, or accel.) and forces.
         /// The ChVariablesBodyOwnMass is the interface to the system solver.
         public virtual ChVariablesBodyOwnMass VariablesBody() {
-           // BodyFrame.VariablesBody();
-            return BodyFrame.variables; 
+            // BodyFrame.VariablesBody();
+            return BodyFrame.variables;
         }
         public virtual ChVariables Variables() {
             //BodyFrame.SetVariables(variables);
-            return BodyFrame.variables; 
+            return BodyFrame.variables;
         }
 
         //
@@ -791,7 +784,7 @@ namespace chrono
         {
             this.BodyFrame.SetCoord(x.ClipCoordsys(off_x, 0));
             this.BodyFrame.SetPos_dt(v.ClipVector(off_v, 0));
-            this.BodyFrame.SetWvel_loc(v.ClipVector(off_v + 3, 0)); 
+            this.BodyFrame.SetWvel_loc(v.ClipVector(off_v + 3, 0));
             this.SetChTime(T);
             this.update();
         }
@@ -825,7 +818,7 @@ namespace chrono
             mdeltarot.Q_from_AngAxis(mangle, newwel_abs);
             ChQuaternion mnewrot = mdeltarot * moldrot;  // quaternion product
             x_new.PasteQuaternion(mnewrot, (int)off_x + 3, 0);
-           // Debug.Log("ang " + x_new[2]);
+            // Debug.Log("ang " + x_new[2]);
         }
 
         public override void IntLoadResidual_F(int off, ref ChVectorDynamic<double> R, double c) {
@@ -871,7 +864,7 @@ namespace chrono
                                ref ChVectorDynamic<double> L)
         {
             v.PasteMatrix(this.BodyFrame.variables.Get_qb(), off_v, 0);
-           // Debug.Log("clappa " + v[1]);
+            // Debug.Log("clappa " + v[1]);
         }
 
         //
@@ -1014,13 +1007,13 @@ namespace chrono
                 this.GetCollisionModel().SyncPosition();
         }
         public override void AddCollisionModelsToSystem() {
-           // Debug.Assert(this.GetSystem());
+            // Debug.Assert(this.GetSystem());
             SyncCollisionModels();
             if (this.GetCollide())
                 this.GetSystem().GetCollisionSystem().Add(collision_model);
         }
         public override void RemoveCollisionModelsFromSystem() {
-           // Debug.Assert(this.GetSystem());
+            // Debug.Assert(this.GetSystem());
             if (this.GetCollide())
                 this.GetSystem().GetCollisionSystem().Remove(collision_model);
         }
@@ -1071,7 +1064,7 @@ namespace chrono
                 GetTotalAABB(ref bbmin, ref bbmax);  // default: infinite aabb
         }
 
-    
+
 
         /// Infer the contact method from the underlying material properties object.
         public ChMaterialSurface.ContactMethod GetContactMethod() { return matsurface.GetContactMethod(); }
@@ -1117,7 +1110,7 @@ namespace chrono
         /// Attach a marker to this body.
         public void AddMarker(ChMarker amarker) {
             // don't allow double insertion of same object
-          //  Debug.Assert(List<ChMarker>.Enumerator (marklist.begin(), marklist.end(), amarker) ==
+            //  Debug.Assert(List<ChMarker>.Enumerator (marklist.begin(), marklist.end(), amarker) ==
             //       marklist.end());
 
             amarker.SetBody(this);
@@ -1126,7 +1119,7 @@ namespace chrono
         /// Attach a force to this body.
         public void AddForce(ChForce aforce) {
             // don't allow double insertion of same object
-          //  assert(std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), aforce) ==
+            //  assert(std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), aforce) ==
             //       forcelist.end());
 
             aforce.SetBody(this);
@@ -1136,24 +1129,24 @@ namespace chrono
         /// Remove a specific marker from this body. Warning: linear time search.
         public void RemoveMarker(ChMarker mmarker) {
             // trying to remove objects not previously added?
-           // assert(std::find<std::vector<std::shared_ptr<ChMarker>>::iterator>(marklist.begin(), marklist.end(), mmarker) !=
-             //      marklist.end());
+            // assert(std::find<std::vector<std::shared_ptr<ChMarker>>::iterator>(marklist.begin(), marklist.end(), mmarker) !=
+            //      marklist.end());
 
             // warning! linear time search
-           // marklist.erase(
-             //   std::find<std::vector<std::shared_ptr<ChMarker>>::iterator>(marklist.begin(), marklist.end(), mmarker));
+            // marklist.erase(
+            //   std::find<std::vector<std::shared_ptr<ChMarker>>::iterator>(marklist.begin(), marklist.end(), mmarker));
 
             mmarker.SetBody(null);
         }
         /// Remove a specific force from this body. Warning: linear time search.
         public void RemoveForce(ChForce aforce) {
             // trying to remove objects not previously added?
-          //  assert(std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), mforce) !=
+            //  assert(std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), mforce) !=
             //       forcelist.end());
 
             // warning! linear time search
-           // forcelist.erase(
-           //     std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), mforce));
+            // forcelist.erase(
+            //     std::find<std::vector<std::shared_ptr<ChForce>>::iterator>(forcelist.begin(), forcelist.end(), mforce));
 
             aforce.SetBody(null);
         }
@@ -1180,14 +1173,14 @@ namespace chrono
         /// Finds a marker from its ChObject name
         public ChMarker SearchMarker(char m_name) {
             return new ChMarker();
-           // return new ChContainerSearchFromName<ChMarker>, List<ChMarker>.Enumerator>(
-             //            m_name, marklist.begin(), marklist.end());
+            // return new ChContainerSearchFromName<ChMarker>, List<ChMarker>.Enumerator>(
+            //            m_name, marklist.begin(), marklist.end());
         }
         /// Finds a force from its ChObject name
         public ChForce SearchForce(char m_name) {
             return new ChForce();
-           // return ChContainerSearchFromName<std::shared_ptr<ChForce>, std::vector<std::shared_ptr<ChForce>>::iterator>(
-          // m_name, forcelist.begin(), forcelist.end());
+            // return ChContainerSearchFromName<std::shared_ptr<ChForce>, std::vector<std::shared_ptr<ChForce>>::iterator>(
+            // m_name, forcelist.begin(), forcelist.end());
         }
 
         /// Gets the list of children markers.
@@ -1359,7 +1352,7 @@ namespace chrono
         public void ComputeQInertia(ChMatrixNM<IntInterface.Four, IntInterface.Four> mQInertia) {
             ChMatrixNM<IntInterface.Three, IntInterface.Four> res = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             ChMatrixNM<IntInterface.Three, IntInterface.Four> Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Four, IntInterface.Three > GlT = new ChMatrixNM<IntInterface.Four, IntInterface.Three>();
+            ChMatrixNM<IntInterface.Four, IntInterface.Three> GlT = new ChMatrixNM<IntInterface.Four, IntInterface.Three>();
 
             //ChFrame<double> gl = new ChFrame<double>();
             ChFrame<double>.SetMatrix_Gl(ref Gl, BodyFrame.coord.rot);
@@ -1490,7 +1483,7 @@ namespace chrono
                 Xtorque = new ChVector();
             }
 
-           // Debug.Log("torque " + Xtorque.y);
+            // Debug.Log("torque " + Xtorque.y);
 
             // 2 - accumulation of other applied forces
             ChVector mforce = new ChVector();
@@ -1616,12 +1609,12 @@ namespace chrono
             return csys.TransformPointLocalToParent(loc_point);
         }
 
-    /// Get the absolute speed of a local point attached to the contactable.
-    /// The given point is assumed to be expressed in the local frame of this object.
-    /// This function must use the provided states.
-    public ChVector GetContactPointSpeed(ChVector loc_point,
-                                                ChState state_x,
-                                                ChStateDelta state_w) {
+        /// Get the absolute speed of a local point attached to the contactable.
+        /// The given point is assumed to be expressed in the local frame of this object.
+        /// This function must use the provided states.
+        public ChVector GetContactPointSpeed(ChVector loc_point,
+                                                    ChState state_x,
+                                                    ChStateDelta state_w) {
             ChCoordsys<double> csys = state_x.ClipCoordsys(0, 0);
             ChVector abs_vel = state_w.ClipVector(0, 0);
             ChVector loc_omg = state_w.ClipVector(3, 0);
@@ -1878,145 +1871,9 @@ namespace chrono
         public const int BODY_ROT = 3;   //< rotational dof in Newton dynamics
     }
 
-    // ChBody Editor ////
-    [CustomEditor(typeof(ChBody))]
-    public class ChBodyEditor : Editor
-    {
-        SerializedProperty density;
-
-        // NSC material properties
-        SerializedProperty friction;
-
-        SerializedProperty rolling_friction;
-        SerializedProperty spinning_friction;
-        SerializedProperty restitution;
-        SerializedProperty cohesion;
-        SerializedProperty dampingf;
-        SerializedProperty compliance;
-        SerializedProperty complianceT;
-        SerializedProperty complianceRoll;
-        SerializedProperty complianceSpin;
-
-        // SMC material properties
-        SerializedProperty young_modulus;
-        SerializedProperty poisson_ratio;      /// Poisson ratio
-        SerializedProperty static_friction;    /// Static coefficient of friction
-        SerializedProperty sliding_friction;   /// Kinetic coefficient of friction        
-        SerializedProperty constant_adhesion;  /// Constant adhesion force, when constant adhesion model is used
-        SerializedProperty adhesionMultDMT;    /// Adhesion multiplier used in DMT model.
-
-        public void OnEnable()
-        {
-
-            friction = serializedObject.FindProperty("friction");
-            rolling_friction = serializedObject.FindProperty("rolling_friction");
-            spinning_friction = serializedObject.FindProperty("spinning_friction");
-            restitution = serializedObject.FindProperty("restitution");
-            cohesion = serializedObject.FindProperty("cohesion");
-            dampingf = serializedObject.FindProperty("dampingf");
-            compliance = serializedObject.FindProperty("compliance");
-            complianceT = serializedObject.FindProperty("complianceT");
-            complianceRoll = serializedObject.FindProperty("complianceRoll");
-            complianceSpin = serializedObject.FindProperty("complianceSpin");
-            density = serializedObject.FindProperty("density");
-
-            young_modulus = serializedObject.FindProperty("young_modulus");
-            poisson_ratio = serializedObject.FindProperty("poisson_ratio");
-            static_friction = serializedObject.FindProperty("static_friction");
-            sliding_friction = serializedObject.FindProperty("sliding_friction");
-            constant_adhesion = serializedObject.FindProperty("constant_adhesion");
-            adhesionMultDMT = serializedObject.FindProperty("adhesionMultDMT");
-        }
-
-        public override void OnInspectorGUI()
-        {
-            ChBody body = (ChBody)target;
-
-            EditorGUILayout.HelpBox("Class for rigid bodies. A rigid body is an entity which can move in 3D space, and can be constrained to other rigid bodies using ChLink objects.", MessageType.Info);
-
-            GUIContent type = new GUIContent("Collision Type", "Change what type of collision shape.");
-            body.type = (ChBody.CollisionType)EditorGUILayout.EnumPopup(type, body.type);
-            GUIContent bodyfixed = new GUIContent("Fixed", "Toggle whether the object is a static/fixed rigid body or dynamic.");
-            body.bodyfixed = EditorGUILayout.Toggle(bodyfixed, body.bodyfixed);
-            GUIContent collide = new GUIContent("Collide", "Toggle whether the rigid body can collide and interact with other collidable rigid body.");
-            body.collide = EditorGUILayout.Toggle(collide, body.collide);
-
-            GUIContent autoInertia = new GUIContent("Automatic Mass/Inertia", "Toggle whether the rigid body's mass and inertia is calculated automatically based on dimensions and custom density, or if you would like to set the mass and inertia manually.");
-            body.automaticMass = EditorGUILayout.Toggle(autoInertia, body.automaticMass);
-
-            if (!body.automaticMass) {
-
-                GUIContent mass = new GUIContent("Mass", "Mass of the rigid body. Must be positive. Try not to mix bodies with too high/too low values of mass, for numerical stability.");
-                body.mass = EditorGUILayout.DoubleField(mass, body.mass);
-                GUIContent inertXX = new GUIContent("Moments of Inertia", "Advanced, Set the diagonal part of the inertia tensor, The provided 3x1 vector should contain the moments of inertia, expressed in the local coordinate frame");
-                body.inertiaMoments = EditorGUILayout.Vector3Field(inertXX, body.inertiaMoments);
-                GUIContent inertXY = new GUIContent("Products of Inertia", "Advanced, Set the off-diagonal part of the inertia tensor (Ixy, Ixz, Iyz values). Warning about sign: in some books they write the inertia tensor as I=[Ixx, -Ixy, -Ixz; etc.] but here is I=[Ixx, Ixy, Ixz; ...]. The provided 3x1 vector should contain the products of inertia, expressed in the local coordinate frame:");
-                body.inertiaProducts = EditorGUILayout.Vector3Field(inertXY, body.inertiaProducts);
-            }
-            else
-            {
-                GUIContent density = new GUIContent("MDensity", "Set the rigid body density. Used when doing the 'recompute mass' operation.");
-                body.density = EditorGUILayout.FloatField(density, body.density);
-            }
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            GUIContent linVel = new GUIContent("Linear Velocity", "Set the linear speed.  This is executed at startup once.");
-            body.linearVelocity = EditorGUILayout.Vector3Field(linVel, body.linearVelocity);
-            GUIContent angVel = new GUIContent("Angular Velocity", "Set the rotation speed from given angular speed.  This is executed at startup once.");
-            body.angularVelocity = EditorGUILayout.Vector3Field(angVel, body.angularVelocity);
-
-            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-
-            GUIContent matType = new GUIContent("Material Type", "Change the material physics type. NSC surface for use with non-smooth (complementarity) contact method.  SMC Material data for a surface for use with smooth (penalty) contact method. This data is used to define surface properties owned by ChBody rigid bodies and similar objects; it carries information that is used to make contacts.");
-            body.materialType =(ChBody.MaterialType)EditorGUILayout.EnumPopup(matType, body.materialType);
-
-            EditorGUI.indentLevel++;
-            switch (body.materialType)
-            {
-                case ChBody.MaterialType.NSC:
-                    EditorGUILayout.PropertyField(friction, new GUIContent("Friction"), GUILayout.Height(20));
-                    GUIContent rolling = new GUIContent("Rolling Friction", "The rolling friction (rolling parameter, it has the dimension of a length). Rolling resistant torque is Tr <= (normal force) * (this parameter) Usually a very low value. Measuring unit: m  Default =0. Note! a non-zero value will make the simulation 2x slower! Also, the GPU solver currently does not support rolling friction. Default: 0.");
-                    EditorGUILayout.PropertyField(rolling_friction, new GUIContent(rolling), GUILayout.Height(20));
-                    GUIContent spinning = new GUIContent("Spinning Friction", "The spinning friction (it has the dimension of a length). Spinning resistant torque is Ts <= (normal force) * (this parameter) Usually a very low value.  Measuring unit: m Default =0. Note! a non-zero value will make the simulation 2x slower! Also, the GPU solver currently does not support spinning friction. Default: 0.");
-                    EditorGUILayout.PropertyField(spinning_friction, new GUIContent(spinning), GUILayout.Height(20));
-                    GUIContent rest = new GUIContent("Restitution", "The normal restitution coefficient, for collisions. Should be in 0..1 range. Default =0.");
-                    EditorGUILayout.PropertyField(restitution, new GUIContent(rest), GUILayout.Height(20));
-                    GUIContent coh = new GUIContent("Cohesion", "The cohesion max. force for normal pulling traction in contacts. Measuring unit: N Default =0.");
-                    EditorGUILayout.PropertyField(cohesion, new GUIContent(coh), GUILayout.Height(20));
-                    GUIContent dampf = new GUIContent("Dampingf", "The damping in contact, as a factor 'f': damping is a multiple of stiffness [K], that is: [R]=f*[K] Measuring unit: time, s. Default =0.");
-                    EditorGUILayout.PropertyField(dampingf, new GUIContent(dampf), GUILayout.Height(20));
-                    GUIContent comp = new GUIContent("Compliance", "Compliance of the contact, in normal direction. It is the inverse of the stiffness [K] , so for zero value one has a perfectly rigid contact. Measuring unit: m/N Default =0.");
-                    EditorGUILayout.PropertyField(compliance, new GUIContent(comp), GUILayout.Height(20));
-                    GUIContent compt = new GUIContent("ComplianceT", "Compliance of the contact, in normal direction. It is the inverse of the stiffness [K] , so for zero value one has a perfectly rigid contact. Measuring unit: m/N Default =0.");
-                    EditorGUILayout.PropertyField(complianceT, new GUIContent(compt), GUILayout.Height(20));
-                    GUIContent comproll = new GUIContent("Compliance Rolling", "Rolling compliance of the contact, if using a nonzero rolling friction. (If there is no rolling friction, this has no effect.) Measuring unit: rad/Nm Default =0.");
-                    EditorGUILayout.PropertyField(complianceRoll, new GUIContent(comproll), GUILayout.Height(20));
-                    GUIContent compspin = new GUIContent("Compliance Spinning", " Spinning compliance of the contact, if using a nonzero rolling friction. (If there is no spinning friction, this has no effect.) Measuring unit: rad/Nm Default =0.");
-                    EditorGUILayout.PropertyField(complianceSpin, new GUIContent(compspin), GUILayout.Height(20));
-
-                    serializedObject.ApplyModifiedProperties();
-
-                    //body.matsurface = body.gameObject.AddComponent<ChMaterialSurfaceNSC>() as ChMaterialSurfaceNSC;
-                    break;
-                case ChBody.MaterialType.SMC:
-                    GUIContent young = new GUIContent("Young Modulus", "Young's modulus, modulus of elasticity");
-                    EditorGUILayout.PropertyField(young_modulus, new GUIContent(young), GUILayout.Height(20));
-                    GUIContent poison = new GUIContent("Poisson Ratio", "Poisson's ratio is a measure of the Poisson effect, the phenomenon in which a material tends to expand in directions perpendicular to the direction of compression. Conversely, if the material is stretched rather than compressed, it usually tends to contract in the directions transverse to the direction of stretching.");
-                    EditorGUILayout.PropertyField(poisson_ratio, new GUIContent(poison), GUILayout.Height(20));
-                    EditorGUILayout.PropertyField(static_friction, new GUIContent("Static Friction"), GUILayout.Height(20));
-                    EditorGUILayout.PropertyField(sliding_friction, new GUIContent("Sliding Friction"), GUILayout.Height(20));
-                    EditorGUILayout.PropertyField(constant_adhesion, new GUIContent("Constant Adhesion"), GUILayout.Height(20));
-                    EditorGUILayout.PropertyField(adhesionMultDMT, new GUIContent("AdhesionMultDMT"), GUILayout.Height(20));
-
-                    serializedObject.ApplyModifiedProperties();
-                    //matsurface = gameObject.AddComponent<ChMaterialSurfaceSMC>() as ChMaterialSurfaceSMC;
-                    break;
-
-            }
-        }
-    }
-
+    
+  
 }
+
 
 

@@ -31,8 +31,8 @@ namespace chrono
         public ChBody body2;
 
         public bool useRelativePos = true;
-        public Vector3 position1;
-        public Vector3 position2;
+       // public Vector3 position1;
+        public Transform position2;
 
         public double springCoefficient = 0;
         public double dampingCoefficient = 0;
@@ -74,7 +74,7 @@ namespace chrono
 
         public void Awake()
         {
-            Initialize(body1, body2, useRelativePos, Utils.ToChrono(position1), Utils.ToChrono(position2), autoRestLength, restLength);
+            Initialize(body1, body2, useRelativePos, Utils.ToChrono(transform.position), Utils.ToChrono(position2.position), autoRestLength, restLength);
             Set_SpringK(springCoefficient);
             Set_SpringR(dampingCoefficient);
             Set_SpringF(actuatorForce);
@@ -83,14 +83,7 @@ namespace chrono
             msystem.AddLink(this);
         }
 
-        public void FixedUpdate()
-        {         
-
-           // transform.position = (p1 + p2) / 2;
-        }
-
-        // Update is called once per frame
-        void Update()
+        void FixedUpdate()
         {
              sPosition1 = GetEndPoint1Abs();
              sPosition2 = GetEndPoint2Abs();
@@ -101,11 +94,12 @@ namespace chrono
             if (Application.isPlaying)
             {
                 Utils.drawSpring(radius, sPosition1, sPosition2, springResolution, springTurns);
+               // Debug.Log("pos " + sPosition1.y);
             }
             else
             {
-                Gizmos.color = new Color(255, 255, 0);
-                Gizmos.DrawLine(body1.transform.TransformPoint(position1), body2.transform.TransformPoint(position2));
+                Gizmos.color = new Color(255, 255, 0);                
+                Gizmos.DrawLine(transform.position, position2.position);
             }
         }
 
@@ -156,17 +150,17 @@ namespace chrono
         {
             // First, initialize as all constraint with markers.
             // In this case, create the two markers also!.
-            base.Initialize(mbody1, mbody2, new ChCoordsys<double>(new ChVector(), new ChQuaternion()));
+            base.Initialize(mbody1, mbody2, new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0)));
 
             if (pos_are_relative)
             {
-                marker1.Impose_Rel_Coord(new ChCoordsys<double>(mpos1, new ChQuaternion()));
-                marker2.Impose_Rel_Coord(new ChCoordsys<double>(mpos2, new ChQuaternion()));
+                marker1.Impose_Rel_Coord(new ChCoordsys<double>(mpos1, new ChQuaternion(1, 0, 0, 0)));
+                marker2.Impose_Rel_Coord(new ChCoordsys<double>(mpos2, new ChQuaternion(1, 0, 0, 0)));
             }
             else
             {
-                marker1.Impose_Abs_Coord(new ChCoordsys<double>(mpos1, new ChQuaternion()));
-                marker2.Impose_Abs_Coord(new ChCoordsys<double>(mpos2, new ChQuaternion()));
+                marker1.Impose_Abs_Coord(new ChCoordsys<double>(mpos1, new ChQuaternion(1, 0, 0, 0)));
+                marker2.Impose_Abs_Coord(new ChCoordsys<double>(mpos2, new ChQuaternion(1, 0, 0, 0)));
             }
 
             ChVector AbsDist = marker1.GetAbsCoord().pos - marker2.GetAbsCoord().pos;

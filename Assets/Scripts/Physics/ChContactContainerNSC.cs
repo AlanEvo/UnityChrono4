@@ -33,7 +33,6 @@ namespace chrono
 
 
         protected List<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> contactlist_6_6 = new List<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>();
-        //protected ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>[] contactlist_6_6;// = new ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>();
         protected List<ChContactNSC_6_3> contactlist_6_3 = new List<ChContactNSC_6_3>();
         protected List<ChContactNSC_3_3> contactlist_3_3 = new List<ChContactNSC_3_3>();
         protected List<ChContactNSC_333_3> contactlist_333_3 = new List<ChContactNSC_333_3>();
@@ -62,7 +61,6 @@ namespace chrono
         // protected IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact_6_6;
         //protected List<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact_6_6 = new List<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>();
         protected IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact_6_6;
-       // protected ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>[] lastcontact_6_6;
         protected IEnumerator<ChContactNSC_6_3> lastcontact_6_3;
         protected IEnumerator<ChContactNSC_3_3> lastcontact_3_3;
         protected IEnumerator<ChContactNSC_333_3> lastcontact_333_3;
@@ -193,10 +191,10 @@ namespace chrono
              n_added_666_333 = 0;
 
              lastcontact_666_666 = (IEnumerator<ChContactNSC_666_666>)Enumerable.Empty<ChContactNSC_666_666>();// = (IEnumerator<ChContactNSC_666_666>)contactlist_666_666.FirstOrDefault();
-             n_added_666_666 = 0;*/
+             n_added_666_666 = 0;
 
              lastcontact_6_6_rolling = contactlist_6_6_rolling.GetEnumerator();// = (IEnumerator<ChContactNSCrolling_6_6>)contactlist_6_6_rolling.FirstOrDefault();
-             n_added_6_6_rolling = 0;
+             n_added_6_6_rolling = 0;*/
         }
 
         /// The collision system will call BeginAddContact() after adding
@@ -259,9 +257,9 @@ namespace chrono
 
             while (lastcontact_6_6_rolling != null && lastcontact_6_6_rolling.Current != contactlist_6_6_rolling.LastOrDefault())
             {
-                lastcontact_6_6_rolling.MoveNext();                
-                contactlist_6_6_rolling.Remove(lastcontact_6_6_rolling.Current);
+                lastcontact_6_6_rolling.MoveNext();
                 lastcontact_6_6_rolling = null;
+                contactlist_6_6_rolling.Remove(lastcontact_6_6_rolling.Current);
             }
         }
 
@@ -306,13 +304,12 @@ namespace chrono
             if ((mmatA.rolling_friction != 0 && mmatB.rolling_friction != 0) ||
                (mmatA.spinning_friction != 0 && mmatB.spinning_friction != 0))
             {
-                //  Function(derive.ToList<Base<double, double>>());
-                _OptimalContactInsertRolling(contactlist_6_6_rolling, ref lastcontact_6_6_rolling, ref n_added_6_6_rolling, this,
+                _OptimalContactInsertRolling(ref contactlist_6_6_rolling, ref lastcontact_6_6_rolling, ref n_added_6_6_rolling, this,
                                      mmboA, mmboB, mcontact);
             }
             else
             {
-                _OptimalContactInsert(contactlist_6_6, ref lastcontact_6_6, ref n_added_6_6, this, mmboA, mmboB, mcontact);
+                _OptimalContactInsert(ref contactlist_6_6, ref lastcontact_6_6, ref n_added_6_6, this, mmboA, mmboB, mcontact);
 
             }
 
@@ -407,10 +404,10 @@ namespace chrono
         }
 
         //template<class Tcont, class Titer, class Ta, class Tb>
-        public void _OptimalContactInsert<Tcont, Titer, Ta, Tb>(List<Tcont> contactlist,          //< contact list
+        public void _OptimalContactInsert<Ta, Tb, Tcont, Titer>(ref List<Tcont> contactlist,          //< contact list
                                                                        ref IEnumerator<Titer> lastcontact,                      //< last contact acquired
-                                                                                                                     // ref Titer lastcontact,                      //< last contact acquired
-                                                                                                                     // ref IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact,
+                                                                                                                                // ref Titer lastcontact,                      //< last contact acquired
+                                                                                                                                // ref IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact,
                                                                        ref int n_added,                            //< number of contact inserted
                                                                        ChContactContainer mcontainer,          //< contact container
                                                                        Ta objA,                                //< collidable object A
@@ -434,9 +431,9 @@ namespace chrono
             else
             {
                 ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>> mc = new ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>(mcontainer, objA, objB, cinfo);
-               // Tcont coont = (Tcont)mc;
+                Tcont coont = (Tcont)mc;
 
-                contactlist.Add((Tcont)mc);
+                contactlist.Add(coont);
 
                 // move to last element in list
                 IEnumerator<Tcont> iter = contactlist.GetEnumerator();
@@ -444,7 +441,7 @@ namespace chrono
                 {
                     iter.MoveNext();
                 }
-               // lastcontact = (IEnumerator<Titer>)iter;
+                lastcontact = (IEnumerator<Titer>)iter;
 
                 // lastcontact = (dynamic)contactlist.GetEnumerator();
 
@@ -452,22 +449,22 @@ namespace chrono
             n_added++;
         }
 
-        public void _OptimalContactInsertRolling<Tcont, Titer, Ta, Tb>(List<Tcont> contactlist,          //< contact list
-                                                                     ref IEnumerator<Titer> lastcontact,                      //< last contact acquired
-                                                                                                                              // ref Titer lastcontact,                      //< last contact acquired
-                                                                                                                              // ref IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact,
-                                                                     ref int n_added,                            //< number of contact inserted
-                                                                     ChContactContainer mcontainer,          //< contact container
-                                                                     Ta objA,                                //< collidable object A
-                                                                     Tb objB,                                //< collidable object B
-                                                                     collision.ChCollisionInfo cinfo  //< collision informations
-      )
-         // where Titer: object
-         //
-         where Tcont : ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
-         where Titer : ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
-         where Ta : ChContactable_1vars<IntInterface.Six>
-         where Tb : ChContactable_1vars<IntInterface.Six>
+        public void _OptimalContactInsertRolling<Ta, Tb, Tcont, Titer>(ref List<Tcont> contactlist,          //< contact list
+                                                                      ref IEnumerator<Titer> lastcontact,                      //< last contact acquired
+                                                                                                                               // ref Titer lastcontact,                      //< last contact acquired
+                                                                                                                               // ref IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact,
+                                                                      ref int n_added,                            //< number of contact inserted
+                                                                      ChContactContainer mcontainer,          //< contact container
+                                                                      Ta objA,                                //< collidable object A
+                                                                      Tb objB,                                //< collidable object B
+                                                                      collision.ChCollisionInfo cinfo  //< collision informations
+       )
+          // where Titer: object
+          //
+          where Tcont : ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
+          where Titer : ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
+          where Ta : ChContactable_1vars<IntInterface.Six>
+          where Tb : ChContactable_1vars<IntInterface.Six>
         {
 
             if (lastcontact != null && lastcontact.Current != contactlist.LastOrDefault())
@@ -479,9 +476,9 @@ namespace chrono
             else
             {
                 ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>> mc = new ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>(mcontainer, objA, objB, cinfo);
-                // Tcont coont = (Tcont)mc;
+                Tcont coont = (Tcont)mc;
 
-                contactlist.Add((Tcont)mc);
+                contactlist.Add(coont);
 
                 // move to last element in list
                 IEnumerator<Tcont> iter = contactlist.GetEnumerator();
@@ -489,7 +486,7 @@ namespace chrono
                 {
                     iter.MoveNext();
                 }
-                // lastcontact = (IEnumerator<Titer>)iter;
+                lastcontact = (IEnumerator<Titer>)iter;
 
                 // lastcontact = (dynamic)contactlist.GetEnumerator();
 
@@ -500,7 +497,7 @@ namespace chrono
         public void _ReportAllContacts<Tcont>(ref List<Tcont> contactlist, ChContactContainer.ReportContactCallback mcallback)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-           /* List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
             while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
@@ -510,25 +507,25 @@ namespace chrono
                     ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactForce(), new ChVector(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjA(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjB());
                 if (!proceed)
                     break;
-            }*/
+            }
         }
 
         //  template<class Tcont>
         public void _ReportAllContactsRolling<Tcont>(ref List<Tcont> contactlist, ChContactContainer.ReportContactCallback mcallback)
-        where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
+        where Tcont : ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-           /* List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
             while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
                 bool proceed = mcallback.OnReportContact(
-                    ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP1(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP2(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactPlane(),
-                    ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactDistance(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetEffectiveCurvatureRadius(),
-                    ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactForce(), ((ChBody)(dynamic)itercontact).GetContactTorque(), ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjA(),
-                    ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjB());
+                    ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP1(), ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP2(), ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactPlane(),
+                    ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactDistance(), ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetEffectiveCurvatureRadius(),
+                    ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactForce(), ((ChBody)(dynamic)itercontact).GetContactTorque(), ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjA(),
+                    ((IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjB());
                 if (!proceed)
                     break;
-            }*/
+            }
         }
 
         /// Scans all the contacts and for each contact executes the OnReportContact()
@@ -595,28 +592,16 @@ namespace chrono
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
 
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             //itercontact.MoveNext();
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntStateGatherReactions(off_L + coffset, ref L);
-                 coffset += stride;
-
-             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            //itercontact.MoveNext();
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntStateGatherReactions(off_L + coffset, ref L);
-                    coffset += stride;
-                }
-            }*/
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntStateGatherReactions(off_L + coffset, ref L);
+                coffset += stride;
+
+            }
         }
 
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
@@ -643,26 +628,22 @@ namespace chrono
                                        int stride)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
-
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntStateScatterReactions(off_L + coffset, L);
-                 coffset += stride;
-                 // itercontact.MoveNext();
-             }
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            /*IEnumerator<Tcont> itercontact = (IEnumerator<Tcont>)contactlist.FirstOrDefault();
+            while (itercontact != (IEnumerator<Tcont>)contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntStateScatterReactions(off_L + coffset, L);
-                    coffset += stride;
-                }
+                ((ChContactTuple<ChBody, ChBody>)itercontact).ContIntStateScatterReactions(off_L + coffset, L);
+                coffset += stride;
+                itercontact.MoveNext();
             }*/
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+
+            while (itercontact.Current != contactlist.LastOrDefault())
+            {
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntStateScatterReactions(off_L + coffset, L);
+                coffset += stride;
+                // itercontact.MoveNext();
+            }
         }
 
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
@@ -692,27 +673,15 @@ namespace chrono
         )
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntLoadResidual_CqL(off_L + coffset, ref R, L, c);
-                 coffset += stride;
-                 // itercontact.MoveNext();
-             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntLoadResidual_CqL(off_L + coffset, ref R, L, c);
-                    coffset += stride;
-                }
-            }*/
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntLoadResidual_CqL(off_L + coffset, ref R, L, c);
+                coffset += stride;
+                // itercontact.MoveNext();
+            }
         }
 
         public override void IntLoadResidual_CqL(int off_L,
@@ -746,26 +715,14 @@ namespace chrono
         )
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntLoadConstraint_C(off + coffset, ref Qc, c, do_clamp, recovery_clamp);
-                 coffset += stride;
-             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntLoadConstraint_C(off + coffset, ref Qc, c, do_clamp, recovery_clamp);
-                    coffset += stride;
-                }
-            }*/
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntLoadConstraint_C(off + coffset, ref Qc, c, do_clamp, recovery_clamp);
+                coffset += stride;
+            }
         }
 
         public override void IntLoadConstraint_C(int off,
@@ -800,26 +757,14 @@ namespace chrono
                               int stride)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntToDescriptor(off_L + coffset, L, Qc);
-                 coffset += stride;
-             }
-
-            /*Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntToDescriptor(off_L + coffset, L, Qc);
-                    // itercontact.MoveNext();
-                }
-            }*/
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntToDescriptor(off_L + coffset, L, Qc);
+                coffset += stride;
+            }
         }
 
         public override void IntToDescriptor(int off_v,
@@ -853,26 +798,15 @@ namespace chrono
                                 int stride)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
-             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             while (itercontact.Current != contactlist.LastOrDefault())
-             {
-                 itercontact.MoveNext();
-                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntFromDescriptor(off_L + coffset, ref L);
+            List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
-             }
-
-            /*Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ContIntFromDescriptor(off_L + coffset, ref L);
-                    // itercontact.MoveNext();
-                }
-            }*/
+                itercontact.MoveNext();
+                ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntFromDescriptor(off_L + coffset, ref L);
+
+            }
         }
 
         public override void IntFromDescriptor(int off_v,
@@ -911,18 +845,6 @@ namespace chrono
 
             }
 
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
-            {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).InjectConstraints(ref mdescriptor);
-                    // itercontact.MoveNext();
-                }
-            }*/
-
         }
 
         public override void InjectConstraints(ref ChSystemDescriptor mdescriptor)
@@ -936,14 +858,20 @@ namespace chrono
             _InjectConstraints(ref contactlist_666_3, ref mdescriptor);
             _InjectConstraints(ref contactlist_666_6, ref mdescriptor);
             _InjectConstraints(ref contactlist_666_333, ref mdescriptor);
-            _InjectConstraints(ref contactlist_666_666, ref mdescriptor);*/
-            _InjectConstraints(ref contactlist_6_6_rolling, ref mdescriptor);
+            _InjectConstraints(ref contactlist_666_666, ref mdescriptor);
+            _InjectConstraints(ref contactlist_6_6_rolling, ref mdescriptor);*/
         }
 
         //  template<class Tcont>
         public void _ConstraintsBiReset<Tcont>(ref List<Tcont> contactlist)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
+            /* IEnumerator<Tcont> itercontact = (IEnumerator<Tcont>)contactlist.FirstOrDefault();
+             while (itercontact != (IEnumerator<Tcont>)contactlist.LastOrDefault())
+             {
+                 ((ChContactTuple<ChBody, ChBody>)itercontact).ConstraintsBiReset();
+                 itercontact.MoveNext();
+             }*/
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             while (itercontact.Current != contactlist.LastOrDefault())
@@ -952,18 +880,6 @@ namespace chrono
                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ConstraintsBiReset();
                 // itercontact.MoveNext();
             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
-            {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ConstraintsBiReset();
-                    // itercontact.MoveNext();
-                }
-            }*/
 
         }
 
@@ -986,6 +902,12 @@ namespace chrono
         public void _ConstraintsBiLoad_C<Tcont>(ref List<Tcont> contactlist, double factor, double recovery_clamp, bool do_clamp)
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
+            /*  IEnumerator<Tcont> itercontact = (IEnumerator<Tcont>)contactlist.FirstOrDefault();
+              while (itercontact != (IEnumerator<Tcont>)contactlist.LastOrDefault())
+              {
+                  ((ChContactTuple<ChBody, ChBody>)itercontact).ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
+                  itercontact.MoveNext();
+              }*/
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             while (itercontact.Current != contactlist.LastOrDefault())
@@ -994,18 +916,6 @@ namespace chrono
                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
                 // itercontact.MoveNext();
             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
-            {
-                if (itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
-                    // itercontact.MoveNext();
-                }
-            }*/
 
         }
 
@@ -1034,6 +944,12 @@ namespace chrono
         where Tcont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
             // From constraints to react vector:
+            /* IEnumerator<Tcont> itercontact = (IEnumerator<Tcont>)contactlist.FirstOrDefault();
+             while (itercontact != (IEnumerator<Tcont>)contactlist.LastOrDefault())
+             {
+                 ((ChContactTuple<ChBody, ChBody>)itercontact).ConstraintsFetch_react(factor);
+                 itercontact.MoveNext();
+             }*/
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             while (itercontact.Current != contactlist.LastOrDefault())
@@ -1042,18 +958,6 @@ namespace chrono
                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ConstraintsFetch_react(factor);
                 // itercontact.MoveNext();
             }
-
-           /* Tcont itercontact = contactlist.FirstOrDefault();
-
-            for (int i = 0; i < contactlist.Count - 1; i++)
-            {
-                if(itercontact != contactlist.LastOrDefault())
-                {
-                    //itercontact.MoveNext();
-                    (itercontact).ConstraintsFetch_react(factor);
-                    // itercontact.MoveNext();
-                }
-            }*/
 
         }
 

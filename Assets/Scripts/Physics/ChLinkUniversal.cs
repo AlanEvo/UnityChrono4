@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using UnityEditor;
+
 
 
 namespace chrono
@@ -18,7 +18,8 @@ namespace chrono
         public ChBody body1;
         public ChBody body2;
 
-        public ChLinkUniversal() {
+        public ChLinkUniversal()
+        {
             m_C = new ChMatrixDynamic<double>(4, 1);
 
             m_multipliers[0] = 0;
@@ -26,7 +27,8 @@ namespace chrono
             m_multipliers[2] = 0;
             m_multipliers[3] = 0;
         }
-        public ChLinkUniversal(ChLinkUniversal other) {
+        public ChLinkUniversal(ChLinkUniversal other)
+        {
             Body1 = other.Body1;
             Body2 = other.Body2;
             system = other.system;
@@ -57,6 +59,45 @@ namespace chrono
             msystem.AddLink(this);
         }
 
+        protected virtual void OnDrawGizmos()
+        {
+            // There must be a claner way of calculating these quaternions?
+            Color color = Color.green;
+            UnityEngine.Quaternion offset = new UnityEngine.Quaternion(0.707f, 0, -0.707f, 0);
+            UnityEngine.Quaternion offset2 = new UnityEngine.Quaternion(0.707f, 0, 0.707f, 0);
+            UnityEngine.Quaternion offset3 = new UnityEngine.Quaternion(0.707f, 0, 0, 0.707f);
+            if (body1 != null) {
+                float body1angle = body1.transform.rotation.eulerAngles.x;
+                DrawHalfEllipse(transform.position, transform.up, body1.transform.rotation * offset, body1angle, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
+            }
+            if (body2 != null) {
+                float body2angle = body2.transform.rotation.eulerAngles.x;
+                DrawHalfEllipse(transform.position, transform.right, body2.transform.rotation * offset2 * offset3, body2angle, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
+            }
+        }
+
+        private static void DrawHalfEllipse(Vector3 pos, Vector3 forward, UnityEngine.Quaternion rotation, float ang, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+        {
+            float angle = 0;// rotation;           
+            UnityEngine.Quaternion rot = rotation;//UnityEngine.Quaternion.LookRotation(forward, up);
+            Vector3 lastPoint = Vector3.zero;
+            Vector3 thisPoint = Vector3.zero;
+
+            for (int i = 0; i < segments + 1; i++)
+            {
+                thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                if (i > 0)
+                {
+                    Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                }
+
+                lastPoint = thisPoint;
+                angle += 180f / segments;
+            }
+        }
+
         /// Get the number of (bilateral) constraints introduced by this joint.
         public override int GetDOC_c() { return 4; }
 
@@ -69,9 +110,9 @@ namespace chrono
         public ChFrame<double> GetFrame2Rel() { return m_frame2; }
 
         /// Get the joint frame on Body1, expressed in absolute coordinate system.
-        public ChFrame<double> GetFrame1Abs() { return ChFrame<double>.BitShiftRight(m_frame1 , Body1); }
+        public ChFrame<double> GetFrame1Abs() { return ChFrame<double>.BitShiftRight(m_frame1, Body1); }
         /// Get the joint frame on Body2, expressed in absolute coordinate system.
-        public ChFrame<double> GetFrame2Abs() { return ChFrame<double>.BitShiftRight(m_frame2 , Body2); }
+        public ChFrame<double> GetFrame2Abs() { return ChFrame<double>.BitShiftRight(m_frame2, Body2); }
 
         /// Get the joint violation (residuals of the constraint equations)
         public ChMatrix GetC() { return m_C; }
@@ -134,8 +175,8 @@ namespace chrono
             {
                 m_frame1 = frame1;
                 m_frame2 = frame2;
-                frame1_abs = ChFrame<double>.BitShiftRight(frame1 , Body1);
-                frame2_abs = ChFrame<double>.BitShiftRight(frame2 , Body2);
+                frame1_abs = ChFrame<double>.BitShiftRight(frame1, Body1);
+                frame2_abs = ChFrame<double>.BitShiftRight(frame2, Body2);
             }
             else
             {
@@ -160,13 +201,14 @@ namespace chrono
 
         /// Perform the update of this joint at the specified time: compute jacobians
         /// and constraint violations, cache in internal structures
-        public override void update(double time, bool update_assets = true) {
+        public override void update(double time, bool update_assets = true)
+        {
             // Inherit time changes of parent class
             base.UpdateTime(time);
 
             // Express the joint frames in absolute frame
-            ChFrame<double> frame1_abs = ChFrame<double>.BitShiftRight(m_frame1 , Body1);
-            ChFrame<double> frame2_abs = ChFrame<double>.BitShiftRight(m_frame2 , Body2);
+            ChFrame<double> frame1_abs = ChFrame<double>.BitShiftRight(m_frame1, Body1);
+            ChFrame<double> frame2_abs = ChFrame<double>.BitShiftRight(m_frame2, Body2);
 
             // Calculate violations of the spherical constraints
             m_C.SetElement(0, 0, frame2_abs.coord.pos.x - frame1_abs.coord.pos.x);
@@ -258,7 +300,8 @@ namespace chrono
         //
 
         // (override/implement interfaces for global state vectors, see ChPhysicsItem for comments.)
-        public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L) {
+        public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
+        {
             if (!this.IsActive())
                 return;
 
@@ -267,7 +310,8 @@ namespace chrono
             L[off_L + 2] = m_multipliers[2];
             L[off_L + 3] = m_multipliers[3];
         }
-        public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L) {
+        public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
+        {
             if (!this.IsActive())
                 return;
 
@@ -306,7 +350,8 @@ namespace chrono
         public override void IntLoadResidual_CqL(int off_L,
                                          ref ChVectorDynamic<double> R,
                                          ChVectorDynamic<double> L,
-                                         double c) {
+                                         double c)
+        {
             if (!IsActive())
                 return;
 
@@ -319,7 +364,8 @@ namespace chrono
                                          ref ChVectorDynamic<double> Qc,
                                          double c,
                                          bool do_clamp,
-                                         double recovery_clamp) {
+                                         double recovery_clamp)
+        {
             if (!IsActive())
                 return;
 
@@ -345,7 +391,8 @@ namespace chrono
                                      ChVectorDynamic<double> R,
                                      int off_L,
                                      ChVectorDynamic<double> L,
-                                     ChVectorDynamic<double> Qc) {
+                                     ChVectorDynamic<double> Qc)
+        {
             if (!IsActive())
                 return;
 
@@ -362,7 +409,8 @@ namespace chrono
         public override void IntFromDescriptor(int off_v,
                                        ref ChStateDelta v,
                                        int off_L,
-                                       ref ChVectorDynamic<double> L) {
+                                       ref ChVectorDynamic<double> L)
+        {
             if (!IsActive())
                 return;
 
@@ -376,7 +424,8 @@ namespace chrono
         // SOLVER INTERFACE
         //
 
-        public override void InjectConstraints(ref ChSystemDescriptor descriptor) {
+        public override void InjectConstraints(ref ChSystemDescriptor descriptor)
+        {
             if (!IsActive())
                 return;
 
@@ -385,13 +434,15 @@ namespace chrono
             descriptor.InsertConstraint(m_cnstr_z);
             descriptor.InsertConstraint(m_cnstr_dot);
         }
-        public override void ConstraintsBiReset() {
+        public override void ConstraintsBiReset()
+        {
             m_cnstr_x.Set_b_i(0.0);
             m_cnstr_y.Set_b_i(0.0);
             m_cnstr_z.Set_b_i(0.0);
             m_cnstr_dot.Set_b_i(0.0);
         }
-        public override void ConstraintsBiLoad_C(double factor = 1, double recovery_clamp = 0.1, bool do_clamp = false) {
+        public override void ConstraintsBiLoad_C(double factor = 1, double recovery_clamp = 0.1, bool do_clamp = false)
+        {
             if (!IsActive())
                 return;
 
@@ -413,10 +464,12 @@ namespace chrono
             m_cnstr_z.Set_b_i(m_cnstr_z.Get_b_i() + cnstr_z_violation);
             m_cnstr_dot.Set_b_i(m_cnstr_dot.Get_b_i() + cnstr_dot_violation);
         }
-        public override void ConstraintsLoadJacobians() {
+        public override void ConstraintsLoadJacobians()
+        {
             // Nothing to do here. Jacobians were loaded in Update().
         }
-        public override void ConstraintsFetch_react(double factor = 1) {
+        public override void ConstraintsFetch_react(double factor = 1)
+        {
             // Extract the Lagrange multipliers for the 3 spherical constraints and for
             // the dot constraint.
             ChVector lam_sph = new ChVector(m_cnstr_x.Get_l_i(), m_cnstr_y.Get_l_i(), m_cnstr_z.Get_l_i());
@@ -467,5 +520,6 @@ namespace chrono
 
         private double[] m_multipliers = new double[4];  //< Lagrange multipliers
 
-    };
+    };  
+
 }

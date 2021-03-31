@@ -102,19 +102,19 @@ namespace chrono
 
                 transform.position = desiredPosition;
                 transform.LookAt(target.position + Vector3.forward * targetUpOffset + target.right * targetForwardOffset, new Vector3(0, 0, 1));
-                transform.rotation = Quaternion.AngleAxis(-angle * angleFollowStrength, Vector3.forward) * transform.rotation;
+                transform.rotation = UnityEngine.Quaternion.AngleAxis(-angle * angleFollowStrength, Vector3.forward) * transform.rotation;
             }
             else
-            {
+            {*/
                 Vector3 prevTargetForward = targetForward;
 
                 if (!firstFrame)
                 {
-                    targetForward = Vector3.SmoothDamp(prevTargetForward, -target.right, ref targetForwardVelocity, smoothing);
+                    targetForward = Vector3.SmoothDamp(prevTargetForward, target.forward, ref targetForwardVelocity, smoothing);
                 }
                 else
                 {
-                    targetForward = -target.right;
+                    targetForward = target.forward;
                     firstFrame = false;
                 }
 
@@ -132,8 +132,8 @@ namespace chrono
 
                 transform.position = desiredPosition;
                 transform.LookAt(target.position + Vector3.up * targetUpOffset + target.forward * targetForwardOffset);
-                transform.rotation = Quaternion.AngleAxis(-angle * angleFollowStrength, Vector3.up) * transform.rotation;
-            }*/
+                transform.rotation = UnityEngine.Quaternion.AngleAxis(-angle * angleFollowStrength, Vector3.forward) * transform.rotation;
+            //}
         }       
 
         /// <summary>

@@ -143,6 +143,7 @@ namespace chrono
             pos.rot.e3 = transform.rotation.z;
             //ChFrame<double> frame = new ChFrame<double>(ToChrono(transform.position), ToChrono(transform.rotation));
             Initialize(body1, body2, pos);
+            Set_shaft_mode(shaft_mode);
             Set_eng_mode(eng_mode);
 
             // Get a handle to the associated function component and set the motor's function

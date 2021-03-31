@@ -1,74 +1,71 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[AddComponentMenu("Camera-Control/Mouse Orbit with zoom")]
+
 public class CameraOrbit : MonoBehaviour
 {
 
-    public Transform target;
-    public float distance = 5.0f;
-    public float xSpeed = 120.0f;
-    public float ySpeed = 120.0f;
+    protected Transform _XForm_Camera;
+    protected Transform _XForm_Parent;
 
-    public float yMinLimit = -20f;
-    public float yMaxLimit = 80f;
+    protected Vector3 _LocalRotation;
+    protected float _CameraDistance = 10f;
 
-    public float distanceMin = .5f;
-    public float distanceMax = 15f;
+    public float MouseSensitivity = 4f;
+    public float ScrollSensitvity = 2f;
+    public float OrbitDampening = 10f;
+    public float ScrollDampening = 6f;
 
-   // private new Rigidbody rigidbody;
+    public bool CameraDisabled = false;
 
-    float x = 0.0f;
-    float y = 0.0f;
 
     // Use this for initialization
     void Start()
     {
-        Vector3 angles = transform.eulerAngles;
-        x = angles.y;
-        y = angles.x;
-
-       /* rigidbody = GetComponent<Rigidbody>();
-
-        // Make the rigid body not change rotation
-        if (rigidbody != null)
-        {
-            rigidbody.freezeRotation = true;
-        }*/
+        this._XForm_Camera = this.transform;
+        this._XForm_Parent = this.transform.parent;
     }
+
 
     void LateUpdate()
     {
-        if (target)
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+            CameraDisabled = !CameraDisabled;
+
+        if (!CameraDisabled)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * distance * 0.02f;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
-
-            y = ClampAngle(y, yMinLimit, yMaxLimit);
-
-            Quaternion rotation = Quaternion.Euler(y, x, 0);
-
-            distance = Mathf.Clamp(distance - Input.GetAxis("Mouse ScrollWheel") * 5, distanceMin, distanceMax);
-
-            RaycastHit hit;
-            if (Physics.Linecast(target.position, transform.position, out hit))
+            //Rotation of the Camera based on Mouse Coordinates
+            if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
             {
-                distance -= hit.distance;
+                _LocalRotation.x += Input.GetAxis("Mouse X") * MouseSensitivity;
+                _LocalRotation.y += Input.GetAxis("Mouse Y") * MouseSensitivity;
+
+                //Clamp the y Rotation to horizon and not flipping over at the top
+                if (_LocalRotation.y < 0f)
+                    _LocalRotation.y = 0f;
+                else if (_LocalRotation.y > 90f)
+                    _LocalRotation.y = 90f;
             }
-            Vector3 negDistance = new Vector3(0.0f, 0.0f, -distance);
-            Vector3 position = rotation * negDistance + target.position;
+            //Zooming Input from our Mouse Scroll Wheel
+            if (Input.GetAxis("Mouse ScrollWheel") != 0f)
+            {
+                float ScrollAmount = Input.GetAxis("Mouse ScrollWheel") * ScrollSensitvity;
 
-            transform.rotation = rotation;
-            transform.position = position;
+                ScrollAmount *= (this._CameraDistance * 0.3f);
+
+                this._CameraDistance += ScrollAmount * -1f;
+
+                this._CameraDistance = Mathf.Clamp(this._CameraDistance, 1.5f, 100f);
+            }
         }
-    }
 
-    public static float ClampAngle(float angle, float min, float max)
-    {
-        if (angle < -360F)
-            angle += 360F;
-        if (angle > 360F)
-            angle -= 360F;
-        return Mathf.Clamp(angle, min, max);
+        //Actual Camera Rig Transformations
+        Quaternion QT = Quaternion.Euler(_LocalRotation.y, _LocalRotation.x, 0);
+        this._XForm_Parent.rotation = Quaternion.Lerp(this._XForm_Parent.rotation, QT, Time.deltaTime * OrbitDampening);
+
+        if (this._XForm_Camera.localPosition.z != this._CameraDistance * -1f)
+        {
+            this._XForm_Camera.localPosition = new Vector3(0f, 0f, Mathf.Lerp(this._XForm_Camera.localPosition.z, this._CameraDistance * -1f, Time.deltaTime * ScrollDampening));
+        }
     }
 }

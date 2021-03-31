@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using UnityEditor;
 
 
 namespace chrono
@@ -77,7 +76,38 @@ namespace chrono
 
         public double angle;  // current joint relative angle
 
-        LineRenderer line;
+        // TEST
+      /*  ChVector vtemp1;  // for intermediate calculus
+        ChVector vtemp2;
+        ChQuaternion qtemp1;
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+
+        ChQuaternion temp1;// = marker1.FrameMoving.GetCoord_dt().rot;
+        ChQuaternion temp2;//
+        ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>();
+        ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>();
+
+        ChMatrix33<double> mtemp1 = new ChMatrix33<double>();
+        ChMatrix33<double> mtemp2 = new ChMatrix33<double>();
+        ChMatrix33<double> mtemp3 = new ChMatrix33<double>();
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ1 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
+
+        ChMatrix33<double> CqxT = new ChMatrix33<double>();              // the 3x3 piece of Cq_temp for trasl. link, trasl.coords,
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> CqxR = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();  // the 3x4 piece of Cq_temp for trasl. link,   rotat. coords,
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();  // the 4x4 piece of Cq_temp for rotat..link,   rotat. coords,
+        ChVector Qcx;                 // the 3x1 vector of Qc     for trasl. link
+        ChQuaternion Qcr;             // the 4x1 quaternion of Qc for rotat. link
+
+        ChMatrix33<double> P1star = new ChMatrix33<double>();  // [P] star matrix of rel pos of mark1
+
+        ChMatrix33<double> Q2star = new ChMatrix33<double>();  // [Q] star matrix of rel pos of mark2
+
+
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();*/
 
         /// <summary>
         /// Type of link-lock
@@ -156,6 +186,11 @@ namespace chrono
 
         public void Awake()
         {
+            //lineRenderer = gameObject.AddComponent<LineRenderer>();
+            //lineRenderer.startWidth = 0.02f; //thickness of line
+            //lineRenderer.endWidth = 0.02f;
+           // lineRenderer.positionCount = size;
+
             ChCoordsys<double> csys = new ChCoordsys<double>(Utils.ToChrono(transform.position),Utils.ToChrono(transform.rotation));
             ChangeLinkType(type);
             // Initialize(body1, body2, csys);
@@ -220,9 +255,38 @@ namespace chrono
 
             Initialize(body1, body2, csys);
         }
+        private static void DrawEllipse(Vector3 pos, Vector3 forward, Vector3 up, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+        {
+            float angle = 0f;
+            UnityEngine.Quaternion rot = UnityEngine.Quaternion.LookRotation(forward, up);
+            Vector3 lastPoint = Vector3.zero;
+            Vector3 thisPoint = Vector3.zero;
+
+            for (int i = 0; i < segments + 1; i++)
+            {
+                thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                if (i > 0)
+                {
+                    Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                }
+
+                lastPoint = thisPoint;
+                angle += 360f / segments;
+            }
+        }
+
 
         protected virtual void OnDrawGizmos()
         {
+            if (type == LinkType.CYLINDRICAL)
+            {
+                Color color = Color.green;
+                DrawEllipse(transform.position, transform.forward, transform.up, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
+            }
+        
+
             if (enableLimits)
             {
                 if (showLimits)
@@ -2581,91 +2645,6 @@ namespace chrono
              return bodyA;
          }*/
       
-    }
-
-    [CustomEditor(typeof(ChLinkLock))]
-    public class UChJointRevoluteEditor : Editor
-    {
-        override public void OnInspectorGUI()
-        {
-            var joint = target as ChLinkLock;
-
-            EditorGUILayout.HelpBox("ChLinkLock class. This class implements lot of sub types like the revolute joint, the linear guide, the spherical joint, etc. using the 'lock formulation'. Also, it optionally allows the adoption of 'limits' over upper-lower motions on all the 6 degrees of freedom, thank to the ChLinkLimit objects.", MessageType.Info);
-
-            GUIContent type = new GUIContent("Link Type", "Change what type of joint you want.");
-            joint.type = (ChLinkLock.LinkType)EditorGUILayout.EnumPopup(type, joint.type);
-            GUIContent body1 = new GUIContent("Body 1", "First connected body.");
-            joint.body1 = (ChBody)EditorGUILayout.ObjectField(body1, joint.body1, typeof(ChBody), true);
-            GUIContent body2 = new GUIContent("Body 2", "Second connected body.");
-            joint.body2 = (ChBody)EditorGUILayout.ObjectField(body2, joint.body2, typeof(ChBody), true);
-
-            GUIContent limit = new GUIContent("Joint Limits", "Toggle if the joint is to have upper and lower limits.");
-            joint.enableLimits = EditorGUILayout.Toggle("Joint Limits", joint.enableLimits);
-
-            if (joint.enableLimits)
-            {
-                switch (joint.type)
-                {
-                    case ChLinkLock.LinkType.FREE:
-
-                        break;
-                    case ChLinkLock.LinkType.LOCK:
-
-                        break;
-                    case ChLinkLock.LinkType.SPHERICAL:
-
-                        break;
-                    case ChLinkLock.LinkType.POINTPLANE:
-
-                        break;
-                    case ChLinkLock.LinkType.POINTLINE:
-
-                        break;
-                    case ChLinkLock.LinkType.REVOLUTE:
-                        EditorGUI.indentLevel++;
-                        joint.minAngle = EditorGUILayout.DoubleField("Min Angle", joint.minAngle);
-                        joint.maxAngle = EditorGUILayout.DoubleField("Max Angle", joint.maxAngle);
-                        break;
-                    case ChLinkLock.LinkType.CYLINDRICAL:
-
-                        break;
-                    case ChLinkLock.LinkType.PRISMATIC:
-                        EditorGUI.indentLevel++;
-                        joint.minDisplacement = EditorGUILayout.DoubleField("Min Displacement", joint.minDisplacement);
-                        joint.maxDisplacement = EditorGUILayout.DoubleField("Max Displacement", joint.maxDisplacement);
-                        break;
-                    case ChLinkLock.LinkType.PLANEPLANE:
-
-                        break;
-                    case ChLinkLock.LinkType.OLDHAM:
-
-                        break;
-                    case ChLinkLock.LinkType.ALIGN:
-
-                        break;
-                    case ChLinkLock.LinkType.PARALLEL:
-
-                        break;
-                    case ChLinkLock.LinkType.PERPEND:
-
-                        break;
-                    case ChLinkLock.LinkType.REVOLUTEPRISMATIC:
-
-                        break;
-                    default:
-
-                        break;
-                }
-                EditorGUI.indentLevel--;
-            }
-
-            EditorGUILayout.LabelField("Angle", joint.angle.ToString());
-
-            if (GUI.changed)
-            {
-                EditorUtility.SetDirty(joint);
-            }
-        }
     }
 
 }

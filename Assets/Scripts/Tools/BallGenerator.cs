@@ -45,15 +45,15 @@ public class BallGenerator : MonoBehaviour
 
     void Start()
     {
-        Object prefab = AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sphere.prefab", typeof(GameObject));
+      //  Object prefab = AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sphere.prefab", typeof(GameObject));
 
         //float radius = 0.8f;
         
 
-        for (int i = 0; i < ballCount; i++)
+       /* for (int i = 0; i < ballCount; i++)
         {
             Vector3 pos = new Vector3(-5 + Random.Range(0, 10), 4 + i * 0.05f, -5 + Random.Range(0, 10));
             CreateBall(prefab, pos);
-        }
+        }*/
     }
 }

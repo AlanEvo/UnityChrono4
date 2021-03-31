@@ -22,11 +22,23 @@ namespace chrono
         public bool useRelativePos = true;
         public bool autoRestLength = false;
         public double restLength = 0;
-        public Vector3 position1;
-        public Vector3 position2;
+        //public Vector3 position1;
+        //public Vector3 position2;
+        public Transform position2;
 
         private ChVector sPosition1 = new ChVector();
         private ChVector sPosition2 = new ChVector();
+
+        public enum Type
+        {
+            SPRING,
+            SHOCK
+        }
+
+        // Purely for debug visual representaion only.  Test.  I'm thinking of using this
+        // because if the project uses both shocks and springs, visually they will look the
+        // same, which could look confusing.
+        public Type type = Type.SPRING;
 
         public ChLinkSpringCB() {
             m_rest_length = 0;
@@ -44,7 +56,7 @@ namespace chrono
 
         public void Awake()
         {
-            Initialize(body1, body2, useRelativePos, Utils.ToChrono(position1), Utils.ToChrono(position2), autoRestLength, restLength);
+            Initialize(body1, body2, useRelativePos, Utils.ToChrono(transform.position), Utils.ToChrono(position2.position), autoRestLength, restLength);
 
             // Get a handle to the associated function component and set the motor's function
             var fun_component = this.GetComponent<ForceFunctor>();
@@ -73,7 +85,8 @@ namespace chrono
             else
             {
                 Gizmos.color = new Color(255, 255, 0);
-                Gizmos.DrawLine(body1.transform.TransformPoint(position1), body2.transform.TransformPoint(position2));
+                Utils.drawSpring(radius, new ChVector(transform.position.x, transform.position.y, transform.position.z), new ChVector(position2.position.x, position2.position.y, position2.position.z), springResolution, springTurns);
+                Gizmos.DrawSphere(transform.position, 0.01f);
             }
         }
 

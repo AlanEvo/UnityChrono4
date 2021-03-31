@@ -1079,8 +1079,8 @@ namespace chrono
         }
 
 
-        public List<ChBody> bodylist = new List<ChBody>();                 //< list of rigid bodies
-        public List<ChLink> linklist = new List<ChLink>();                 //< list of joints (links)
+        protected List<ChBody> bodylist = new List<ChBody>();                 //< list of rigid bodies
+        protected List<ChLink> linklist = new List<ChLink>();                 //< list of joints (links)
         // std::vector<std::shared_ptr<fea::ChMesh>> meshlist;            ///< list of meshes
         protected List<ChPhysicsItem> otherphysicslist = new List<ChPhysicsItem>();  //< list of other physics objects
         protected List<ChPhysicsItem> batch_to_insert = new List<ChPhysicsItem>();   //< list of items to insert at once

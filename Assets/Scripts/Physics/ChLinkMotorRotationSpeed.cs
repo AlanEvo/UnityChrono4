@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 namespace chrono
 {
 
@@ -61,6 +62,42 @@ namespace chrono
 
             ChSystem msystem = FindObjectOfType<ChSystem>();
             msystem.AddLink(this);
+        }
+
+        private static void DrawEllipse(Vector3 pos, Vector3 forward, Vector3 up, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+        {
+            float angle = 0f;
+            UnityEngine.Quaternion rot = UnityEngine.Quaternion.LookRotation(forward, up);
+            Vector3 lastPoint = Vector3.zero;
+            Vector3 thisPoint = Vector3.zero;
+
+            for (int i = 0; i < segments + 1; i++)
+            {
+                thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                if (i > 0)
+                {
+                    Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                }
+
+                lastPoint = thisPoint;
+                angle += 360f / segments;
+            }
+        }
+
+        protected virtual void OnDrawGizmos()
+        {
+            if (Application.isPlaying)
+            {
+                Color color = Color.red;
+                DrawEllipse(new Vector3((float)this.GetLinkAbsoluteCoords().pos.x, (float)this.GetLinkAbsoluteCoords().pos.y, (float)this.GetLinkAbsoluteCoords().pos.z), transform.forward, transform.up, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
+            }
+            else
+            {
+                Color color = Color.red;
+                DrawEllipse(transform.position, transform.forward, transform.up, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
+            }
         }
 
         /// Set the angular speed function of time w(t).
@@ -335,4 +372,6 @@ namespace chrono
 
         private bool avoid_angle_drift;
     }
+
+  
 }

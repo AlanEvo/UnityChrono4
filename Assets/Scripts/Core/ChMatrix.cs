@@ -23,7 +23,6 @@ namespace chrono
     ///  Warning: for optimization reasons, not all functions will
     /// check about boundaries of element indexes and matrix sizes (in
     /// some cases, if sizes are wrong, debug asserts are used).
-    [System.Serializable]
     public unsafe class ChMatrix
     {
         //
@@ -32,7 +31,6 @@ namespace chrono
         public int rows = 1;
         public int columns = 1;
 
-        [SerializeField]
         public double[] address;
 
         //

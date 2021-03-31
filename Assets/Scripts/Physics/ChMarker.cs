@@ -347,7 +347,7 @@ namespace chrono
             if (GetBody() == null)
                 return;
 
-            GetBody().BodyFrame.TransformLocalToParent(FrameMoving, abs_frame);
+            GetBody().BodyFrame.TransformLocalToParent(this.FrameMoving, ref abs_frame);
         }
 
         /// Both UpdateTime() and UpdateState() at once.

@@ -352,8 +352,8 @@ namespace chrono
             ref ChFrameMoving<Real> parent        //< transformed frame, in parent coordinates, will be stored here
             ) {
             // pos & rot
-            ChFrame<Real> f = this;
-            f.TransformLocalToParent(local, parent);
+            //ChFrame<Real> f = this;
+            TransformLocalToParent(local, parent);
 
             // pos_dt
             parent.coord_dt.pos = PointSpeedLocalToParent(local.coord.pos, local.coord_dt.pos);
