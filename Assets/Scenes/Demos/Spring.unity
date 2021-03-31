@@ -188,7 +188,7 @@ MonoBehaviour:
   materialType: 0
   type: 0
   friction: 0.4
-  rolling_friction_onz: 0
+  rolling_friction: 0
   spinning_friction: 0
   restitution: 0
   cohesion: 0
@@ -563,7 +563,7 @@ MonoBehaviour:
   materialType: 0
   type: 0
   friction: 0
-  rolling_friction_onz: 0
+  rolling_friction: 0
   spinning_friction: 0
   restitution: 0
   cohesion: 0
@@ -824,14 +824,14 @@ MonoBehaviour:
   bodyfixed: 0
   collide: 0
   mass: 1
-  inertiaMoments: {x: 0, y: 0, z: 0}
+  inertiaMoments: {x: 1, y: 1, z: 1}
   inertiaProducts: {x: 0, y: 0, z: 0}
   linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
   materialType: 0
   type: 0
   friction: 0.4
-  rolling_friction_onz: 0
+  rolling_friction: 0
   spinning_friction: 0
   restitution: 0
   cohesion: 0
