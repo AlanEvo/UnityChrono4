@@ -1,7 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
-using UnityEngine;
+﻿using System;
+using UnityEngine.Scripting;
+using System.Runtime.InteropServices;
+using UnityEngine.Bindings;
+using scm = System.ComponentModel;
+using uei = UnityEngine.Internal;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 
 namespace chrono
@@ -20,24 +24,25 @@ namespace chrono
 
     /// Class defining quaternion objects, that is four-dimensional numbers, also known as Euler parameters.
     /// Quaternions are very useful when used to represent rotations in 3d.
-    [System.Serializable]
-    public class ChQuaternion
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct ChQuaternion
     {
 
 
         /// Default constructor.
         /// Note that this constructs a null quaternion {0,0,0,0}, not a {1,0,0,0} unit quaternion.
-        public ChQuaternion()
+       /* public ChQuaternion(0, 0, 0, 0)
         {
             data[0] = 0;
             data[1] = 0;
             data[2] = 0;
             data[3] = 0;
-        }
+        }*/
 
         /// Constructor from four scalars. The first is the real part, others are i,j,k imaginary parts
         public ChQuaternion(double e0, double e1, double e2, double e3)
         {
+            data = new double[4];
             data[0] = e0;
             data[1] = e1;
             data[2] = e2;
@@ -46,6 +51,7 @@ namespace chrono
 
         /// Constructor from real part, and vector with i,j,k imaginary part.
         public ChQuaternion(double s, ChVector v) {
+            data = new double[4];
             data[0] = s;
             data[1] = v.x;
             data[2] = v.y;
@@ -55,6 +61,7 @@ namespace chrono
         /// Copy constructor
         public ChQuaternion(ChQuaternion other)
         {
+            data = new double[4];
             data[0] = other.data[0];
             data[1] = other.data[1];
             data[2] = other.data[2];
@@ -99,21 +106,29 @@ namespace chrono
 
         public static ChQuaternion operator *(ChQuaternion a, ChQuaternion other)
         {
-            ChQuaternion q = new ChQuaternion();
+            ChQuaternion q = new ChQuaternion(0, 0, 0, 0);
             q.Cross(a, other);
             return q;
 
         }
 
-
-
         /// Operator for quaternion product: A%B means the typical quaternion product AxB.
         public static ChQuaternion operator %(ChQuaternion q, ChQuaternion other) // works fine
         {
-            ChQuaternion a = new ChQuaternion();
+            ChQuaternion a = new ChQuaternion(0, 0, 0, 0);
             a.Cross(q, other);
             return a;
 
+        }
+
+        public static bool operator ==(ChQuaternion a, ChQuaternion other)
+        {
+            return other.data[0] == a.data[0] && other.data[1] == a.data[1] && other.data[2] == a.data[2];
+        }
+
+        public static bool operator !=(ChQuaternion a, ChQuaternion other)
+        {
+            return !(a == other);
         }
 
         /// Access to components
@@ -227,7 +242,7 @@ namespace chrono
 
         public static ChQuaternion Qadd(ChQuaternion qa, ChQuaternion qb)
         {
-            ChQuaternion result = new ChQuaternion();
+            ChQuaternion result = new ChQuaternion(0, 0, 0, 0);
             result.e0 = qa.e0 + qb.e0;
             result.e1 = qa.e1 + qb.e1;
             result.e2 = qa.e2 + qb.e2;
@@ -318,7 +333,7 @@ namespace chrono
         /// If you need directly the rotation vector=axis * angle, use Q_from_Rotv().
         public static ChQuaternion Q_from_AngAxis2(double angle, ChVector axis)
         {
-            ChQuaternion quat = new ChQuaternion();
+            ChQuaternion quat = new ChQuaternion(0, 0, 0, 0);
             double halfang;
             double sinhalf;
 
@@ -394,7 +409,7 @@ namespace chrono
             {
                 double arg = Math.Acos(quat.e0);
                 double invsine = 1 / Math.Sin(arg);
-                ChVector vtemp = new ChVector();
+                ChVector vtemp = new ChVector(0, 0, 0);
                 vtemp.x = invsine * quat.e1;
                 vtemp.y = invsine * quat.e2;
                 vtemp.z = invsine * quat.e3;
@@ -449,8 +464,7 @@ namespace chrono
 
 
         /// Data in the order e0, e1, e2, e3
-        [SerializeField]
-        public double[] data = new double[4];
+        public double[] data;// = new double[4];
 
         // -----------------------------------------------------------------------------
 
@@ -462,7 +476,7 @@ namespace chrono
         /// Constant null quaternion: {0, 0, 0, 0}
         public static ChQuaternion QNULL = new ChQuaternion(0.0, 0.0, 0.0, 0.0); // PROBLEM These do not work, suspected c# 8 bug
 
-        public static ChQuaternion QUNIT = new ChQuaternion();
+        public static ChQuaternion QUNIT = new ChQuaternion(0, 0, 0, 0);
 
         // -----------------------------------------------------------------------------
         // STATIC QUATERNION MATH OPERATIONS
@@ -475,7 +489,7 @@ namespace chrono
         // Return the conjugate of the quaternion [s,v1,v2,v3] is [s,-v1,-v2,-v3]
         public static ChQuaternion Qconjugate(ChQuaternion q)
         {
-            ChQuaternion res = new ChQuaternion();
+            ChQuaternion res = new ChQuaternion(0, 0, 0, 0);
             res.e0 = q.e0;
             res.e1 = -q.e1;
             res.e2 = -q.e2;
@@ -486,7 +500,7 @@ namespace chrono
         /// Return the product of two quaternions. It is non-commutative (like cross product in vectors).
         public static ChQuaternion Qcross(ChQuaternion qa, ChQuaternion qb)
         {
-            ChQuaternion res = new ChQuaternion();
+            ChQuaternion res = new ChQuaternion(0, 0, 0, 0);
             res.e0 = qa.e0 * qb.e0 - qa.e1 * qb.e1 - qa.e2 * qb.e2 - qa.e3 * qb.e3;
             res.e1 = qa.e0 * qb.e1 + qa.e1 * qb.e0 - qa.e3 * qb.e2 + qa.e2 * qb.e3;
             res.e2 = qa.e0 * qb.e2 + qa.e2 * qb.e0 + qa.e3 * qb.e1 - qa.e1 * qb.e3;
@@ -497,7 +511,7 @@ namespace chrono
 
         public static ChQuaternion Qsub(ChQuaternion qa, ChQuaternion qb)
         {
-            ChQuaternion result = new ChQuaternion();
+            ChQuaternion result = new ChQuaternion(0, 0, 0, 0);
             result.e0 = qa.e0 - qb.e0;
             result.e1 = qa.e1 - qb.e1;
             result.e2 = qa.e2 - qb.e2;
@@ -507,7 +521,7 @@ namespace chrono
 
         public static ChQuaternion Qscale(ChQuaternion q, double fact)
         {
-            ChQuaternion result = new ChQuaternion();
+            ChQuaternion result = new ChQuaternion(0, 0, 0, 0);
             result.e0 = q.e0 * fact;
             result.e1 = q.e1 * fact;
             result.e2 = q.e2 * fact;
@@ -518,7 +532,7 @@ namespace chrono
         // Get the quaternion time derivative from the vector of angular speed, with w specified in _absolute_ coords.
         public static ChQuaternion Qdt_from_Wabs(ChVector w, ChQuaternion q)
         {
-            ChQuaternion qw = new ChQuaternion();
+            ChQuaternion qw = new ChQuaternion(0, 0, 0, 0);
             double half = 0.5;
 
             qw.e0 = 0;
@@ -530,7 +544,7 @@ namespace chrono
         }
 
         public ChVector Q_to_Rotv() {
-            ChVector angle_axis = new ChVector();
+            ChVector angle_axis = new ChVector(0, 0, 0);
             double sin_squared = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
             // For non-zero rotation
             if (sin_squared > 0)
@@ -592,7 +606,7 @@ namespace chrono
                                                     ChQuaternion q,
                                                     ChQuaternion q_dt)
         {
-            ChQuaternion ret = new ChQuaternion();
+            ChQuaternion ret = new ChQuaternion(0, 0, 0, 0);
             ret.Qdtdt_from_Aabs2(a, q, q_dt);
             return ret;
         }
@@ -603,9 +617,9 @@ namespace chrono
                                     ChQuaternion q_dt)
         {
             ChQuaternion qao = new ChQuaternion(0, a);
-            ChQuaternion qwo = new ChQuaternion();
-            ChQuaternion qtmpa = new ChQuaternion();
-            ChQuaternion qtmpb = new ChQuaternion();
+            ChQuaternion qwo = new ChQuaternion(0, 0, 0, 0);
+            ChQuaternion qtmpa = new ChQuaternion(0, 0, 0, 0);
+            ChQuaternion qtmpb = new ChQuaternion(0, 0, 0, 0);
             qwo.Cross(q_dt, q.GetConjugate());
             qtmpb.Cross(qwo, q_dt);
             qtmpa.Cross(qao, q);
@@ -615,7 +629,7 @@ namespace chrono
 
         public ChVector Q_to_Euler123() {
             // Angles {phi;theta;psi} aka {roll;pitch;yaw} rotation XYZ
-            ChVector euler = new ChVector();
+            ChVector euler = new ChVector(0, 0, 0);
             double sq0 = data[0] * data[0];
             double sq1 = data[1] * data[1];
             double sq2 = data[2] * data[2];
@@ -648,7 +662,7 @@ namespace chrono
         // represents the alignment of the coordsystem.
         public static ChVector VaxisXfromQuat(ChQuaternion quat)
         {
-            ChVector res = new ChVector();
+            ChVector res = new ChVector(0, 0, 0);
             res.x = (Math.Pow(quat.e0, 2) + Math.Pow(quat.e1, 2)) * 2 - 1;
             res.y = ((quat.e1 * quat.e2) + (quat.e0 * quat.e3)) * 2;
             res.z = ((quat.e1 * quat.e3) - (quat.e0 * quat.e2)) * 2;
@@ -665,7 +679,7 @@ namespace chrono
     /// you can use the shorter version
     ///    Quaternion foo;
     /// </pre>
-    public class Quaternion : ChQuaternion { };
+   // public class Quaternion : ChQuaternion { };
 
     /// Shortcut for faster use of typical single-precision quaternion.
     /// <pre>
@@ -674,5 +688,5 @@ namespace chrono
     /// you can use the shorter version
     ///    Quaternion foo;
     /// </pre>
-    public class QuaternionF : ChQuaternion { }
+   // public class QuaternionF : ChQuaternion { }
 }

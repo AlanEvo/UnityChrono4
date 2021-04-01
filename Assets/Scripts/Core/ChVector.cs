@@ -1,7 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
-using UnityEngine;
+﻿using System;
+using UnityEngine.Scripting;
+using System.Runtime.InteropServices;
+using UnityEngine.Bindings;
+using scm = System.ComponentModel;
+using uei = UnityEngine.Internal;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 
 namespace chrono
@@ -9,25 +13,28 @@ namespace chrono
     /// Definition of general purpose 3d vector variables, such as points in 3D.
     /// This class implements the vectorial algebra in 3D (Gibbs products).
     /// ChVector is templated by precision, with default 'double'.
-    public class ChVector
-    {  
+    [StructLayout(LayoutKind.Sequential)]
+    public partial struct ChVector
+    {
 
-        private double[] data = new double[3];
+        private double[] data;// = new double[3];
 
         public static ChVector VNULL = new ChVector(0.0, 0.0, 0.0);
         public static ChVector VECT_X = new ChVector(1.0, 0.0, 0.0);
         public static ChVector VECT_Y = new ChVector(0.0, 1.0, 0.0);
         public static ChVector VECT_Z = new ChVector(0.0, 0.0, 1.0);
 
-        public ChVector() 
+      /*  public ChVector(0, 0, 0) 
         {
+            data = new double[3];
             data[0] = 0;
             data[1] = 0;
             data[2] = 0;
-        }
+        }*/
 
         public ChVector(double a)
-        { 
+        {
+            data = new double[3];
             data[0] = a;
             data[1] = a;
             data[2] = a;
@@ -35,6 +42,7 @@ namespace chrono
 
         public ChVector(double x, double y, double z)
         {
+            data = new double[3];
             data[0] = x;
             data[1] = y;
             data[2] = z;
@@ -43,6 +51,7 @@ namespace chrono
         /// Copy constructor with type change.
         public ChVector(ChVector other)
         {
+            data = new double[3];
             data[0] = other.data[0];
             data[1] = other.data[1];
             data[2] = other.data[2];
@@ -208,7 +217,7 @@ namespace chrono
 
         public static ChVector operator %(ChVector a, ChVector other)
         {
-            ChVector v = new ChVector();
+            ChVector v = new ChVector(0, 0, 0);
             v.Cross(a, other);
             return v;
         }
@@ -216,6 +225,16 @@ namespace chrono
         public static ChVector operator -(ChVector a)
         {
             return new ChVector(-a.data[0], -a.data[1], -a.data[2]);
+        }
+
+        public static bool operator ==(ChVector a, ChVector other)
+        {
+            return other.data[0] == a.data[0] && other.data[1] == a.data[1] && other.data[2] == a.data[2];
+        }
+
+        public static bool operator !=(ChVector a, ChVector other)
+        {
+            return !(a == other);
         }
 
         // -----------------------------------------------------------------------------
@@ -397,7 +416,7 @@ namespace chrono
 
         /* public static ChVector Vcross(ChVector va, ChVector vb)
          {
-             ChVector result = new ChVector();
+             ChVector result = new ChVector(0, 0, 0);
              result.data[0] = (va.data[1] * vb.data[2]) - (va.data[2] * vb.data[1]);
              result.data[1] = (va.data[2] * vb.data[0]) - (va.data[0] * vb.data[2]);
              result.data[2] = (va.data[0] * vb.data[1]) - (va.data[1] * vb.data[0]);
@@ -411,7 +430,7 @@ namespace chrono
         }
         public static ChVector Vcross(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector();
+            ChVector result = new ChVector(0, 0, 0);
             result.x = (va.y * vb.z) - (va.z * vb.y);
             result.y = (va.z * vb.x) - (va.x * vb.z);
             result.z = (va.x * vb.y) - (va.y * vb.x);
@@ -422,7 +441,7 @@ namespace chrono
         // the Y vector, as spinning about X.
         public static double VangleRX(ChVector va)
         {
-            ChVector vproj = new ChVector();
+            ChVector vproj = new ChVector(0, 0, 0);
             vproj.x = 0;
             vproj.y = va.y;
             vproj.z = va.z;
@@ -447,7 +466,7 @@ namespace chrono
 
         public ChVector Cross(ChVector other)
         {
-            ChVector v = new ChVector();
+            ChVector v = new ChVector(0, 0, 0);
             v.Cross(this, other);
             return v;
         }
@@ -474,7 +493,7 @@ namespace chrono
         }
         public static ChVector Vmul(ChVector va, double fact)
         {
-            ChVector result = new ChVector();
+            ChVector result = new ChVector(0, 0, 0);
             result.x = va.x * fact;
             result.y = va.y * fact;
             result.z = va.z * fact;
@@ -483,7 +502,7 @@ namespace chrono
 
         public static ChVector Vadd(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector();
+            ChVector result = new ChVector(0, 0, 0);
             result.x = va.x + vb.x;
             result.y = va.y + vb.y;
             result.z = va.z + vb.z;
@@ -491,7 +510,7 @@ namespace chrono
         }
     public static ChVector Vsub(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector();
+            ChVector result = new ChVector(0, 0, 0);
             result.x = va.x - vb.x;
             result.y = va.y - vb.y;
             result.z = va.z - vb.z;
@@ -519,7 +538,7 @@ namespace chrono
 
             // If close to singularity, change reference vector
             if (zlen < 0.0001) {
-                ChVector mVsingular = new ChVector();
+                ChVector mVsingular = new ChVector(0, 0, 0);
                 if (Math.Abs(Vsingular.x) < 0.9)
                     mVsingular = new ChVector(0, 0, 1);
                 if (Math.Abs(Vsingular.y) < 0.9)
@@ -553,7 +572,7 @@ namespace chrono
             // if near singularity, change the singularity reference vector.
             if (zlen < 0.0001)
             {
-                ChVector mVsingular = new ChVector();
+                ChVector mVsingular = new ChVector(0, 0, 0);
 
                 if (Math.Abs(Vsingular.data[0]) < 0.9)
                     mVsingular = new ChVector(1, 0, 0);
@@ -621,7 +640,7 @@ namespace chrono
     /// you can use the shorter version
     ///    Vector foo;
     /// </pre>
-    public class Vector : ChVector { }
+  //  public class Vector : ChVector { }
 
     /// Shortcut for faster use of typical single-precision vectors.
     /// <pre>
@@ -630,5 +649,5 @@ namespace chrono
     /// you can use the shorter version
     ///    Vector foo;
     /// </pre>
-    public class VectorF : ChVector { }
+    //public class VectorF : ChVector { }
 }
