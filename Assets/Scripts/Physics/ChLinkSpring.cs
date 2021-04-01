@@ -40,8 +40,8 @@ namespace chrono
 
         public bool autoRestLength = false;
         public double restLength = 0;
-        private ChVector sPosition1 = new ChVector();
-        private ChVector sPosition2 = new ChVector();
+        private ChVector sPosition1 = new ChVector(0, 0, 0);
+        private ChVector sPosition2 = new ChVector(0, 0, 0);
 
 
         public ChLinkSpring() {
@@ -150,7 +150,7 @@ namespace chrono
         {
             // First, initialize as all constraint with markers.
             // In this case, create the two markers also!.
-            base.Initialize(mbody1, mbody2, new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0)));
+            base.Initialize(mbody1, mbody2, new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0)));
 
             if (pos_are_relative)
             {
@@ -172,20 +172,20 @@ namespace chrono
         /// Get the 1st spring endpoint (expressed in Body1 coordinate system)
         public ChVector GetEndPoint1Rel() { return marker1.FrameMoving.GetPos(); }
         /// Set the 1st spring endpoint (expressed in Body1 coordinate system)
-        public void SetEndPoint1Rel(ChVector mset) { marker1.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint1Rel(ChVector mset) { marker1.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
         /// Get the 1st spring endpoint (expressed in absolute coordinate system)
         public ChVector GetEndPoint1Abs() { return marker1.GetAbsCoord().pos; }
         /// Set the 1st spring endpoint (expressed in absolute coordinate system)
-        public void SetEndPoint1Abs(ChVector mset) { marker1.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint1Abs(ChVector mset) { marker1.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
 
         /// Get the 2nd spring endpoint (expressed in Body2 coordinate system)
         public ChVector GetEndPoint2Rel() { return marker2.FrameMoving.GetPos(); }
         /// Set the 2nd spring endpoint (expressed in Body2 coordinate system)
-        public void SetEndPoint2Rel(ChVector mset) { marker2.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint2Rel(ChVector mset) { marker2.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
         /// Get the 1st spring endpoint (expressed in absolute coordinate system)
         public ChVector GetEndPoint2Abs() { return marker2.GetAbsCoord().pos; }
         /// Set the 1st spring endpoint (expressed in absolute coordinate system)
-        public void SetEndPoint2Abs(ChVector mset) { marker2.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint2Abs(ChVector mset) { marker2.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
 
         /// Inherits, then also adds the spring custom forces to the C_force and C_torque.
         public override void UpdateForces(double mytime) {
@@ -210,14 +210,14 @@ namespace chrono
 
        /* public ChVector GetEndPoint1Abs()
         {
-            ChVector temp = new ChVector();
+            ChVector temp = new ChVector(0, 0, 0);
             temp.m_ChVector = ChLinkSpring_GetEndPoint1Abs(m_ChLink);
             return temp;
         }
 
         public ChVector GetEndPoint2Abs()
         {
-            ChVector temp = new ChVector();
+            ChVector temp = new ChVector(0, 0, 0);
             temp.m_ChVector = ChLinkSpring_GetEndPoint2Abs(m_ChLink);
             return temp;
         }*/

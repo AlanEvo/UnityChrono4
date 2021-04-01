@@ -39,9 +39,9 @@ namespace chrono
         {
             ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
             ChVector dist = end - start;
-            ChVector Vx = new ChVector();
-            ChVector Vy = new ChVector();
-            ChVector Vz = new ChVector();
+            ChVector Vx = new ChVector(0, 0, 0);
+            ChVector Vy = new ChVector(0, 0, 0);
+            ChVector Vz = new ChVector(0, 0, 0);
             double length = dist.Length();
             ChVector dir = ChVector.Vnorm(dist);
             ChVector.XdirToDxDyDz(dir, ChVector.VECT_Y, ref Vx, ref Vy, ref Vz);

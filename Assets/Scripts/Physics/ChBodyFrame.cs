@@ -41,13 +41,13 @@ namespace chrono
                 // local space
                 ChVector mforce_abs = TransformDirectionLocalToParent(force);
                 resultforce = mforce_abs;
-                resulttorque = Vector.Vcross(TransformDirectionLocalToParent(appl_point), mforce_abs);
+                resulttorque = ChVector.Vcross(TransformDirectionLocalToParent(appl_point), mforce_abs);
             }
             else
             {
                 // absolute space
                 resultforce = force;
-                resulttorque = Vector.Vcross(Vector.Vsub(appl_point, coord.pos), force);
+                resulttorque = ChVector.Vcross(ChVector.Vsub(appl_point, coord.pos), force);
             }
         }
 

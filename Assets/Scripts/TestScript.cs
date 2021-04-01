@@ -108,35 +108,28 @@ public class TestCreatingObjects // create loads of flapps
 
 }
 
+public class MyClass
+{
+    double[] address;
+
+    public void Add(double a, double b, double c) {
+        double[] address = new double[3];
+        address[0] = a;
+        address[1] = b;
+        address[2] = c;
+    }
+
+}
+
 
 public class TestScript : MonoBehaviour
 {
     public double step;
-    IEnumerator<Derived<double, double>> it;
-    protected List<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> contactlist_6_6_rolling = new List<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>();
-    protected IEnumerator<ChContactNSCrolling<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>> lastcontact_6_6_rolling;
-    // public List<double> list = new List<double>();
-    // public double[] array = new double[1000];    
-
-    public void Function<Tcoont, Titer>(List<Tcoont> par, 
-                                ref IEnumerator<Titer> lastcontact)
-  // where Tcoont : Base<double, double>
-  //  where Titer: Base<double, double>
-    where Titer : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
-    where Tcoont : ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
-    {
-        ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>> mc = new ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>();
-        Tcoont coont = (Tcoont)mc;
-        par.Add(coont);
-    }
 
     // Start is called before the first frame update
     void Start()
     {
-        List<Base<double, double>> base1 = new List<Base<double, double>>();
-        List<Derived<double, double>> derive = new List<Derived<double, double>>();        
-
-        Function(contactlist_6_6_rolling.ToList<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>(), ref lastcontact_6_6_rolling);
+      
 
         /* ChVector vtraslA = new ChVector(5, 6, 7);         // origin of local frame w.r.t. global frame
          ChQuaternion qrotA = new ChQuaternion(1, 3, 4, 5);    // rotation of local frame w.r.t. global frame
@@ -221,10 +214,16 @@ public class TestScript : MonoBehaviour
 
     public void FixedUpdate()
     {
-        //Time.fixedDeltaTime = (float)step;
+        Time.fixedDeltaTime = (float)step;
 
-        
+        for (int i = 0; i < 900000; i++)
+        {
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
 
+            ChFrame<double>.SetMatrix_Gl(ref body1Gl, new ChQuaternion(0, 0, 0, 0));
+            ChFrame<double>.SetMatrix_Gl(ref body2Gl, new ChQuaternion(0, 0, 0, 0));
+        }
     }
 
     public static void GetPropertyValues(object obj)

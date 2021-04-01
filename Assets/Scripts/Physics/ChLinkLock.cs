@@ -35,13 +35,13 @@ namespace chrono
         protected ChCoordsys<double> Ct_temp = new ChCoordsys<double>();
 
 
-        protected ChVector PQw = new ChVector();  //< for intermediate calculus (here, for speed reasons)
-        protected ChVector PQw_dt = new ChVector();
-        protected ChVector PQw_dtdt = new ChVector();
-        protected ChQuaternion q_AD = new  ChQuaternion();
-        protected ChQuaternion q_BC = new  ChQuaternion();
-        protected ChQuaternion q_8 = new  ChQuaternion();
-        protected ChVector q_4 = new ChVector();
+        protected ChVector PQw = new ChVector(0, 0, 0);  //< for intermediate calculus (here, for speed reasons)
+        protected ChVector PQw_dt = new ChVector(0, 0, 0);
+        protected ChVector PQw_dtdt = new ChVector(0, 0, 0);
+        protected ChQuaternion q_AD = new  ChQuaternion(0, 0, 0, 0);
+        protected ChQuaternion q_BC = new  ChQuaternion(0, 0, 0, 0);
+        protected ChQuaternion q_8 = new  ChQuaternion(0, 0, 0, 0);
+        protected ChVector q_4 = new ChVector(0, 0, 0);
 
         // imposed motion
         protected ChFunction motion_X = new ChFunction();     //< user imposed motion for X coord, marker relative
@@ -50,7 +50,7 @@ namespace chrono
         protected ChFunction motion_ang = new ChFunction();   //< user imposed angle rotation about axis
         protected ChFunction motion_ang2 = new ChFunction();  //< user imposed angle rotation if three-angles rot.
         protected ChFunction motion_ang3 = new ChFunction();  //< user imposed angle rotation if three-angles rot.
-        protected ChVector motion_axis = new ChVector();       //< this is the axis for the user imposed rotation
+        protected ChVector motion_axis = new ChVector(0, 0, 0);       //< this is the axis for the user imposed rotation
         protected AngleSet angleset;             //< type of rotation (3 Eul angles, angle/axis, etc.)
 
         // limits
@@ -143,12 +143,12 @@ namespace chrono
         {
             
             type = LinkType.SPHERICAL;
-            relC = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));// ChCoordsys<double>.CSYSNORM;
-            relC_dt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
-            relC_dtdt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0)); // ChCoordsys<double>.CSYSNULL;
-            deltaC = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));// ChCoordsys<double>.CSYSNORM;
-            deltaC_dt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0));//ChCoordsys<double>.CSYSNULL;
-            deltaC_dtdt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0)); //ChCoordsys<double>.CSYSNULL;
+            relC = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));// ChCoordsys<double>.CSYSNORM;
+            relC_dt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
+            relC_dtdt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0)); // ChCoordsys<double>.CSYSNULL;
+            deltaC = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));// ChCoordsys<double>.CSYSNORM;
+            deltaC_dt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));//ChCoordsys<double>.CSYSNULL;
+            deltaC_dtdt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0)); //ChCoordsys<double>.CSYSNULL;
             motion_axis = ChVector.VECT_Z;
             angleset = AngleSet.ANGLE_AXIS;
             // matrices used by lock formulation
@@ -516,9 +516,9 @@ namespace chrono
                 case AngleSet.HPB:
                 case AngleSet.RXYZ:
                     {
-                        ChVector vangles = new ChVector();
-                        ChVector vangles_dt = new ChVector();
-                        ChVector vangles_dtdt = new ChVector();
+                        ChVector vangles = new ChVector(0, 0, 0);
+                        ChVector vangles_dt = new ChVector(0, 0, 0);
+                        ChVector vangles_dtdt = new ChVector(0, 0, 0);
                         vangles.x = motion_ang.Get_y(time);
                         vangles.y = motion_ang2.Get_y(time);
                         vangles.z = motion_ang3.Get_y(time);
@@ -742,6 +742,7 @@ namespace chrono
             relWvel = relGw.Matr34_x_Quat(relM_dt.rot);
             // relWacc
             relWacc = relGw.Matr34_x_Quat(relM_dtdt.rot);
+
         }
 
         // Given current time and body state, computes
@@ -1057,8 +1058,8 @@ namespace chrono
 
             // ========== the link-limits "cushion forces"
 
-           /* ChVector m_force = new ChVector();
-            ChVector m_torque = new ChVector();
+           /* ChVector m_force = new ChVector(0, 0, 0);
+            ChVector m_torque = new ChVector(0, 0, 0);
 
             if (limit_X.Get_active())
             {

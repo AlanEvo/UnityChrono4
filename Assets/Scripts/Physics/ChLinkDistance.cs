@@ -129,7 +129,7 @@ namespace chrono
             //ChVector D2local;
             ChVector D2temp = (ChVector.Vnorm(Body1.TransformPointLocalToParent(pos1) - Body2.TransformPointLocalToParent(pos2)));
             ChVector D2rel = Body2.TransformDirectionParentToLocal(D2temp);
-            ChVector Vx = new ChVector(), Vy = new ChVector(), Vz = new ChVector();
+            ChVector Vx = new ChVector(0, 0, 0), Vy = new ChVector(0, 0, 0), Vz = new ChVector(0, 0, 0);
             ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
             ChVector.XdirToDxDyDz(D2rel, ChVector.VECT_Y, ref Vx, ref Vy, ref Vz);
             rel_matrix.Set_A_axis(Vx, Vy, Vz);

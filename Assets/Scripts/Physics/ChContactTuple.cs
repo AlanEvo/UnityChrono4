@@ -72,9 +72,9 @@ namespace chrono
             this.eff_radius = cinfo.eff_radius;
 
             // Contact plane
-            ChVector Vx = new ChVector();
-            ChVector Vy = new ChVector();
-            ChVector Vz = new ChVector();
+            ChVector Vx = new ChVector(0, 0, 0);
+            ChVector Vy = new ChVector(0, 0, 0);
+            ChVector Vz = new ChVector(0, 0, 0);
             ChVector.XdirToDxDyDz(normal, ChVector.VECT_Y, ref Vx, ref Vy, ref Vz);
             contact_plane.Set_A_axis(Vx, Vy, Vz);
         }

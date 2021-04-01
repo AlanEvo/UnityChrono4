@@ -27,17 +27,17 @@ namespace chrono
         protected ChCoordsys<double> relM_dtdt = new ChCoordsys<double>();  //< relative marker acceleration
 
         protected double relAngle;        //< relative angle of rotation
-        protected ChVector relAxis = new ChVector();     //< relative axis of rotation
-        protected ChVector relRotaxis = new ChVector();  //< relative rotaion vector =angle*axis
-        protected ChVector relWvel = new ChVector();     //< relative angular speed
-        protected ChVector relWacc = new ChVector();     //< relative angular acceleration
+        protected ChVector relAxis = new ChVector(0, 0, 0);     //< relative axis of rotation
+        protected ChVector relRotaxis = new ChVector(0, 0, 0);  //< relative rotaion vector =angle*axis
+        protected ChVector relWvel = new ChVector(0, 0, 0);     //< relative angular speed
+        protected ChVector relWacc = new ChVector(0, 0, 0);     //< relative angular acceleration
         protected double dist;            //< the distance between the two origins of markers,
         protected double dist_dt;         //< the speed between the two  origins of markers
 
-        protected ChVector Scr_force = new ChVector();   //< internal force  set by script only (just added to C_force)
-        protected ChVector Scr_torque = new ChVector();  //< internal torque set by script only (just added to C_force)
-        protected ChVector C_force = new ChVector();     //< internal force  applied by springs/dampers/actuators
-        protected ChVector C_torque = new ChVector();    //< internal torque applied by springs/dampers/actuators
+        protected ChVector Scr_force = new ChVector(0, 0, 0);   //< internal force  set by script only (just added to C_force)
+        protected ChVector Scr_torque = new ChVector(0, 0, 0);  //< internal torque set by script only (just added to C_force)
+        protected ChVector C_force = new ChVector(0, 0, 0);     //< internal force  applied by springs/dampers/actuators
+        protected ChVector C_torque = new ChVector(0, 0, 0);    //< internal torque applied by springs/dampers/actuators
 
         public ChLinkMarkers()
         {
@@ -45,17 +45,17 @@ namespace chrono
             marker2 = null;
             markID1 = 0;
             markID2 = 0;
-            relM = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));//Coordsys.CSYSNORM;
-            relM_dt = new ChCoordsys<double>(new ChVector(), new ChQuaternion());//ChCoordsys<double>.CSYSNULL;
-            relM_dtdt = new ChCoordsys<double>(new ChVector(), new ChQuaternion());// ChCoordsys<double>.CSYSNULL;
+            relM = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//Coordsys.CSYSNORM;
+            relM_dt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));//ChCoordsys<double>.CSYSNULL;
+            relM_dtdt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
             relAngle = 0;
-            relRotaxis = new ChVector();
-            relWvel = new ChVector();
-            relWacc = new ChVector();
-            C_force = new ChVector();
-            C_torque = new ChVector();
-            Scr_force = new ChVector();
-            Scr_torque = new ChVector();
+            relRotaxis = new ChVector(0, 0, 0);
+            relWvel = new ChVector(0, 0, 0);
+            relWacc = new ChVector(0, 0, 0);
+            C_force = new ChVector(0, 0, 0);
+            C_torque = new ChVector(0, 0, 0);
+            Scr_force = new ChVector(0, 0, 0);
+            Scr_torque = new ChVector(0, 0, 0);
         }
 
         public ChLinkMarkers(ChLinkMarkers other) : base(other)
@@ -430,8 +430,8 @@ namespace chrono
         /// and their application point is the origin of marker1 (the SLAVE marker).
         public virtual void UpdateForces(double mytime)
         {
-            C_force = new ChVector();  // initialize int.forces accumulators
-            C_torque = new ChVector();
+            C_force = new ChVector(0, 0, 0);  // initialize int.forces accumulators
+            C_torque = new ChVector(0, 0, 0);
 
             // First and only operation: add the 'externally set' script forces (torques)
             C_force = ChVector.Vadd(C_force, Scr_force);
@@ -471,8 +471,8 @@ namespace chrono
             if (Body1 == null || Body2 == null)
                 return;
 
-            ChVector mbody_force = new ChVector();
-            ChVector mbody_torque = new ChVector();
+            ChVector mbody_force = new ChVector(0, 0, 0);
+            ChVector mbody_torque = new ChVector(0, 0, 0);
             if (ChVector.Vnotnull(C_force))
             {
                 ChVector m_abs_force = Body2.GetA().Matr_x_Vect(marker2.FrameMoving.GetA().Matr_x_Vect(C_force));
@@ -533,8 +533,8 @@ namespace chrono
             if (Body1 == null || Body2 == null)
                 return;
 
-            ChVector mbody_force = new ChVector();
-            ChVector mbody_torque = new ChVector();
+            ChVector mbody_force = new ChVector(0, 0, 0);
+            ChVector mbody_torque = new ChVector(0, 0, 0);
             if (ChVector.Vnotnull(C_force))
             {
                 ChVector m_abs_force = Body2.GetA().Matr_x_Vect(marker2.FrameMoving.GetA().Matr_x_Vect(C_force));

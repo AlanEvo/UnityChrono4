@@ -190,6 +190,7 @@ namespace chrono
             mintegrable.LoadConstraint_C(ref Qc, 1.0 / dt, Qc_do_clamp, Qc_clamping);
             mintegrable.LoadConstraint_Ct(ref Qc, 1.0);
             
+            // Can't shave anymore off this, Solver() is the only cpu drain.
             mintegrable.StateSolveCorrection(
                 ref V, ref L, R, Qc,
                 1.0,           // factor for  M
@@ -211,7 +212,7 @@ namespace chrono
 
             T += dt;
 
-            mintegrable.StateScatter(X, V, T);     // state -> system  
+            mintegrable.StateScatter(X, V, T);     // state -> system  // Big cpu drain
             mintegrable.StateScatterReactions(L);  // -> system auxiliary data*/
 
         }

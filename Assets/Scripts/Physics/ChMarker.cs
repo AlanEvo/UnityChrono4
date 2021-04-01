@@ -27,7 +27,7 @@ namespace chrono
         private ChFunction motion_Y;    //< user imposed motion for Y coord, body relative
         private ChFunction motion_Z;    //< user imposed motion for Z coord, body relative
         private ChFunction motion_ang;  //< user imposed angle rotation about axis
-        ChVector motion_axis = new ChVector();      //< this is the axis for the user imposed rotation
+        ChVector motion_axis = new ChVector(0, 0, 0);      //< this is the axis for the user imposed rotation
 
         private ChBody Body;  //< points to parent body     
 
@@ -50,8 +50,8 @@ namespace chrono
             rest_coord = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
             motion_type = eChMarkerMotion.M_MOTION_FUNCTIONS;
             motion_axis = ChVector.VECT_Z;
-            last_rel_coord = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
-            last_rel_coord_dt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
+            last_rel_coord = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
+            last_rel_coord_dt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
             last_time = 0;
             motion_X = new ChFunction_Const(0);  // default: no motion
             motion_Y = new ChFunction_Const(0);
@@ -75,7 +75,7 @@ namespace chrono
             motion_ang = new ChFunction_Const(0);
             motion_axis = ChVector.VECT_Z;
 
-            rest_coord = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
+            rest_coord = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
 
             motion_type = eChMarkerMotion.M_MOTION_FUNCTIONS;
 
@@ -83,8 +83,8 @@ namespace chrono
             FrameMoving.SetCoord_dt(rel_pos_dt);
             FrameMoving.SetCoord_dtdt(rel_pos_dtdt);
 
-            last_rel_coord = new ChCoordsys<double>(new ChVector(), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
-            last_rel_coord_dt = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
+            last_rel_coord = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys<double>.CSYSNORM;
+            last_rel_coord_dt = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));// ChCoordsys<double>.CSYSNULL;
             last_time = 0;
 
             UpdateState();
@@ -126,7 +126,7 @@ namespace chrono
         /// Also, current position becomes the 'resting position' coordinates
         /// for the current time.
         public void Impose_Rel_Coord(ChCoordsys<double> m_coord) {
-            ChQuaternion qtemp;// = new ChQuaternion();
+            ChQuaternion qtemp;// = new ChQuaternion(0, 0, 0, 0);
             // set the actual coordinates
             FrameMoving.SetCoord(m_coord);
             // set the resting position coordinates
@@ -150,7 +150,7 @@ namespace chrono
             // coordsys: transform the representation from the parent reference frame
             // to the local reference frame.
             csys.pos = ChTransform<double>.TransformParentToLocal(m_coord.pos, my_body.BodyFrame.GetCoord().pos, my_body.BodyFrame.GetA());
-            csys.rot = ChQuaternion.Qcross(Quaternion.Qconjugate(my_body.BodyFrame.GetCoord().rot), m_coord.rot);
+            csys.rot = ChQuaternion.Qcross(ChQuaternion.Qconjugate(my_body.BodyFrame.GetCoord().rot), m_coord.rot);
             // apply the imposition on local  coordinate and resting coordinate:
             Impose_Rel_Coord(csys);
         }
@@ -237,7 +237,7 @@ namespace chrono
             motion_ang = m_funct;
         }
         /// Set the axis of rotation, if rotation motion law is used.
-        public void SetMotion_axis(Vector m_axis) {
+        public void SetMotion_axis(ChVector m_axis) {
             motion_axis = m_axis;
         }
 
@@ -270,7 +270,7 @@ namespace chrono
             ChCoordsys<double> csys = new ChCoordsys<double>();
             ChCoordsys<double> csys_dt = new ChCoordsys<double>();
             ChCoordsys<double> csys_dtdt = new ChCoordsys<double>();
-            ChQuaternion qtemp = new ChQuaternion();
+            ChQuaternion qtemp = new ChQuaternion(0, 0, 0, 0);
             double ang, ang_dt, ang_dtdt;
 
             ChTime = mytime;
@@ -376,7 +376,7 @@ namespace chrono
             this.motion_type = eChMarkerMotion.M_MOTION_FUNCTIONS;
 
             // if POSITION or ROTATION ("rel_pos") has been changed in acceptable time step...
-            if ((!(Vector.Vequal(FrameMoving.coord.pos, last_rel_coord.pos)) || !(Quaternion.Qequal(FrameMoving.coord.rot, last_rel_coord.rot))) && (Math.Abs(mstep) < 0.1) &&
+            if ((!(ChVector.Vequal(FrameMoving.coord.pos, last_rel_coord.pos)) || !(ChQuaternion.Qequal(FrameMoving.coord.rot, last_rel_coord.rot))) && (Math.Abs(mstep) < 0.1) &&
                 (mstep != 0))
             {
                 // ... and if motion wasn't caused by motion laws, then it was a keyframed movement!
@@ -386,12 +386,12 @@ namespace chrono
                     (motion_ang.Get_Type() == ChFunction.FunctionType.FUNCT_CONST))
                 {
                     // compute the relative speed by BDF !
-                    m_rel_pos_dt.pos = Vector.Vmul(Vector.Vsub(FrameMoving.coord.pos, last_rel_coord.pos), 1 / mstep);
-                    m_rel_pos_dt.rot = Quaternion.Qscale(Quaternion.Qsub(FrameMoving.coord.rot, last_rel_coord.rot), 1 / mstep);
+                    m_rel_pos_dt.pos = ChVector.Vmul(ChVector.Vsub(FrameMoving.coord.pos, last_rel_coord.pos), 1 / mstep);
+                    m_rel_pos_dt.rot = ChQuaternion.Qscale(ChQuaternion.Qsub(FrameMoving.coord.rot, last_rel_coord.rot), 1 / mstep);
 
                     // compute the relative acceleration by BDF !
-                    m_rel_pos_dtdt.pos = Vector.Vmul(Vector.Vsub(m_rel_pos_dt.pos, last_rel_coord_dt.pos), 1 / mstep);
-                    m_rel_pos_dtdt.rot = Quaternion.Qscale(Quaternion.Qsub(m_rel_pos_dt.rot, last_rel_coord_dt.rot), 1 / mstep);
+                    m_rel_pos_dtdt.pos = ChVector.Vmul(ChVector.Vsub(m_rel_pos_dt.pos, last_rel_coord_dt.pos), 1 / mstep);
+                    m_rel_pos_dtdt.rot = ChQuaternion.Qscale(ChQuaternion.Qsub(m_rel_pos_dt.rot, last_rel_coord_dt.rot), 1 / mstep);
 
                     // Set the position, speed and acceleration in relative space,
                     // automatically getting also the absolute values,
@@ -417,17 +417,17 @@ namespace chrono
         // UTILITIES
         //
 
-        public Vector Point_World2Ref(Vector mpoint) {
-            return (Vector)(abs_frame / (Vector)mpoint);
+        public ChVector Point_World2Ref(ChVector mpoint) {
+            return (abs_frame / mpoint);
         }
-        public Vector Point_Ref2World(Vector mpoint) {
-            return (Vector)(abs_frame * (Vector)mpoint);
+        public ChVector Point_Ref2World(ChVector mpoint) {
+            return (abs_frame * mpoint);
         }
-        public Vector Dir_World2Ref(Vector mpoint) {
-            return (Vector)abs_frame.GetA().MatrT_x_Vect(mpoint);
+        public ChVector Dir_World2Ref(ChVector mpoint) {
+            return abs_frame.GetA().MatrT_x_Vect(mpoint);
         }
-        public Vector Dir_Ref2World(Vector mpoint) {
-            return (Vector)abs_frame.GetA().Matr_x_Vect(mpoint);
+        public ChVector Dir_Ref2World(ChVector mpoint) {
+            return abs_frame.GetA().Matr_x_Vect(mpoint);
         }
 
         // Use this for initialization

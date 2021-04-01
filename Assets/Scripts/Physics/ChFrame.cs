@@ -206,7 +206,7 @@ namespace chrono
         /// Get axis of finite rotation, in parent space
         public ChVector GetRotAxis()
         {
-            ChVector vtmp = new ChVector();
+            ChVector vtmp = new ChVector(0, 0, 0);
             double angle = 0;
             coord.rot.Q_to_AngAxis(ref angle, ref vtmp);
             return vtmp;
@@ -215,7 +215,7 @@ namespace chrono
         /// Get angle of rotation about axis of finite rotation
         public double GetRotAngle()
         {
-            ChVector vtmp = new ChVector();
+            ChVector vtmp = new ChVector(0, 0, 0);
             double angle = 0;
             coord.rot.Q_to_AngAxis(ref angle, ref vtmp);
             return angle;
@@ -404,7 +404,7 @@ namespace chrono
         // return mat.transpose() * mdirection;
          //return Amatrix.transpose() * mdirection;
 
-         ChVector vec = new ChVector();
+         ChVector vec = new ChVector(0, 0, 0);
          vec.m_ChVector = ChFrame_TransformDirectionParentToLocal(m_ChFrame, mdirection.m_ChVector);
          vec.data[0] = vec.GetX();
          vec.data[1] = vec.GetY();
@@ -420,7 +420,7 @@ namespace chrono
      {
          //return Amatrix * mdirection;
 
-         ChVector vec = new ChVector();
+         ChVector vec = new ChVector(0, 0, 0);
          vec.m_ChVector = ChFrame_TransformDirectionLocalToParent(m_ChFrame, mdirection.m_ChVector);
          vec.data[0] = vec.GetX();
          vec.data[1] = vec.GetY();

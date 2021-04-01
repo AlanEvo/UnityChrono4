@@ -31,19 +31,19 @@ namespace chrono
         protected List<ChMarker> marklist = new List<ChMarker>();  //< list of markers
         protected List<ChForce> forcelist = new List<ChForce>();  //< list of forces
 
-        protected ChVector gyro = new ChVector();  //< gyroscopic torque, i.e. Qm = Wvel x (XInertia*Wvel)
+        protected ChVector gyro = new ChVector(0, 0, 0);  //< gyroscopic torque, i.e. Qm = Wvel x (XInertia*Wvel)
 
-        protected ChVector Xforce = new ChVector();   //< force  acting on body, applied to COG (in absolute coords)
-        protected ChVector Xtorque = new ChVector();  //< torque acting on body  (in body relative coords)
+        protected ChVector Xforce = new ChVector(0, 0, 0);   //< force  acting on body, applied to COG (in absolute coords)
+        protected ChVector Xtorque = new ChVector(0, 0, 0);  //< torque acting on body  (in body relative coords)
 
         protected ChQuaternion Test = new ChQuaternion(0, 0, 0, 0);
         protected ChQuaternion Test2 = new ChQuaternion(0, 0, 0, 0);
 
-        protected ChVector Force_acc = new ChVector();   //< force accumulator, applied to COG (in absolute coords)
-        protected ChVector Torque_acc = new ChVector();  //< torque accumulator (in abs space)
+        protected ChVector Force_acc = new ChVector(0, 0, 0);   //< force accumulator, applied to COG (in absolute coords)
+        protected ChVector Torque_acc = new ChVector(0, 0, 0);  //< torque accumulator (in abs space)
 
-        protected ChVector Scr_force = new ChVector();   //< script force accumulator, applied to COG (in absolute coords)
-        protected ChVector Scr_torque = new ChVector();  //< script torque accumulator (in absolute coords)
+        protected ChVector Scr_force = new ChVector(0, 0, 0);   //< script force accumulator, applied to COG (in absolute coords)
+        protected ChVector Scr_torque = new ChVector(0, 0, 0);  //< script torque accumulator (in absolute coords)
 
         protected ChMaterialSurface matsurface;  //< data for surface contact and impact
 
@@ -172,7 +172,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddBox(size.x * 0.473f, size.y * 0.473f, size.z * 0.473f, new ChVector(), new ChMatrix33<double>(1));  // radius x, radius z, height on y
+                        GetCollisionModel().AddBox(size.x * 0.473f, size.y * 0.473f, size.z * 0.473f, new ChVector(0, 0, 0), new ChMatrix33<double>(1));  // radius x, radius z, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
@@ -210,7 +210,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddSphere(size2, new ChVector());  // radius, radius, height on y
+                        GetCollisionModel().AddSphere(size2, new ChVector(0, 0, 0));  // radius, radius, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
@@ -249,7 +249,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddCylinder(radiusX, radiusZ, height * 1.05f, new ChVector(), new ChMatrix33<double>(1));  // radius, radius, height on y
+                        GetCollisionModel().AddCylinder(radiusX, radiusZ, height * 1.05f, new ChVector(0, 0, 0), new ChMatrix33<double>(1));  // radius, radius, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
@@ -283,11 +283,11 @@ namespace chrono
 
             BFlagsSetAllOFF();  // no flags
 
-            Xforce = new ChVector();
-            Xtorque = new ChVector();
+            Xforce = new ChVector(0, 0, 0);
+            Xtorque = new ChVector(0, 0, 0);
 
-            Force_acc = new ChVector();
-            Torque_acc = new ChVector();
+            Force_acc = new ChVector(0, 0, 0);
+            Torque_acc = new ChVector(0, 0, 0);
 
             collision_model = InstanceCollisionModel();
 
@@ -321,11 +321,11 @@ namespace chrono
 
             BFlagsSetAllOFF();  // no flags
 
-            Xforce = new ChVector();
-            Xtorque = new ChVector();
+            Xforce = new ChVector(0, 0, 0);
+            Xtorque = new ChVector(0, 0, 0);
 
-            Force_acc = new ChVector();
-            Torque_acc = new ChVector();
+            Force_acc = new ChVector(0, 0, 0);
+            Torque_acc = new ChVector(0, 0, 0);
 
             collision_model = InstanceCollisionModel();
 
@@ -358,13 +358,13 @@ namespace chrono
 
             BFlagsSetAllOFF();  // no flags
 
-            Xforce = new ChVector();
-            Xtorque = new ChVector();
+            Xforce = new ChVector(0, 0, 0);
+            Xtorque = new ChVector(0, 0, 0);
 
-            Force_acc = new ChVector();
-            Torque_acc = new ChVector();
-            Scr_force = new ChVector();
-            Scr_torque = new ChVector();
+            Force_acc = new ChVector(0, 0, 0);
+            Torque_acc = new ChVector(0, 0, 0);
+            Scr_force = new ChVector(0, 0, 0);
+            Scr_torque = new ChVector(0, 0, 0);
 
             collision_model = new_collision_model;
             collision_model.SetContactable(this);
@@ -381,7 +381,7 @@ namespace chrono
 
             density = 1000.0f;
 
-            last_coll_pos = new ChCoordsys<double>(new ChVector(), new ChQuaternion(0, 0, 0, 0));
+            last_coll_pos = new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));
 
             max_speed = 0.5f;
             max_wvel = 2.0f * (float)ChMaths.CH_C_PI;
@@ -810,7 +810,7 @@ namespace chrono
             x_new[off_x + 2] = x[off_x + 2] + Dv[off_v + 2];
 
             // ADVANCE ROTATION: rot' = delta*rot  (use quaternion for delta rotation)
-            ChQuaternion mdeltarot = new ChQuaternion();
+            ChQuaternion mdeltarot = new ChQuaternion(0, 0, 0, 0);
             ChQuaternion moldrot = x.ClipQuaternion((int)off_x + 3, 0);
             ChVector newwel_abs = BodyFrame.Amatrix * Dv.ClipVector((int)off_v + 3, 0);
             double mangle = newwel_abs.Length();
@@ -956,7 +956,7 @@ namespace chrono
             this.BodyFrame.SetPos(this.BodyFrame.GetPos() + newspeed * dt_step);
 
             // ADVANCE ROTATION: rot' = [dt*wwel]%rot  (use quaternion for delta rotation)
-            ChQuaternion mdeltarot = new ChQuaternion();
+            ChQuaternion mdeltarot = new ChQuaternion(0, 0, 0, 0);
             ChQuaternion moldrot = this.BodyFrame.GetRot();
             ChVector newwel_abs = BodyFrame.Amatrix * newwel;
             double mangle = newwel_abs.Length() * dt_step;
@@ -978,9 +978,9 @@ namespace chrono
 
         /// Set no speed and no accelerations (but does not change the position)
         public override void SetNoSpeedNoAcceleration() {
-            this.BodyFrame.SetPos_dt(new ChVector());
-            this.BodyFrame.SetWvel_loc(new ChVector());
-            this.BodyFrame.SetPos_dtdt(new ChVector());
+            this.BodyFrame.SetPos_dt(new ChVector(0, 0, 0));
+            this.BodyFrame.SetWvel_loc(new ChVector(0, 0, 0));
+            this.BodyFrame.SetPos_dtdt(new ChVector(0, 0, 0));
             this.BodyFrame.SetRot_dtdt(new ChQuaternion(0, 0, 0, 0));
         }
 
@@ -1266,7 +1266,7 @@ namespace chrono
         /// [  int{x^2+z^2}dm   int{x^2+z^2}   int{x^2+y^2}dm ]
         /// </pre>   
         public ChVector GetInertiaXX() {
-            ChVector iner = new ChVector();
+            ChVector iner = new ChVector(0, 0, 0);
             iner.x = BodyFrame.variables.GetBodyInertia().GetElement(0, 0);
             iner.y = BodyFrame.variables.GetBodyInertia().GetElement(1, 1);
             iner.z = BodyFrame.variables.GetBodyInertia().GetElement(2, 2);
@@ -1297,7 +1297,7 @@ namespace chrono
         /// [ -int{xy}dm   -int{xz}dm   -int{yz}dm ]
         /// </pre>  
         public ChVector GetInertiaXY() {
-            ChVector iner = new ChVector();
+            ChVector iner = new ChVector(0, 0, 0);
             iner.x = BodyFrame.variables.GetBodyInertia().GetElement(0, 1);
             iner.y = BodyFrame.variables.GetBodyInertia().GetElement(0, 2);
             iner.z = BodyFrame.variables.GetBodyInertia().GetElement(1, 2);
@@ -1368,7 +1368,7 @@ namespace chrono
         /// for each UpdateState().
         public void ComputeGyro() {
             ChVector Wvel = this.BodyFrame.GetWvel_loc();
-            gyro = Vector.Vcross(Wvel, (BodyFrame.variables.GetBodyInertia().Matr_x_Vect(Wvel)));
+            gyro = ChVector.Vcross(Wvel, (BodyFrame.variables.GetBodyInertia().Matr_x_Vect(Wvel)));
         }
 
         /// Transform and adds a Cartesian force to a generic 7x1 vector of body lagrangian forces mQf .
@@ -1379,15 +1379,15 @@ namespace chrono
                              bool local,
                              ChMatrixNM<IntInterface.Seven, IntInterface.One> mQf)
         {
-            ChVector mabsforce = new ChVector();
-            ChVector mabstorque = new ChVector();
+            ChVector mabsforce = new ChVector(0, 0, 0);
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_forcetorque(force, appl_point, local, ref mabsforce, ref mabstorque);
             mQf.PasteSumVector(mabsforce, 0, 0);
             mQf.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
         }
 
         public void Add_as_lagrangian_torque(ChVector torque, bool local, ChMatrixNM<IntInterface.Seven, IntInterface.One> mQf) {
-            ChVector mabstorque = new ChVector();
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_torque(torque, local, ref mabstorque);
             mQf.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
         }
@@ -1403,22 +1403,22 @@ namespace chrono
         /// add ChForce() objects. If local=true, force,appl.point or torque are considered
         /// expressed in body coordinates, otherwise are considered in absolute coordinates.
         public void Accumulate_force(ChVector force, ChVector appl_point, bool local) {
-            ChVector mabsforce = new ChVector();
-            ChVector mabstorque = new ChVector();
+            ChVector mabsforce = new ChVector(0, 0, 0);
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_forcetorque(force, appl_point, local, ref mabsforce, ref mabstorque);
 
             Force_acc += mabsforce;
             Torque_acc += mabstorque;
         }
         public void Accumulate_torque(ChVector torque, bool local) {
-            ChVector mabstorque = new ChVector();
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_torque(torque, local, ref mabstorque);
             Torque_acc += mabstorque;
         }
         public void Empty_forces_accumulators()
         {
-            Force_acc = new ChVector();
-            Torque_acc = new ChVector();
+            Force_acc = new ChVector(0, 0, 0);
+            Torque_acc = new ChVector(0, 0, 0);
         }
         public ChVector Get_accumulated_force() { return Force_acc; }
         public ChVector Get_accumulated_torque() { return Torque_acc; }
@@ -1431,15 +1431,15 @@ namespace chrono
         public void Set_Scr_force(ChVector mf) { Scr_force = mf; }
         public void Set_Scr_torque(ChVector mf) { Scr_torque = mf; }
         public void Accumulate_script_force(ChVector force, ChVector appl_point, bool local) {
-            ChVector mabsforce = new ChVector();
-            ChVector mabstorque = new ChVector();
+            ChVector mabsforce = new ChVector(0, 0, 0);
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_forcetorque(force, appl_point, local, ref mabsforce, ref mabstorque);
 
             Scr_force += mabsforce;
             Scr_torque += mabstorque;
         }
         public void Accumulate_script_torque(ChVector torque, bool local) {
-            ChVector mabstorque = new ChVector();
+            ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_torque(torque, local, ref mabstorque);
 
             Scr_torque += mabstorque;
@@ -1474,20 +1474,20 @@ namespace chrono
             Xforce = Force_acc;
 
             // 1b- force caused by accumulation of torques in body's accumulator Force_acc
-            if (Vector.Vnotnull(Torque_acc))
+            if (ChVector.Vnotnull(Torque_acc))
             {
                 Xtorque = Dir_World2Body(Torque_acc);
             }
             else
             {
-                Xtorque = new ChVector();
+                Xtorque = new ChVector(0, 0, 0);
             }
 
             // Debug.Log("torque " + Xtorque.y);
 
             // 2 - accumulation of other applied forces
-            ChVector mforce = new ChVector();
-            ChVector mtorque = new ChVector();
+            ChVector mforce = new ChVector(0, 0, 0);
+            ChVector mtorque = new ChVector(0, 0, 0);
 
             foreach (ChForce force in forcelist)
             {
@@ -1502,7 +1502,7 @@ namespace chrono
             // 3 - accumulation of script forces
             Xforce += Scr_force;
 
-            if (Vector.Vnotnull(Scr_torque))
+            if (ChVector.Vnotnull(Scr_torque))
             {
                 Xtorque += Dir_World2Body(Scr_torque);
             }
@@ -1620,7 +1620,7 @@ namespace chrono
             ChVector loc_omg = state_w.ClipVector(3, 0);
             ChVector abs_omg = csys.TransformDirectionLocalToParent(loc_omg);
 
-            return abs_vel + Vector.Vcross(abs_omg, loc_point);
+            return abs_vel + ChVector.Vcross(abs_omg, loc_point);
         }
 
         /// Get the absolute speed of point abs_point if attached to the surface.
@@ -1642,7 +1642,7 @@ namespace chrono
                                                 ref ChVectorDynamic<double> R) {
             ChVector m_p1_loc = this.Point_World2Body(abs_point);
             ChVector force1_loc = this.Dir_World2Body(F);
-            ChVector torque1_loc = Vector.Vcross(m_p1_loc, force1_loc);
+            ChVector torque1_loc = ChVector.Vcross(m_p1_loc, force1_loc);
             R.PasteSumVector(F, (int)this.GetOffset_w() + 0, 0);
             R.PasteSumVector(torque1_loc, (int)this.GetOffset_w() + 3, 0);
         }
@@ -1660,7 +1660,7 @@ namespace chrono
             ChCoordsys<double> csys = state_x.ClipCoordsys(0, 0);
             ChVector point_loc = csys.TransformPointParentToLocal(point);
             ChVector force_loc = csys.TransformDirectionParentToLocal(F);
-            ChVector torque_loc = Vector.Vcross(point_loc, force_loc);
+            ChVector torque_loc = ChVector.Vcross(point_loc, force_loc);
             Q.PasteVector(F, offset + 0, 0);
             Q.PasteVector(torque_loc, offset + 3, 0);
         }
@@ -1796,8 +1796,8 @@ namespace chrono
             ChVector abs_pos = new ChVector(U, V, W);
             ChVector absF = F.ClipVector(0, 0);
             ChVector absT = F.ClipVector(3, 0);
-            ChVector body_absF = new ChVector();
-            ChVector body_locT = new ChVector();
+            ChVector body_absF = new ChVector(0, 0, 0);
+            ChVector body_locT = new ChVector(0, 0, 0);
             ChCoordsys<double> bodycoord = new ChCoordsys<double>();
             if (state_x != null)
                 bodycoord = state_x.ClipCoordsys(0, 0);  // the numerical jacobian algo might change state_x

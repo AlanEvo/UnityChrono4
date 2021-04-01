@@ -20,7 +20,7 @@ namespace chrono
             public ChMatrixDynamic<double> m_R = new ChMatrixDynamic<double>();  //< R = dQ/dv
         };
 
-        private ChVector m_force = new ChVector();        //< contact force on objB
+        private ChVector m_force = new ChVector(0, 0, 0);        //< contact force on objB
         private ChContactJacobian m_Jac = new ChContactJacobian();                                  //< contact Jacobian data
 
         public ChContactSMC()

@@ -62,16 +62,16 @@ namespace chrono
         /// This represents the 'main' reference of the link: reaction forces
         /// and reaction torques are expressed in this coordinate system.
         /// Child classes should implement this.
-        public virtual ChCoordsys<double> GetLinkAbsoluteCoords() { return new ChCoordsys<double>(new ChVector(), new ChQuaternion()); }
+        public virtual ChCoordsys<double> GetLinkAbsoluteCoords() { return new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0)); }
 
         /// Get the master coordinate system for the assets, in absolute reference.
         /// (should be implemented by children classes)
         // public override ChFrame<double> GetAssetsFrame(int nclone = 0) { return new ChFrame<double>(GetLinkAbsoluteCoords()); }
 
         /// To get reaction force, expressed in link coordinate system:
-        public virtual ChVector Get_react_force() { return new ChVector(); }
+        public virtual ChVector Get_react_force() { return new ChVector(0, 0, 0); }
         /// To get reaction torque,  expressed in link coordinate system:
-        public virtual ChVector Get_react_torque() { return new ChVector(); }
+        public virtual ChVector Get_react_torque() { return new ChVector(0, 0, 0); }
         // (Note, functions above might fit better in a specialized subclass, but here for easier GUI interface)
 
         /// Tells if this link requires that the connected ChBody objects

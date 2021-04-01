@@ -20,7 +20,7 @@ namespace chrono
     /// this matrix can be resized anyway (but for larger size than NxM, it falls back to
     /// heap allocation). Note that if resizing is often required, it may be better
     /// to create a ChMatrixDyamic instead, from the beginning.
-    public class ChMatrixNM<A, B> : ChMatrix
+    public class ChMatrixNM<A, B> : ChMatrix       
        // where Real : unmanaged
         where A : IntInterface.IBase, new()
         where B : IntInterface.IBase, new()

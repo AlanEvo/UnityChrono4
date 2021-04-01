@@ -26,8 +26,8 @@ namespace chrono
         //public Vector3 position2;
         public Transform position2;
 
-        private ChVector sPosition1 = new ChVector();
-        private ChVector sPosition2 = new ChVector();
+        private ChVector sPosition1 = new ChVector(0, 0, 0);
+        private ChVector sPosition2 = new ChVector(0, 0, 0);
 
         public enum Type
         {
@@ -86,6 +86,7 @@ namespace chrono
             {
                 Gizmos.color = new Color(255, 255, 0);
                 Utils.drawSpring(radius, new ChVector(transform.position.x, transform.position.y, transform.position.z), new ChVector(position2.position.x, position2.position.y, position2.position.z), springResolution, springTurns);
+
                 Gizmos.DrawSphere(transform.position, 0.01f);
             }
         }
@@ -133,17 +134,17 @@ namespace chrono
         {
             // First, initialize as all constraint with markers.
             // In this case, create the two markers also!.
-            base.Initialize(body1, body2, new ChCoordsys<double>(new ChVector(), new ChQuaternion()));
+            base.Initialize(body1, body2, new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0)));
 
             if (pos_are_relative)
             {
-                marker1.Impose_Rel_Coord(new ChCoordsys<double>(pos1, new ChQuaternion()));
-                marker2.Impose_Rel_Coord(new ChCoordsys<double>(pos2, new ChQuaternion()));
+                marker1.Impose_Rel_Coord(new ChCoordsys<double>(pos1, new ChQuaternion(0, 0, 0, 0)));
+                marker2.Impose_Rel_Coord(new ChCoordsys<double>(pos2, new ChQuaternion(0, 0, 0, 0)));
             }
             else
             {
-                marker1.Impose_Abs_Coord(new ChCoordsys<double>(pos1, new ChQuaternion()));
-                marker2.Impose_Abs_Coord(new ChCoordsys<double>(pos2, new ChQuaternion()));
+                marker1.Impose_Abs_Coord(new ChCoordsys<double>(pos1, new ChQuaternion(0, 0, 0, 0)));
+                marker2.Impose_Abs_Coord(new ChCoordsys<double>(pos2, new ChQuaternion(0, 0, 0, 0)));
             }
 
             ChVector AbsDist = marker1.GetAbsCoord().pos - marker2.GetAbsCoord().pos;
@@ -155,20 +156,20 @@ namespace chrono
         /// Get the 1st spring endpoint (expressed in Body1 coordinate system)
         public ChVector GetEndPoint1Rel() { return marker1.FrameMoving.GetPos(); }
         /// Set the 1st spring endpoint (expressed in Body1 coordinate system)
-        public void SetEndPoint1Rel(ChVector mset) { marker1.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint1Rel(ChVector mset) { marker1.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
         /// Get the 1st spring endpoint (expressed in absolute coordinate system)
         public ChVector GetEndPoint1Abs() { return marker1.GetAbsCoord().pos; }
         /// Set the 1st spring endpoint (expressed in absolute coordinate system)
-        public void SetEndPoint1Abs(ref ChVector mset) { marker1.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint1Abs(ref ChVector mset) { marker1.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
 
         /// Get the 2nd spring endpoint (expressed in Body2 coordinate system)
         public ChVector GetEndPoint2Rel() { return marker2.FrameMoving.GetPos(); }
         /// Set the 2nd spring endpoint (expressed in Body2 coordinate system)
-        public void SetEndPoint2Rel(ChVector mset) { marker2.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint2Rel(ChVector mset) { marker2.Impose_Rel_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
         /// Get the 1st spring endpoint (expressed in absolute coordinate system)
         public ChVector GetEndPoint2Abs() { return marker2.GetAbsCoord().pos; }
         /// Set the 1st spring endpoint (expressed in absolute coordinate system)
-        public void SetEndPoint2Abs(ref ChVector mset) { marker2.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion())); }
+        public void SetEndPoint2Abs(ref ChVector mset) { marker2.Impose_Abs_Coord(new ChCoordsys<double>(mset, new ChQuaternion(0, 0, 0, 0))); }
 
         /// Inherits, then also adds the spring custom forces to the C_force and C_torque.
         public override void UpdateForces(double time)

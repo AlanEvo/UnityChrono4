@@ -194,10 +194,10 @@ namespace chrono
 
             this.mask.SetTwoBodiesVariables(Body1.Variables(), Body2.Variables());
 
-            ChVector mx = new ChVector();
-            ChVector my = new ChVector();
-            ChVector mz = new ChVector();
-            ChVector mN = new ChVector();
+            ChVector mx = new ChVector(0, 0, 0);
+            ChVector my = new ChVector(0, 0, 0);
+            ChVector mz = new ChVector(0, 0, 0);
+            ChVector mN = new ChVector(0, 0, 0);
             ChMatrix33<double> mrot = new ChMatrix33<double>();
 
             ChFrame<double> mfr1 = new ChFrame<double>();
@@ -449,8 +449,8 @@ namespace chrono
         }
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
         {
-            react_force = new ChVector();
-            react_torque = new ChVector();
+            react_force = new ChVector(0, 0, 0);
+            react_torque = new ChVector(0, 0, 0);
 
             if (!this.IsActive())
                 return;
@@ -645,8 +645,8 @@ namespace chrono
         }
         public override void ConstraintsFetch_react(double factor = 1)
         {
-            react_force = new ChVector();
-            react_torque = new ChVector();
+            react_force = new ChVector(0, 0, 0);
+            react_torque = new ChVector(0, 0, 0);
 
             if (!this.IsActive())
                 return;

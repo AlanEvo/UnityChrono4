@@ -55,9 +55,9 @@ namespace chrono
         public void stop()
         {
             PerformanceTimer.QueryPerformanceCounter(out m_end);
-            double end = (double)(m_end);
-            double start = (double)(m_start);
-            double freq = (double)(m_freq);
+            double end = (m_end);
+            double start = (m_start);
+            double freq = (m_freq);
             dynamic a = total;
             a += (end - start) / freq;
         }

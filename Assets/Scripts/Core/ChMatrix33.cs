@@ -117,7 +117,7 @@ namespace chrono
         public void Set_A_AngAxis(double angle,            //< angle of rotation, in radians
                                   ChVector axis)  //< axis of rotation, normalized
         {
-            ChQuaternion mr = new ChQuaternion();
+            ChQuaternion mr = new ChQuaternion(0, 0, 0, 0);
 
             mr.Q_from_AngAxis(angle, axis);
             this.Set_A_quaternion(mr);
@@ -127,7 +127,7 @@ namespace chrono
         /// quaternion.
         public ChQuaternion Get_A_quaternion()
         {
-            ChQuaternion q = new ChQuaternion();
+            ChQuaternion q = new ChQuaternion(0, 0, 0, 0);
             double s, tr;
             //dynamic a = 0.5;
             double half = 0.5;
@@ -324,7 +324,7 @@ namespace chrono
 
     /// Given a 3x3 rotation matrix, returns the versor of X axis.
     public ChVector Get_A_Xaxis() {
-            ChVector X = new ChVector();
+            ChVector X = new ChVector(0, 0, 0);
             X.x = this.Get33Element(0, 0);
             X.y = this.Get33Element(1, 0);
             X.z = this.Get33Element(2, 0);
@@ -333,7 +333,7 @@ namespace chrono
 
         /// Given a 3x3 rotation matrix, returns the versor of Y axis.
         public ChVector Get_A_Yaxis() {
-            ChVector Y = new ChVector();
+            ChVector Y = new ChVector(0, 0, 0);
             Y.x = this.Get33Element(0, 1);
             Y.y = this.Get33Element(1, 1);
             Y.z = this.Get33Element(2, 1);
@@ -343,7 +343,7 @@ namespace chrono
         /// Given a 3x3 rotation matrix, returns the versor of Z axis.
         public ChVector Get_A_Zaxis()
         {
-            ChVector Z = new ChVector();
+            ChVector Z = new ChVector(0, 0, 0);
             Z.x = this.Get33Element(0, 2);
             Z.y = this.Get33Element(1, 2);
             Z.z = this.Get33Element(2, 2);

@@ -23,7 +23,7 @@ namespace chrono
     ///  Warning: for optimization reasons, not all functions will
     /// check about boundaries of element indexes and matrix sizes (in
     /// some cases, if sizes are wrong, debug asserts are used).
-    public unsafe class ChMatrix
+    public class ChMatrix
     {
         //
         // DATA

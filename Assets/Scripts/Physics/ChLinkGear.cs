@@ -130,7 +130,7 @@ namespace chrono
             ChVector mmark1;
             ChVector mmark2;
             ChVector lastX;
-            ChVector vrota = new ChVector();
+            ChVector vrota = new ChVector(0, 0, 0);
             ChCoordsys<double> newmarkpos = new ChCoordsys<double>();
 
             ChFrame<double> abs_shaft1 = new ChFrame<double>();

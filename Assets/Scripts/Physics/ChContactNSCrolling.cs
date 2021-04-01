@@ -85,7 +85,7 @@ namespace chrono
               oB.ComputeJacobianForRollingContactPart(this.p2, ref this.contact_plane, ref Rx.Get_tuple_b(),
                                                                ref Ru.Get_tuple_b(), ref Rv.Get_tuple_b(), true);
 
-            this.react_torque = new ChVector();
+            this.react_torque = new ChVector(0, 0, 0);
         }
 
         /// Get the contact force, if computed, in contact coordinate system

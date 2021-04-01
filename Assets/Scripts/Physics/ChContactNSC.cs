@@ -23,7 +23,7 @@ namespace chrono
         protected ChConstraintTwoTuplesFrictionT<Ta, Tb> Tu = new ChConstraintTwoTuplesFrictionT<Ta, Tb>();
         protected ChConstraintTwoTuplesFrictionT<Ta, Tb> Tv = new ChConstraintTwoTuplesFrictionT<Ta, Tb>();
 
-        protected ChVector react_force = new ChVector();
+        protected ChVector react_force = new ChVector(0, 0, 0);
 
         protected double compliance;
         protected double complianceT;
@@ -111,7 +111,7 @@ namespace chrono
             }
             else
             {
-                react_force = new ChVector();
+                react_force = new ChVector(0, 0, 0);
             }
         }
 

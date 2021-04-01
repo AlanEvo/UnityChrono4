@@ -99,7 +99,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddBox(size.x * 0.473f, size.y * 0.473f, size.z * 0.473f, new ChVector(), new ChMatrix33<double>(1));  // radius x, radius z, height on y
+                        GetCollisionModel().AddBox(size.x * 0.473f, size.y * 0.473f, size.z * 0.473f, new ChVector(0, 0, 0), new ChMatrix33<double>(1));  // radius x, radius z, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
@@ -136,7 +136,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddSphere(size2, new ChVector());  // radius, radius, height on y
+                        GetCollisionModel().AddSphere(size2, new ChVector(0, 0, 0));  // radius, radius, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
@@ -144,7 +144,7 @@ namespace chrono
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddSphere(size2, new ChVector());  // radius, radius, height on y
+                        GetCollisionModel().AddSphere(size2, new ChVector(0, 0, 0));  // radius, radius, height on y
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }

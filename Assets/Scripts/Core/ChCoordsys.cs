@@ -24,8 +24,8 @@ namespace chrono
     [System.Serializable]
     public class ChCoordsys<Real> where Real : notnull
     {
-        public ChVector pos = new ChVector();
-        public ChQuaternion rot = new ChQuaternion();
+        public ChVector pos = new ChVector(0, 0, 0);
+        public ChQuaternion rot = new ChQuaternion(0, 0, 0, 0);
 
         // Default constructor (identity frame)
         public ChCoordsys()
@@ -115,7 +115,7 @@ namespace chrono
         // }
         /*   public ChVector TransformLocalToParent(ChVector vec)
            {
-               ChVector temp = new ChVector();
+               ChVector temp = new ChVector(0, 0, 0);
                temp.m_ChVector = ChCoordsys_TransformLocalToParent(m_ChCoordsys, vec.m_ChVector);
                temp.data[0] = temp.GetX();
                temp.data[1] = temp.GetY();
@@ -126,7 +126,7 @@ namespace chrono
 
         /*   public ChVector TransformDirectionParentToLocal(ChVector vec)
            {
-               ChVector temp = new ChVector();
+               ChVector temp = new ChVector(0, 0, 0);
                temp.m_ChVector = ChCoordsys_TransformDirectionParentToLocal(m_ChCoordsys, vec.m_ChVector);
                temp.data[0] = temp.GetX();
                temp.data[1] = temp.GetY();
@@ -137,7 +137,7 @@ namespace chrono
 
         /*  public ChVector TransformDirectionLocalToParent(ChVector vec)
           {
-              ChVector temp = new ChVector();
+              ChVector temp = new ChVector(0, 0, 0);
               temp.m_ChVector = ChCoordsys_TransformDirectionLocalToParent(m_ChCoordsys, vec.m_ChVector);
               temp.data[0] = temp.GetX();
               temp.data[1] = temp.GetY();
@@ -207,8 +207,8 @@ namespace chrono
 
         // CONSTANTS
 
-       // public static ChCoordsys<double> CSYSNULL = new ChCoordsys<double>(new ChVector(), ChQuaternion.QNULL);
-       // public static ChCoordsys<double> CSYSNORM = new ChCoordsys<double>(new ChVector(), ChQuaternion.QUNIT);
+       // public static ChCoordsys<double> CSYSNULL = new ChCoordsys<double>(new ChVector(0, 0, 0), ChQuaternion.QNULL);
+       // public static ChCoordsys<double> CSYSNORM = new ChCoordsys<double>(new ChVector(0, 0, 0), ChQuaternion.QUNIT);
 
     }
 

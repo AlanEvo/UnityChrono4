@@ -26,13 +26,13 @@ namespace chrono
         private ReferenceFrame frame;  //< fix position in body csys or world csys
         private AlignmentFrame align;  //< fix direction in body csys or world csys
 
-        private ChVector vpoint = new ChVector();     //< absolute point of application
-        private ChVector vrelpoint = new ChVector();  //< relative point of application
+        private ChVector vpoint = new ChVector(0, 0, 0);     //< absolute point of application
+        private ChVector vrelpoint = new ChVector(0, 0, 0);  //< relative point of application
 
         private ChFunction move_x;  /// motion x (abs or rel, depends on 'frame')
         private ChFunction move_y;  //< motion y  ""
         private ChFunction move_z;  //< motion z  ""
-        private ChVector restpos = new ChVector();                  //< t=0 position (abs or rel, depends on 'frame')
+        private ChVector restpos = new ChVector(0, 0, 0);                  //< t=0 position (abs or rel, depends on 'frame')
 
         private ChFunction f_x;  //< fv strengh x (abs or rel, see 'align')
         private ChFunction f_y;  //< fv strengh y  ""
@@ -41,11 +41,11 @@ namespace chrono
         private double mforce;                       //< fm scalar force strenght
         private ChFunction modula;  //< scalar force fm modulation
 
-        private ChVector vdir = new ChVector();     ///< force/torque abs.direction
-        private ChVector vreldir = new ChVector();  ///< force/torque rel direction
+        private ChVector vdir = new ChVector(0, 0, 0);     ///< force/torque abs.direction
+        private ChVector vreldir = new ChVector(0, 0, 0);  ///< force/torque rel direction
 
-        private ChVector force = new ChVector();     //< TOTAL force vect (abs.coord) = fm*vdir +fx+fy+fz
-        private ChVector relforce = new ChVector();  //< TOTAL force vect (rel.coord) = fm*vdir +fx+fy+fz
+        private ChVector force = new ChVector(0, 0, 0);     //< TOTAL force vect (abs.coord) = fm*vdir +fx+fy+fz
+        private ChVector relforce = new ChVector(0, 0, 0);  //< TOTAL force vect (rel.coord) = fm*vdir +fx+fy+fz
 
         private ChMatrixDynamic<double> Qf = new ChMatrixDynamic<double>();  //< Lagrangian force
 
@@ -53,13 +53,13 @@ namespace chrono
         public ChForce()
         {
             Body = null;
-            vpoint = new ChVector();
-            vrelpoint = new ChVector();
-            force = new ChVector();
-            relforce = new ChVector();
-            vdir = Vector.VECT_X;
-            vreldir = Vector.VECT_X;
-            restpos = new ChVector();
+            vpoint = new ChVector(0, 0, 0);
+            vrelpoint = new ChVector(0, 0, 0);
+            force = new ChVector(0, 0, 0);
+            relforce = new ChVector(0, 0, 0);
+            vdir = ChVector.VECT_X;
+            vreldir = ChVector.VECT_X;
+            restpos = new ChVector(0, 0, 0);
             mforce = 0;
             align = AlignmentFrame.BODY_DIR;
             frame = ReferenceFrame.BODY;

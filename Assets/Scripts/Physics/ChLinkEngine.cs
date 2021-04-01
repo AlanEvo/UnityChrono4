@@ -65,9 +65,9 @@ namespace chrono
         protected double last_r3time;               //< internal:for backward differentiation to compute speed in keyframe mode
         protected double last_r3mot_rot;            //< internal:for backward differentiation to compute speed in keyframe mode
         protected double last_r3mot_rot_dt;         //< internal:for backward differentiation to compute speed in keyframe mode
-        protected  ChQuaternion last_r3relm_rot = new  ChQuaternion();       //< internal:for backward differentiation to compute speed in keyframe mode
-        protected  ChQuaternion last_r3relm_rot_dt = new  ChQuaternion();    //< internal
-        protected  ChQuaternion keyed_polar_rotation = new  ChQuaternion();  //< internal
+        protected  ChQuaternion last_r3relm_rot = new  ChQuaternion(0, 0, 0, 0);       //< internal:for backward differentiation to compute speed in keyframe mode
+        protected  ChQuaternion last_r3relm_rot_dt = new  ChQuaternion(0, 0, 0, 0);    //< internal
+        protected  ChQuaternion keyed_polar_rotation = new  ChQuaternion(0, 0, 0, 0);  //< internal
 
         protected ChShaft innershaft1;// = new ChShaft();            //< used in ENG_MODE_TO_POWERTRAIN_SHAFT
         protected ChShaft innershaft2;// = new ChShaft();            //< used in ENG_MODE_TO_POWERTRAIN_SHAFT
@@ -91,7 +91,7 @@ namespace chrono
             mot_retorque = 0;
             last_r3mot_rot = 0;
             last_r3mot_rot_dt = 0;
-            last_r3relm_rot = new ChQuaternion();// ChQuaternion.QUNIT;
+            last_r3relm_rot = new ChQuaternion(0, 0, 0, 0);// ChQuaternion.QUNIT;
             last_r3relm_rot_dt = new ChQuaternion(0, 0, 0, 0);//ChQuaternion.QNULL;
             last_r3time = 0;
             keyed_polar_rotation = new ChQuaternion(0, 0, 0, 0);// ChQuaternion.QNULL;
@@ -214,12 +214,12 @@ namespace chrono
             // If LEARN MODE, just record motion
             if (learn)
             {
-                deltaC.pos = new ChVector();
-                deltaC_dt.pos = new ChVector();
-                deltaC_dtdt.pos = new ChVector();
+                deltaC.pos = new ChVector(0, 0, 0);
+                deltaC_dt.pos = new ChVector(0, 0, 0);
+                deltaC_dtdt.pos = new ChVector(0, 0, 0);
                 if (!(limit_Rx.Get_active() || limit_Ry.Get_active() || limit_Rz.Get_active()))
                 {
-                    deltaC.rot = new ChQuaternion();// ChQuaternion.QUNIT;
+                    deltaC.rot = new ChQuaternion(0, 0, 0, 0);// ChQuaternion.QUNIT;
                     deltaC_dt.rot = new ChQuaternion(0, 0, 0, 0); //ChQuaternion.QNULL;
                     deltaC_dtdt.rot = new ChQuaternion(0, 0, 0, 0);// ChQuaternion.QNULL;
                 }
@@ -256,9 +256,9 @@ namespace chrono
 
             // Impose relative positions/speeds
 
-            deltaC.pos = new ChVector();
-            deltaC_dt.pos = new ChVector();
-            deltaC_dtdt.pos = new ChVector();
+            deltaC.pos = new ChVector(0, 0, 0);
+            deltaC_dt.pos = new ChVector(0, 0, 0);
+            deltaC_dtdt.pos = new ChVector(0, 0, 0);
 
             if (eng_mode == eCh_eng_mode.ENG_MODE_ROTATION)
             {
@@ -408,7 +408,7 @@ namespace chrono
 
         public void Set_rot_funct_x(ChFunction mf) { rot_funct_x = mf; }
         public void Set_rot_funct_y(ChFunction mf) { rot_funct_y = mf; }
-        public void SetKeyedPolarRotation(Quaternion mq) { keyed_polar_rotation = mq; }
+        public void SetKeyedPolarRotation(ChQuaternion mq) { keyed_polar_rotation = mq; }
 
         public bool Get_learn() { return learn; }
         public bool Get_impose_reducer() { return impose_reducer; }

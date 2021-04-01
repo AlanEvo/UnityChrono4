@@ -20,7 +20,7 @@ namespace chrono
         private ChConstraintTwoGeneric constraint = new ChConstraintTwoGeneric();  //< used as an interface to the solver
         private ChShaft shaft = new ChShaft();                     //< connected shaft
         private ChBodyFrame body = new ChBodyFrame();                  //< connected body
-        private ChVector shaft_dir = new ChVector();               //< shaft direction
+        private ChVector shaft_dir = new ChVector(0, 0, 0);               //< shaft direction
 
 
         public ChShaftsBody()

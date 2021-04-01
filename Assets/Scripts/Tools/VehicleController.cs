@@ -38,7 +38,7 @@ namespace chrono
 
             public Vector3 inertiaXX = new Vector3();
             protected ChMatrix33<double> m_inertia;
-            protected ChVector m_inertiaXX = new ChVector();
+            protected ChVector m_inertiaXX = new ChVector(0, 0, 0);
             protected ChVector m_inertiaXY = new ChVector(0, 0, 0);
 
             public Vector3 airDrag = new Vector3();

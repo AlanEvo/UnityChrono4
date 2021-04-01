@@ -32,8 +32,8 @@ namespace chrono
             public ChCollisionInfo() {
                 modelA = null;
                 modelB = null;
-                vpA = new ChVector();
-                vpB = new ChVector();
+                vpA = new ChVector(0, 0, 0);
+                vpB = new ChVector(0, 0, 0);
                 vN = new ChVector(1, 0, 0);
                 distance = 0;
                 eff_radius = default_eff_radius;

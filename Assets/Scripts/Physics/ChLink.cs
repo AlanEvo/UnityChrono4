@@ -24,14 +24,14 @@ namespace chrono
 
         protected ChBodyFrame Body1 = new ChBodyFrame();       //< first connected body
         protected ChBodyFrame Body2 = new ChBodyFrame();       //< second connected body
-        protected ChVector react_force = new ChVector();   //< store the xyz reactions, expressed in local coordinate system of link;
-        protected ChVector react_torque = new ChVector();  //< store the torque reactions, expressed in local coordinate system of link;
+        protected ChVector react_force = new ChVector(0, 0, 0);   //< store the xyz reactions, expressed in local coordinate system of link;
+        protected ChVector react_torque = new ChVector(0, 0, 0);  //< store the torque reactions, expressed in local coordinate system of link;
 
        public ChLink() {
             //Body1 = null;
             //Body2 = null;
-            react_force = new ChVector();
-            react_torque = new ChVector();
+            react_force = new ChVector(0, 0, 0);
+            react_torque = new ChVector(0, 0, 0);
         }
 
         public ChLink(ChLink other) : base(other)
@@ -61,7 +61,7 @@ namespace chrono
         /// body). This represents the 'main' reference of the link: reaction forces
         /// and reaction torques are expressed in this coordinate system.
         /// By default is in the origin of Body2, but child classes should implement this.
-        public virtual ChCoordsys<double> GetLinkRelativeCoords() { return new ChCoordsys<double>(new ChVector(), new ChQuaternion()); }
+        public virtual ChCoordsys<double> GetLinkRelativeCoords() { return new ChCoordsys<double>(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0)); }
 
         /// Get the link coordinate system in absolute reference.
         /// This represents the 'main' reference of the link: reaction forces

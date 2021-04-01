@@ -121,57 +121,7 @@ namespace chrono
         /// collision model used by this system.  The returned body is not added to the system.
         public override ChBodyAuxRef NewBodyAuxRef() { return new ChBodyAuxRef(); }
 
-        //public override void Fixed()
-        public override void FixedUpdate()
-        {
-            Time.fixedDeltaTime = (float)step;
-
-            DoStepDynamics(step);
-
-           /* double dt;
-            if (try_realtime)
-                dt = m_realtime_timer.SuggestSimulationStep(timestep);
-            else
-                dt = timestep;
-
-            try
-            {
-                system->DoStepDynamics(dt);
-            }
-            catch (ChException my_exception)
-            {
-                GetLog() << my_exception.what() << "\n";
-            }*/
-
-            // testTime++;
-
-            // Process current collisions and report number of contacts on a few bodies.
-
-            // debug = collision_system.debug;
-
-            //contacts = contact_container.ReportAllContacts(contact_container);
-
-            /* if (vehicleApplication)
-             {
-                 // Advance simulation for one timestep for all modules
-                 m_softstep = enforce_soft_real_time ? realtime_timer.SuggestSimulationStep(step) : step;
-
-                 Time.fixedDeltaTime = (float)m_softstep;
-
-                 double t = 0;
-                 while (t < m_softstep)
-                 {
-                     double h = Math.Min(step, m_softstep - t);
-                     DoStepDynamics(h);
-                     t += h;
-                 }
-             }
-             else
-             {
-                 DoStepDynamics(step);
-             }*/
-
-        }
+     
 
       /*  private void OnGUI()
         {

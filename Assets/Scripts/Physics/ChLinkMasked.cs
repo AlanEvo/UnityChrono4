@@ -273,8 +273,8 @@ namespace chrono
         // Dont think this is working?!
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
         {
-            react_force = new ChVector();   // Do not update 'intuitive' react force and torque here: just set as 0.
-            react_torque = new ChVector();  // Child classes implementations should compute them.
+            react_force = new ChVector(0, 0, 0);   // Do not update 'intuitive' react force and torque here: just set as 0.
+            react_torque = new ChVector(0, 0, 0);  // Child classes implementations should compute them.
 
             if (react != null)
                 react.PasteClippedMatrix(L, off_L, 0, react.GetRows(), 1, 0, 0);
@@ -447,8 +447,8 @@ namespace chrono
         }
         public override void ConstraintsFetch_react(double factor = 1)
         {
-            react_force = new ChVector();   // Do not update 'intuitive' react force and torque here: just set as 0.
-            react_torque = new ChVector();  // Child classes implementations should compute them.
+            react_force = new ChVector(0, 0, 0);   // Do not update 'intuitive' react force and torque here: just set as 0.
+            react_torque = new ChVector(0, 0, 0);  // Child classes implementations should compute them.
 
             // From constraints to react vector:
             int cnt = 0;
@@ -532,8 +532,8 @@ namespace chrono
             // ** Child class can inherit this method. The parent implementation must
             //    be called _before_ adding further custom forces.
 
-            ChVector m_force;// = new ChVector();   // initialize to zero the m1-m2 force/torque
-            ChVector m_torque;// = new ChVector();  // 'intuitive' vectors (can be transformed&added later into Qf)
+            ChVector m_force;// = new ChVector(0, 0, 0);   // initialize to zero the m1-m2 force/torque
+            ChVector m_torque;// = new ChVector(0, 0, 0);  // 'intuitive' vectors (can be transformed&added later into Qf)
 
             // COMPUTE THE FORCES IN THE LINK, FOR EXAMPLE
             // CAUSED BY SPRINGS
@@ -570,7 +570,7 @@ namespace chrono
 
             // 3)========== the XYZ forces
 
-            m_force = new ChVector();
+            m_force = new ChVector(0, 0, 0);
 
             if (force_X != null && force_X.Get_active())
             {
@@ -591,7 +591,7 @@ namespace chrono
 
             // 4)========== the RxRyRz forces (torques)
 
-            m_torque = new ChVector();
+            m_torque = new ChVector(0, 0, 0);
 
             if (force_Rx != null && force_Rx.Get_active())
             {
