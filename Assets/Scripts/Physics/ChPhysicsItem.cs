@@ -166,7 +166,7 @@ namespace chrono
     )
     {
         // Default behavior: even if no state is used, at least call Update()
-        update(T);
+        //update(T);
     }
 
         /// From item's state acceleration to global acceleration vector

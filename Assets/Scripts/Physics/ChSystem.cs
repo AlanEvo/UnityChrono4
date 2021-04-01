@@ -250,7 +250,7 @@ namespace chrono
                                ChStateDelta Dy  //< state increment Dy
                                )
         {
-            double ynew = y_new[1]; // PROBLEM!  Huge cpu drain
+            double ynew;// = y_new[1]; // PROBLEM!  Huge cpu drain
             if (y.GetRows() == this.GetNcoords_x())
             {
                 // Incrementing the x part only, user provided only x  in y={x, dx/dt}
@@ -353,7 +353,18 @@ namespace chrono
         // Call the main Chrono update
         public virtual void FixedUpdate()
         {
-            //DoStepDynamics(step);
+            // TO DO This doesn't work yet
+           /* bool try_realtime = true;
+
+            double dt;
+            if (try_realtime)
+                dt = m_realtime_timer.SuggestSimulationStep(step);
+            else
+                dt = step;*/
+
+            Time.fixedDeltaTime = (float)step;
+
+            DoStepDynamics(step);
         }
 
         //
@@ -1275,7 +1286,7 @@ namespace chrono
             // m_intergral.StateScatter(x, T);
             IntStateScatter(0, x, 0, v, T);
 
-            update();  //***TODO*** optimize because maybe IntStateScatter above might have already called Update?
+            //update();  //***TODO*** optimize because maybe IntStateScatter above might have already called Update?
         }
 
         /// From system to state derivative (acceleration), some timesteppers might need last computed accel.
@@ -1739,12 +1750,15 @@ namespace chrono
                 {
                     ChLink Lpointer = linklist[ip];
 
-                    if (Lpointer.IsRequiringWaking())
-                    {
-                        ChBody b1 = new ChBody();
-                        ChBody b2 = new ChBody();
-                        b1.BodyFrame = Lpointer.GetBody1();
-                        b2.BodyFrame = Lpointer.GetBody2();
+                    if (Lpointer.IsRequiringWaking()) {
+                        // ChBody* b1 = dynamic_cast<ChBody*>(Lpointer->GetBody1());
+                        // ChBody* b2 = dynamic_cast<ChBody*>(Lpointer->GetBody2());
+
+                        // TODO  Needs to be resolved to have sleeping bodies.
+                       /* ChBody b1 = (Lpointer).GetBody1();
+                        ChBody b2 = (Lpointer).GetBody1();
+                        //b1.BodyFrame = Lpointer.GetBody1();
+                        //b2.BodyFrame = Lpointer.GetBody2();
                         if (b1 != null && b2 != null)
                         {
                             bool sleep1 = b1.GetSleeping();
@@ -1770,7 +1784,7 @@ namespace chrono
                             {
                                 b2.BFlagSet(ChBody.BodyFlag.COULDSLEEP, false);
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -1781,7 +1795,7 @@ namespace chrono
                 if (!my_waker.someone_sleeps)
                     break;
             }
-
+           
             return true;
 
         }
@@ -1807,7 +1821,7 @@ namespace chrono
             ComputeCollisions();
 
             // Counts dofs, statistics, etc. (not needed because already in Advance()...? )
-            Setup(); // FIXED Extreme slow down 5000ms!
+            Setup();
 
             // Update everything - and put to sleep bodies that need it (not needed because already in Advance()...? )
             // No need to update visualization assets here.
@@ -1815,7 +1829,7 @@ namespace chrono
 
             // Re-wake the bodies that cannot sleep because they are in contact with
             // some body that is not in sleep state.
-            ManageSleepingBodies();
+            ManageSleepingBodies();     // TODO Fix to have sleeping.
 
             // Prepare lists of variables and constraints.
             DescriptorPrepareInject(ref descriptor);
@@ -2387,7 +2401,7 @@ namespace chrono
         //protected GameObject contact_container;  //< the container of contacts
 
         public Vector3 gravity = new Vector3();
-        protected ChVector G_acc = new ChVector();  //< gravitational acceleration
+        protected ChVector G_acc = new ChVector(0, 0, 0);  //< gravitational acceleration
 
         protected double end_time;  //< end of simulation
         public double step;      //< time step
@@ -2443,5 +2457,7 @@ namespace chrono
         protected bool last_err;  //< indicates error over the last kinematic/dynamics/statics
 
         public int debug;
+
+        ChRealtimeStepTimer m_realtime_timer = new ChRealtimeStepTimer();
     }
 }
