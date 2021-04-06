@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6773997170008974283}
-  - component: {fileID: 6001294348191610364}
+  - component: {fileID: 8829064079850547357}
+  - component: {fileID: 408089520111266855}
   m_Layer: 0
   m_Name: Motor
   m_TagString: Untagged
@@ -24,14 +25,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1602945635370248436}
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -1, y: -0.20000005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 357380487237080333}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &6001294348191610364
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &8829064079850547357
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,12 +41,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1602945635370248436}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd76639326d779448dd235816e05d07, type: 3}
+  m_Script: {fileID: 11500000, guid: 150575442d846094597fcda729b7238a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sConstraint: 0
+  sConstraint: 1
   body1: {fileID: 0}
   body2: {fileID: 0}
+--- !u!114 &408089520111266855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602945635370248436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b98c5a334936f949a77ad058a4b2186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  constant_val: 0
 --- !u!1 &3623781295526384847
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,6 +104,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee4596527908157438471148a50427dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deltaC:
+    rot:
+      data:
+      - 1
+      - 0
+      - 0
+      - 0
   body1: {fileID: 0}
   body2: {fileID: 0}
   enableLimits: 0

@@ -307,6 +307,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee4596527908157438471148a50427dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deltaC:
+    rot:
+      data:
+      - 1
+      - 0
+      - 0
+      - 0
   body1: {fileID: 0}
   body2: {fileID: 5532762221153756499}
   enableLimits: 0
@@ -326,7 +333,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8100079138476438216}
-  - component: {fileID: 89399651378694431}
+  - component: {fileID: 7073460207544698173}
   m_Layer: 0
   m_Name: Motor
   m_TagString: Untagged
@@ -348,7 +355,7 @@ Transform:
   m_Father: {fileID: 3016140426617927150}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &89399651378694431
+--- !u!114 &7073460207544698173
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -357,10 +364,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7436130718765989412}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd76639326d779448dd235816e05d07, type: 3}
+  m_Script: {fileID: 11500000, guid: 150575442d846094597fcda729b7238a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sConstraint: 0
+  sConstraint: 1
   body1: {fileID: 0}
   body2: {fileID: 0}
 --- !u!1001 &1545370457465084101

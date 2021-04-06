@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5425432803975167630}
-  - component: {fileID: 4188310196838778201}
+  - component: {fileID: 852660424027273114}
+  - component: {fileID: 2412711845556978332}
   m_Layer: 0
   m_Name: Motor
   m_TagString: Untagged
@@ -24,14 +25,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6633855101354832482}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 1, y: -0.20000005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1618717568083763408}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &4188310196838778201
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &852660424027273114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,12 +41,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 6633855101354832482}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd76639326d779448dd235816e05d07, type: 3}
+  m_Script: {fileID: 11500000, guid: 150575442d846094597fcda729b7238a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sConstraint: 0
+  sConstraint: 1
   body1: {fileID: 0}
   body2: {fileID: 0}
+--- !u!114 &2412711845556978332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6633855101354832482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b98c5a334936f949a77ad058a4b2186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  constant_val: 0
 --- !u!1 &7532562197077531080
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,6 +186,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee4596527908157438471148a50427dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deltaC:
+    rot:
+      data:
+      - 1
+      - 0
+      - 0
+      - 0
   body1: {fileID: 0}
   body2: {fileID: 8640736983688309013}
   enableLimits: 0
