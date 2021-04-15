@@ -72,20 +72,19 @@ namespace chrono
             GUIContent autoInertia = new GUIContent("Automatic Mass/Inertia", "Toggle whether the rigid body's mass and inertia is calculated automatically based on dimensions and custom density, or if you would like to set the mass and inertia manually.");
             body.automaticMass = EditorGUILayout.Toggle(autoInertia, body.automaticMass);
 
-            if (!body.automaticMass)
+            if (body.automaticMass)
             {
-
+                GUIContent density = new GUIContent("MDensity", "Set the rigid body density. Used when doing the 'recompute mass' operation.");
+                body.density = EditorGUILayout.FloatField(density, body.density);
+            }
+            else
+            {
                 GUIContent mass = new GUIContent("Mass", "Mass of the rigid body. Must be positive. Try not to mix bodies with too high/too low values of mass, for numerical stability.");
                 body.mass = EditorGUILayout.DoubleField(mass, body.mass);
                 GUIContent inertXX = new GUIContent("Moments of Inertia", "Advanced, Set the diagonal part of the inertia tensor, The provided 3x1 vector should contain the moments of inertia, expressed in the local coordinate frame");
                 body.inertiaMoments = EditorGUILayout.Vector3Field(inertXX, body.inertiaMoments);
                 GUIContent inertXY = new GUIContent("Products of Inertia", "Advanced, Set the off-diagonal part of the inertia tensor (Ixy, Ixz, Iyz values). Warning about sign: in some books they write the inertia tensor as I=[Ixx, -Ixy, -Ixz; etc.] but here is I=[Ixx, Ixy, Ixz; ...]. The provided 3x1 vector should contain the products of inertia, expressed in the local coordinate frame:");
                 body.inertiaProducts = EditorGUILayout.Vector3Field(inertXY, body.inertiaProducts);
-            }
-            else
-            {
-                GUIContent density = new GUIContent("MDensity", "Set the rigid body density. Used when doing the 'recompute mass' operation.");
-                body.density = EditorGUILayout.FloatField(density, body.density);
             }
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
