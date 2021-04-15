@@ -154,34 +154,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0518c9b9912892e4995d836274fdee1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BodyFrame:
-    coord:
-      rot:
-        data:
-        - 1
-        - 0
-        - 0
-        - 0
-    coord_dt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
-    coord_dtdt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
   density: 100
   automaticMass: 1
   bodyfixed: 0
   collide: 0
   mass: 1
-  inertiaMoments: {x: 0, y: 0, z: 0}
+  inertiaMoments: {x: 1, y: 1, z: 0.2}
   inertiaProducts: {x: 0, y: 0, z: 0}
   linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
@@ -297,34 +275,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0518c9b9912892e4995d836274fdee1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BodyFrame:
-    coord:
-      rot:
-        data:
-        - 1
-        - 0
-        - 0
-        - 0
-    coord_dt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
-    coord_dtdt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
   density: 100
   automaticMass: 1
   bodyfixed: 0
   collide: 0
   mass: 1
-  inertiaMoments: {x: 0, y: 0, z: 0}
+  inertiaMoments: {x: 1, y: 1, z: 0.2}
   inertiaProducts: {x: 0, y: 0, z: 0}
   linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
@@ -600,10 +556,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc8e2f5d24fe4a74cb134afd9d226e98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bodylist: []
-  linklist: []
   gravity: {x: 0, y: -9.81, z: 0}
-  step: 0.01
+  step: 0.001
   maxiter: 30
   use_sleeping: 1
   max_iter_solver_speed: 10
@@ -709,28 +663,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0518c9b9912892e4995d836274fdee1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BodyFrame:
-    coord:
-      rot:
-        data:
-        - 1
-        - 0
-        - 0
-        - 0
-    coord_dt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
-    coord_dtdt:
-      rot:
-        data:
-        - 0
-        - 0
-        - 0
-        - 0
   density: 1000
   automaticMass: 0
   bodyfixed: 1
@@ -801,10 +733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee4596527908157438471148a50427dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  react:
-    rows: 1
-    columns: 1
-    address: []
   body1: {fileID: 1370988593}
   body2: {fileID: 33859450}
   enableLimits: 0
@@ -839,8 +767,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1772676800}
-  - component: {fileID: 1772676801}
   - component: {fileID: 1772676799}
+  - component: {fileID: 1772676801}
   m_Layer: 0
   m_Name: Motor
   m_TagString: Untagged
@@ -857,12 +785,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1772676798}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bd76639326d779448dd235816e05d07, type: 3}
+  m_Script: {fileID: 11500000, guid: 377db5cc3fe6aaf489ba7dc5fac5a41b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sConstraint: 3
   body1: {fileID: 1370988593}
   body2: {fileID: 212513910}
+  enableLimits: 0
+  showLimits: 0
+  minAngle: 0
+  maxAngle: 0
+  minDisplacement: 0
+  maxDisplacement: 0
+  angle: 0
+  type: 1
+  mot_tau: 1
+  mot_eta: 1
+  mot_inertia: 0
+  EngineMode: 0
+  shaft_mode: 0
 --- !u!4 &1772676800
 Transform:
   m_ObjectHideFlags: 0
@@ -887,11 +827,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1772676798}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b98c5a334936f949a77ad058a4b2186, type: 3}
+  m_Script: {fileID: 11500000, guid: 91983b0116cec6f4587ebb1667f9f62e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
-  constant_val: 1
+  type: 0
+  y0: 0
+  ang: 1
 --- !u!1 &1877489433
 GameObject:
   m_ObjectHideFlags: 0
