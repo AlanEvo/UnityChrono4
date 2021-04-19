@@ -161,40 +161,32 @@ namespace chrono
             //for (int i = 0; i <= 1; i++, contactlist_6_6.GetEnumerator().MoveNext())
             // {
             //iter.Current;
-            //contactlist_6_6.GetEnumerator().MoveNext();
+            contactlist_6_6.Clear();
             lastcontact_6_6 = contactlist_6_6.GetEnumerator();
             n_added_6_6 = 0;
             //}
 
             /* lastcontact_6_3 = (IEnumerator<ChContactNSC_6_3>)Enumerable.Empty<ChContactNSC_6_3>();// = (IEnumerator<ChContactNSC_6_3>)contactlist_6_3.FirstOrDefault();
              n_added_6_3 = 0;
-
              lastcontact_3_3 = (IEnumerator<ChContactNSC_3_3>)Enumerable.Empty<ChContactNSC_3_3>();// = (IEnumerator<ChContactNSC_3_3>)contactlist_3_3.FirstOrDefault();
              n_added_3_3 = 0;
-
              lastcontact_333_3 = (IEnumerator<ChContactNSC_333_3>)Enumerable.Empty<ChContactNSC_333_3>();// = (IEnumerator<ChContactNSC_333_3>)contactlist_333_3.FirstOrDefault();
              n_added_333_3 = 0;
-
              lastcontact_333_6 = (IEnumerator<ChContactNSC_333_6>)Enumerable.Empty<ChContactNSC_333_6>();// = (IEnumerator<ChContactNSC_333_6>)contactlist_333_6.FirstOrDefault();
              n_added_333_6 = 0;
-
              lastcontact_333_333 = (IEnumerator<ChContactNSC_333_333>)Enumerable.Empty<ChContactNSC_333_333>();// = (IEnumerator<ChContactNSC_333_333>)contactlist_333_333.FirstOrDefault();
              n_added_333_333 = 0;
-
              lastcontact_666_3 = (IEnumerator<ChContactNSC_666_3>)Enumerable.Empty<ChContactNSC_666_3>();// = (IEnumerator<ChContactNSC_666_3>)contactlist_666_3.FirstOrDefault();
              n_added_666_3 = 0;
-
              lastcontact_666_6 = (IEnumerator<ChContactNSC_666_6>)Enumerable.Empty<ChContactNSC_666_6>();// = (IEnumerator<ChContactNSC_666_6>)contactlist_666_6.FirstOrDefault();
              n_added_666_6 = 0;
-
              lastcontact_666_333 = (IEnumerator<ChContactNSC_666_333>)Enumerable.Empty<ChContactNSC_666_333>();// = (IEnumerator<ChContactNSC_666_333>)contactlist_666_333.FirstOrDefault();
              n_added_666_333 = 0;
-
              lastcontact_666_666 = (IEnumerator<ChContactNSC_666_666>)Enumerable.Empty<ChContactNSC_666_666>();// = (IEnumerator<ChContactNSC_666_666>)contactlist_666_666.FirstOrDefault();
-             n_added_666_666 = 0;
-
-             lastcontact_6_6_rolling = contactlist_6_6_rolling.GetEnumerator();// = (IEnumerator<ChContactNSCrolling_6_6>)contactlist_6_6_rolling.FirstOrDefault();
-             n_added_6_6_rolling = 0;*/
+             n_added_666_666 = 0;*/
+            contactlist_6_6_rolling.Clear();
+            lastcontact_6_6_rolling = contactlist_6_6_rolling.GetEnumerator();// = (IEnumerator<ChContactNSCrolling_6_6>)contactlist_6_6_rolling.FirstOrDefault();
+            n_added_6_6_rolling = 0;
         }
 
         /// The collision system will call BeginAddContact() after adding
@@ -258,8 +250,9 @@ namespace chrono
             while (lastcontact_6_6_rolling != null && lastcontact_6_6_rolling.Current != contactlist_6_6_rolling.LastOrDefault())
             {
                 lastcontact_6_6_rolling.MoveNext();
-                lastcontact_6_6_rolling = null;
                 contactlist_6_6_rolling.Remove(lastcontact_6_6_rolling.Current);
+                lastcontact_6_6_rolling = null;
+                
             }
         }
 
@@ -333,7 +326,6 @@ namespace chrono
                                          swapped_contact);
                }
            }
-
            else if (mmboA == (contactableA as ChContactable_1vars<IntInterface.Six>)) {
                if (mmboB == (contactableB as ChContactable_1vars<IntInterface.Three>)) {
                    // 6_3
@@ -362,7 +354,6 @@ namespace chrono
                                          swapped_contact);
                }
            }
-
            else if (mmboA == (contactableA as ChContactable_3vars<IntInterface.Three, IntInterface.Three, IntInterface.Three>)) {
                if (mmboB == (contactableB as ChContactable_1vars<IntInterface.Three>)) {
                    // 333_3
@@ -381,7 +372,6 @@ namespace chrono
                                          swapped_contact);
                }
            }
-
            else if (mmboA == (contactableA as ChContactable_3vars<IntInterface.Six, IntInterface.Six, IntInterface.Six>)) {
                if (mmboB == (contactableB as ChContactable_1vars<IntInterface.Three>)) {
                    // 666_3
@@ -422,7 +412,7 @@ namespace chrono
            where Tb : ChContactable_1vars<IntInterface.Six>
         {
 
-            if (lastcontact != null && lastcontact.Current != contactlist.LastOrDefault())
+            if (/*lastcontact != null &&*/ lastcontact.Current != contactlist.LastOrDefault())
             {
                 // reuse old contacts
                 lastcontact.MoveNext();
@@ -467,7 +457,7 @@ namespace chrono
           where Tb : ChContactable_1vars<IntInterface.Six>
         {
 
-            if (lastcontact != null && lastcontact.Current != contactlist.LastOrDefault())
+            if (/*lastcontact != null && */lastcontact.Current != contactlist.LastOrDefault())
             {
                 // reuse old contacts
                 lastcontact.MoveNext();
@@ -842,7 +832,6 @@ namespace chrono
             {
                 itercontact.MoveNext();
                 ((IEnumerator<ChContactNSC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.InjectConstraints(ref mdescriptor);
-
             }
 
         }
@@ -858,8 +847,8 @@ namespace chrono
             _InjectConstraints(ref contactlist_666_3, ref mdescriptor);
             _InjectConstraints(ref contactlist_666_6, ref mdescriptor);
             _InjectConstraints(ref contactlist_666_333, ref mdescriptor);
-            _InjectConstraints(ref contactlist_666_666, ref mdescriptor);
-            _InjectConstraints(ref contactlist_6_6_rolling, ref mdescriptor);*/
+            _InjectConstraints(ref contactlist_666_666, ref mdescriptor);*/
+            _InjectConstraints(ref contactlist_6_6_rolling, ref mdescriptor);
         }
 
         //  template<class Tcont>
