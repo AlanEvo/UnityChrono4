@@ -150,12 +150,12 @@ namespace chrono
                     else
                     {
                         // remaining case: project orthogonally to generator segment of upper cone (CAN BE simplified)
-                        double f_n_proj2 = (t_sptang * spinningfriction + f_n) / (spinningfriction * spinningfriction + 1);
-                        double t_tang_proj2 = f_n_proj2 * spinningfriction;
-                        double tproj_div_t2 = t_tang_proj2 / t_sptang;
-                        double t_n_proj = tproj_div_t2 * t_n;
+                        double f_n_proj = (t_sptang * spinningfriction + f_n) / (spinningfriction * spinningfriction + 1);
+                        double t_tang_proj = f_n_proj * spinningfriction;
+                        double tproj_div_t = t_tang_proj / t_sptang;
+                        double t_n_proj = tproj_div_t * t_n;
 
-                        constraint_N.Set_l_i(f_n_proj2);
+                        constraint_N.Set_l_i(f_n_proj);
                         this.Set_l_i(t_n_proj);
                     }
                 }
@@ -192,13 +192,13 @@ namespace chrono
             }
 
             // remaining case: project orthogonally to generator segment of upper cone
-            double f_n_proj = (t_tang * rollingfriction + f_n) / (rollingfriction * rollingfriction + 1);
-            double t_tang_proj = f_n_proj * rollingfriction;
-            double tproj_div_t = t_tang_proj / t_tang;
-            double t_u_proj = tproj_div_t * t_u;
-            double t_v_proj = tproj_div_t * t_v;
+            double f_n_proj3 = (t_tang * rollingfriction + f_n) / (rollingfriction * rollingfriction + 1);
+            double t_tang_proj3 = f_n_proj3 * rollingfriction;
+            double tproj_div_t3 = t_tang_proj3 / t_tang;
+            double t_u_proj = tproj_div_t3 * t_u;
+            double t_v_proj = tproj_div_t3 * t_v;
 
-            constraint_N.Set_l_i(f_n_proj);
+            constraint_N.Set_l_i(f_n_proj3);
             constraint_U.Set_l_i(t_u_proj);
             constraint_V.Set_l_i(t_v_proj);
         }

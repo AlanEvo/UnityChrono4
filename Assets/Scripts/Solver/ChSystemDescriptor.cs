@@ -179,7 +179,7 @@ namespace chrono {
         public virtual double GetMassFactor() { return c_a; }
 
         //
-        // DATA <-> MATH.VECTORS FUNCTIONS
+        // DATA <. MATH.VECTORS FUNCTIONS
         //
 
         /// Get a vector with all the 'fb' known terms ('forces'etc.) associated to all variables,
@@ -204,7 +204,7 @@ namespace chrono {
         /// Get a vector with all the 'bi' known terms ('constraint residuals' etc.) associated to all constraints,
         /// ordered into a column vector. The column vector must be passed as a ChMatrix<>
         /// object, which will be automatically reset and resized to the proper length if necessary.
-        public virtual int BuildBiVector(ref ChMatrix Bvector  //< matrix which will contain the entire vector of 'b'
+        public virtual int BuildBiVector(ChMatrix Bvector  //< matrix which will contain the entire vector of 'b'
     )
         {
             n_c = CountActiveConstraints();
@@ -299,7 +299,7 @@ namespace chrono {
         /// the performance a bit by setting resize_vector as false).
         /// \return  the number of scalar variables (i.e. the rows of the column vector).
         public virtual int FromVariablesToVector(
-            ref ChMatrix mvector,       //< matrix which will contain the entire vector of 'q'
+            ChMatrix mvector,       //< matrix which will contain the entire vector of 'q'
             bool resize_vector = true  //< if true the vector size will be checked & resized if necessary
     )
         {
@@ -311,7 +311,7 @@ namespace chrono {
             }
 
             // Fill the vector
-            for (int iv = 0; iv < (int)vvariables.Count; iv++)
+            for (int iv = 0; iv < vvariables.Count; iv++)
             {
                 if (vvariables[iv].IsActive())
                 {
@@ -330,14 +330,14 @@ namespace chrono {
         /// the variable objects!!! (it is up to the user to check this!) btw: most often,
         /// this is called after FromVariablesToVector() to do a kind of 'undo', for example.
         /// \return  the number of scalar variables (i.e. the rows of the column vector).
-        public virtual int FromVectorToVariables(ref ChMatrix mvector  //< matrix which contains the entire vector of 'q'
+        public virtual int FromVectorToVariables(ChMatrix mvector  //< matrix which contains the entire vector of 'q'
     )
         {
-            Debug.Assert(CountActiveVariables() == mvector.GetRows());
-            Debug.Assert(mvector.GetColumns() == 1);
+          //  Debug.Assert(CountActiveVariables() == mvector.GetRows());
+          //  Debug.Assert(mvector.GetColumns() == 1);
 
             // fetch from the vector
-            for (int iv = 0; iv < (int)vvariables.Count; iv++)
+            for (int iv = 0; iv < vvariables.Count; iv++)
             {
                 if (vvariables[iv].IsActive())
                 {
@@ -358,7 +358,7 @@ namespace chrono {
         /// length of the l_i reactions vector; constraints with enabled=false are not handled.
         /// \return  the number of scalar constr.multipliers (i.e. the rows of the column vector).
         public virtual int FromConstraintsToVector(
-            ref ChMatrix mvector,       //< matrix which will contain the entire vector of 'l_i'
+            ChMatrix mvector,       //< matrix which will contain the entire vector of 'l_i'
             bool resize_vector = true  //< if true the vector size will be checked & resized if necessary
     )
         {
@@ -391,7 +391,7 @@ namespace chrono {
         /// the variable objects!!! (it is up to the user to check this!) btw: most often,
         /// this is called after FromConstraintsToVector() to do a kind of 'undo', for example.
         /// \return  the number of scalar constraint multipliers (i.e. the rows of the column vector).
-        public virtual int FromVectorToConstraints(ref ChMatrix mvector  //< matrix which contains the entire vector of 'l_i'
+        public virtual int FromVectorToConstraints(ChMatrix mvector  //< matrix which contains the entire vector of 'l_i'
     )
         {
             n_c = CountActiveConstraints();
@@ -505,7 +505,7 @@ namespace chrono {
         /// NOTE! currently this function does NOT support the cases that use also ChKblock
         /// objects, because it would need to invert the global M+K, that is not diagonal,
         /// for doing = [N]*l = [ [Cq][(M+K)^(-1)][Cq'] - [E] ] * l
-        public virtual void ShurComplementProduct(ref ChMatrix result,   //< matrix which contains the result of  N*l_i
+        public virtual void ShurComplementProduct(ChMatrix result,   //< matrix which contains the result of  N*l_i
                                        ChMatrix lvector,  //< optional matrix with the vector to be multiplied (if
                                        /// null, use current constr. multipliers l_i)
                                        List<bool> enabled = null  //< optional: vector of enable flags, one per
@@ -524,22 +524,19 @@ namespace chrono {
 
             // 1 - set the qb vector (aka speeds, in each ChVariable sparse data) as zero
 
-            for (int iv = 0; iv < (int)vvariables.Count; iv++)
-            {
+            for (int iv = 0; iv < (int)vvariables.Count; iv++) {
                 if (vvariables[iv].IsActive())
                     vvariables[iv].Get_qb().FillElem(0);
             }
 
             // 2 - performs    qb=[M^(-1)][Cq']*l  by
             //     iterating over all constraints (when implemented in parallel this
-            //     could be non-trivial because race conditions might occur -> reduction buffer etc.)
+            //     could be non-trivial because race conditions might occur . reduction buffer etc.)
             //     Also, begin to add the cfm term ( -[E]*l ) to the result.
 
             // ATTENTION:  this loop cannot be parallelized! Concurrent write to some q may happen
-            for (int ic = 0; ic < (int)vconstraints.Count; ic++)
-            {
-                if (vconstraints[ic].IsActive())
-                {
+            for (int ic = 0; ic < (int)vconstraints.Count; ic++) {
+                if (vconstraints[ic].IsActive()) {
                     int s_c = vconstraints[ic].GetOffset();
 
                     bool process = true;
@@ -547,8 +544,7 @@ namespace chrono {
                         if ((enabled)[s_c] == false)
                             process = false;
 
-                    if (process)
-                    {
+                    if (process) {
                         double li;
                         if (lvector != null)
                             li = lvector[s_c, 0];
@@ -568,10 +564,8 @@ namespace chrono {
             // 3 - performs    result=[Cq']*qb    by
             //     iterating over all constraints
 
-            for (int ic = 0; ic < (int)vconstraints.Count; ic++)
-            {
-                if (vconstraints[ic].IsActive())
-                {
+            for (int ic = 0; ic < (int)vconstraints.Count; ic++) {
+                if (vconstraints[ic].IsActive()) {
                     bool process = true;
                     if (enabled != null)
                         if ((enabled)[vconstraints[ic].GetOffset()] == false)
@@ -670,9 +664,19 @@ namespace chrono {
         /// by this operation (they get the value of 'multipliers' after the projection), so
         /// it may happen that you need to backup them via FromConstraintToVector().
         public virtual void ConstraintsProject(
-            ref ChMatrix multipliers  //< matrix which contains the entire vector of 'l_i' multipliers to be projected
+            ChMatrix multipliers  //< matrix which contains the entire vector of 'l_i' multipliers to be projected
     )
-        { }
+        {
+            this.FromVectorToConstraints(multipliers);
+
+            for (int ic = 0; ic < (int)vconstraints.Count; ic++)
+            {
+                if (vconstraints[ic].IsActive())
+                    vconstraints[ic].Project();
+            }
+
+            this.FromConstraintsToVector(multipliers, false);
+        }
 
         /// As ConstraintsProject(), but instead of passing the l vector, the entire
         /// vector of unknowns x={q,-l} is passed.
@@ -829,61 +833,61 @@ namespace chrono {
         }                            
 
         /// Create and return the assembled system matrix and RHS vector.
-        public virtual void ConvertToMatrixForm(ChSparseMatrix Z,  //< [out] assembled system matrix
-                                     ChMatrix rhs     ///< [out] assembled RHS vector
-    )
-        {
-           /* std::vector<ChConstraint*> & mconstraints = this->GetConstraintsList();
-            std::vector<ChVariables*> & mvariables = this->GetVariablesList();
+        //public virtual void ConvertToMatrixForm(ChSparseMatrix Z,  //< [out] assembled system matrix
+          //                           ChMatrix rhs     ///< [out] assembled RHS vector
+   // )
+     //   {
+           /* std::vector<ChConstraint*> & mconstraints = this.GetConstraintsList();
+            std::vector<ChVariables*> & mvariables = this.GetVariablesList();
 
             // Count constraints.
             int mn_c = 0;
             for (unsigned int ic = 0; ic < mconstraints.size(); ic++)
             {
-                if (mconstraints[ic]->IsActive())
+                if (mconstraints[ic].IsActive())
                     mn_c++;
             }
 
             // Count active variables, by scanning through all variable blocks, and set offsets.
-            n_q = this->CountActiveVariables();
+            n_q = this.CountActiveVariables();
 
 
             if (Z)
             {
-                Z->Reset(n_q + mn_c, n_q + mn_c);
+                Z.Reset(n_q + mn_c, n_q + mn_c);
 
                 // Fill Z with masses and inertias.
                 int s_q = 0;
                 for (unsigned int iv = 0; iv < mvariables.size(); iv++)
                 {
-                    if (mvariables[iv]->IsActive())
+                    if (mvariables[iv].IsActive())
                     {
                         // Masses and inertias in upper-left block of Z
-                        mvariables[iv]->Build_M(*Z, s_q, s_q, this->c_a);
-                        s_q += mvariables[iv]->Get_ndof();
+                        mvariables[iv].Build_M(*Z, s_q, s_q, this.c_a);
+                        s_q += mvariables[iv].Get_ndof();
                     }
                 }
 
                 // If present, add stiffness matrix K to upper-left block of Z.
                 int s_k = 0;
-                for (unsigned int ik = 0; ik < this->vstiffness.size(); ik++)
+                for (unsigned int ik = 0; ik < this.vstiffness.size(); ik++)
                 {
-                    this->vstiffness[ik]->Build_K(*Z, true);
+                    this.vstiffness[ik].Build_K(*Z, true);
                 }
 
                 // Fill Z by looping over constraints.
                 int s_c = 0;
                 for (unsigned int ic = 0; ic < mconstraints.size(); ic++)
                 {
-                    if (mconstraints[ic]->IsActive())
+                    if (mconstraints[ic].IsActive())
                     {
                         // Constraint Jacobian in lower-left block of Z
-                        mconstraints[ic]->Build_Cq(*Z, n_q + s_c);
+                        mconstraints[ic].Build_Cq(*Z, n_q + s_c);
                         // Transposed constraint Jacobian in upper-right block of Z
-                        mconstraints[ic]->Build_CqT(*Z, n_q + s_c);
+                        mconstraints[ic].Build_CqT(*Z, n_q + s_c);
                         // -E ( = cfm ) in lower-right block of Z
-                        Z->SetElement(n_q + s_c, n_q + s_c, mconstraints[ic]->Get_cfm_i());
-                        //Z->Element(n_q + s_c, n_q + s_c) = mconstraints[ic]->Get_cfm_i();
+                        Z.SetElement(n_q + s_c, n_q + s_c, mconstraints[ic].Get_cfm_i());
+                        //Z.Element(n_q + s_c, n_q + s_c) = mconstraints[ic].Get_cfm_i();
                         s_c++;
                     }
                 }
@@ -892,17 +896,17 @@ namespace chrono {
 
             if (rhs)
             {
-                rhs->Reset(n_q + mn_c, 1);
+                rhs.Reset(n_q + mn_c, 1);
 
                 // Fill rhs with forces.
                 int s_q = 0;
                 for (unsigned int iv = 0; iv < mvariables.size(); iv++)
                 {
-                    if (mvariables[iv]->IsActive())
+                    if (mvariables[iv].IsActive())
                     {
                         // Forces in upper section of rhs
-                        rhs->PasteMatrix(vvariables[iv]->Get_fb(), s_q, 0);
-                        s_q += mvariables[iv]->Get_ndof();
+                        rhs.PasteMatrix(vvariables[iv].Get_fb(), s_q, 0);
+                        s_q += mvariables[iv].Get_ndof();
                     }
                 }
 
@@ -911,16 +915,16 @@ namespace chrono {
                 int s_c = 0;
                 for (unsigned int ic = 0; ic < mconstraints.size(); ic++)
                 {
-                    if (mconstraints[ic]->IsActive())
+                    if (mconstraints[ic].IsActive())
                     {
                         // -b term in lower section of rhs
-                        (*rhs)(n_q + s_c) = -(mconstraints[ic]->Get_b_i());
+                        (*rhs)(n_q + s_c) = -(mconstraints[ic].Get_b_i());
                         s_c++;
                     }
                 }
             }*/
 
-        }
+       // }
 
         /// Saves to disk the LAST used matrices of the problem.
         /// If assembled == true,
