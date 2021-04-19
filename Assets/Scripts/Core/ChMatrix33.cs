@@ -359,9 +359,9 @@ namespace chrono
         {
             return new ChVector(this.Get33Element(0, 0) * va.x + this.Get33Element(0, 1) * va.y +
                                       this.Get33Element(0, 2) * va.z,
-                                  this.Get33Element(1, 0) * va.x + this.Get33Element(1, 1) * va.y +
+                                this.Get33Element(1, 0) * va.x + this.Get33Element(1, 1) * va.y +
                                       this.Get33Element(1, 2) * va.z,
-                                  this.Get33Element(2, 0) * va.x + this.Get33Element(2, 1) * va.y +
+                                this.Get33Element(2, 0) * va.x + this.Get33Element(2, 1) * va.y +
                                       this.Get33Element(2, 2) * va.z);
         }
 

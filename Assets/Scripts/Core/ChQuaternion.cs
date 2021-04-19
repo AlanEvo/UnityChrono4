@@ -352,15 +352,13 @@ namespace chrono
 
         public void Q_from_AngAxis(double angle, ChVector axis)
         {
-            double halfang = (angle / 2); 
-           // double sinhalf = Math.Sin(halfang);
+            double halfang = (angle / 2);
+            double sinhalf = Math.Sin(halfang);
             this.e0 = Math.Cos(halfang);
-            this.e1 = axis.x * halfang;
-            this.e2 = axis.y * halfang;
-            this.e3 = axis.z * halfang;
+            this.e1 = axis.x * sinhalf;
+            this.e2 = axis.y * sinhalf;
+            this.e3 = axis.z * sinhalf;
         }
-
-
 
         public void Q_to_AngAxis(ref double a_angle, ref ChVector a_axis)
         {

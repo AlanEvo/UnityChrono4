@@ -159,7 +159,7 @@ namespace chrono
         }
 
         /// Resets the matrix to zero  (warning: simply sets memory to 0 bytes!)
-        public override void Reset()
+        public void Reset()
         {
             // SetZero(rows*columns); //memset(address, 0, sizeof(Real) * rows * columns);
             for (int i = 0; i < this.rows; ++i)

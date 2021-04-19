@@ -23,8 +23,8 @@ namespace chrono
 
     public class ChFrameMoving<Real> : ChFrame<Real> where Real : unmanaged, IConvertible
     {
-        public ChCoordsys coord_dt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));    //< Rotation and position speed, as vector+quaternion
-        public ChCoordsys coord_dtdt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(0, 0, 0, 0));  //< Rotation and position acceleration, as vector+quaternion
+        public ChCoordsys coord_dt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));    //< Rotation and position speed, as vector+quaternion
+        public ChCoordsys coord_dtdt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));  //< Rotation and position acceleration, as vector+quaternion
 
         //Test
         ChMatrix33<double> mr = new ChMatrix33<double>();
@@ -114,8 +114,7 @@ namespace chrono
         /// Computes the actual angular speed (expressed in local coords)
         public ChVector GetWvel_loc()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;// new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            // ChFrame<Real> gl = new ChFrame<Real>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             ChFrame<Real>.SetMatrix_Gl(ref tempGl, this.coord.rot);
 
             return tempGl.Matr34_x_Quat(coord_dt.rot);  // wl=[Gl]*q_dt
@@ -124,7 +123,7 @@ namespace chrono
         /// Computes the actual angular speed (expressed in parent coords)
         public ChVector GetWvel_par()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;//new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             ChFrame<Real>.SetMatrix_Gw(ref tempGw, this.coord.rot);
             return tempGw.Matr34_x_Quat(coord_dt.rot);  // ww=[Gw]*q_dt
         }
@@ -132,7 +131,7 @@ namespace chrono
         /// Computes the actual angular acceleration (expressed in local coords)
         public ChVector GetWacc_loc()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;//new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             //ChFrame<Real> gl = new ChFrame<Real>();
             ChFrame<Real>.SetMatrix_Gl(ref tempGl, this.coord.rot);
             return tempGl.Matr34_x_Quat(coord_dtdt.rot);  // al=[Gl]*q_dtdt
@@ -141,7 +140,7 @@ namespace chrono
         /// Computes the actual angular acceleration (expressed in parent coords)
         public ChVector GetWacc_par()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;//new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             ChFrame<Real>.SetMatrix_Gw(ref tempGw, this.coord.rot);
             return tempGw.Matr34_x_Quat(coord_dtdt.rot);  // aw=[Gw]*q_dtdt
 

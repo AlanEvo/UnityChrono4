@@ -25,7 +25,7 @@ namespace chrono
     public class ChCoordsys
     {
         public ChVector pos = new ChVector(0, 0, 0);
-        public ChQuaternion rot = new ChQuaternion(0, 0, 0, 0);
+        public ChQuaternion rot = new ChQuaternion(1, 0, 0, 0);
 
         // Default constructor (identity frame)
         public ChCoordsys()

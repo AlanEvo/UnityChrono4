@@ -24,6 +24,8 @@ namespace chrono
         // DATA
         //
 
+        public static ChMatrixDynamic<double> MDNULL = new ChMatrixDynamic<double>();
+
         /// [simply use the  "Real* address" pointer of the base class
 
         //

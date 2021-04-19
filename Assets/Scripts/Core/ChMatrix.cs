@@ -363,6 +363,13 @@ namespace chrono
                 ElementN(nel) += val;
         }
 
+        public void MatrAdd(ChMatrix matra, ChMatrix matrb) {
+            //assert(matra.GetColumns() == matrb.GetColumns() && matra.rows == matrb.GetRows());
+            //assert(this->columns == matrb.GetColumns() && this->rows == matrb.GetRows());
+            for (int nel = 0; nel<rows* columns; ++nel)
+                ElementN(nel) = (double) (matra.ElementN(nel) + matrb.ElementN(nel));
+        }
+
         public void MatrInc(ChMatrix matra)
         {
             //  Debug.Assert(matra.GetColumns() == columns && matra.GetRows() == rows);
@@ -589,9 +596,19 @@ namespace chrono
             }
         }
 
-        /// Gets the norm infinite of the matrix, i.e. the max.
-        /// of its elements in absolute value.
-        public double NormInf()
+        /// Computes dot product between two column-matrices (vectors) with
+        /// same size. Returns a scalar value.
+    public double MatrDot(ChMatrix ma, ChMatrix mb) {
+        //ssert(ma.GetColumns() == mb.GetColumns() && ma.GetRows() == mb.GetRows());
+        double tot = 0;
+        for (int i = 0; i<ma.GetRows(); ++i)
+            tot += (double) (ma.ElementN(i) * mb.ElementN(i));
+        return tot;
+    }
+
+    /// Gets the norm infinite of the matrix, i.e. the max.
+    /// of its elements in absolute value.
+    public double NormInf()
         {
             double norm = 0;
             for (int nel = 0; nel < rows * columns; ++nel)
@@ -671,5 +688,14 @@ namespace chrono
             Set44Element(3, 2, q.e1);
             Set44Element(3, 3, q.e0);
         }
-    };
+
+        /// Gets the norm two of the matrix, i.e. the square root
+        /// of the sum of the elements squared.
+        public double NormTwo() {
+            double norm = 0;
+            for (int nel = 0; nel<rows* columns; ++nel)
+                norm += ElementN(nel) * ElementN(nel);
+            return (Math.Sqrt(norm));
+        }
+};
 }
