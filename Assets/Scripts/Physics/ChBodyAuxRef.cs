@@ -172,9 +172,9 @@ namespace chrono
         public override collision.ChCollisionModel GetCollisionModel() { return collision_model; }
 
 
-        public override void Update()
+        public override void FixedUpdate()
         {
-            base.Update();
+            base.FixedUpdate();
            /* var frame = GetFrame_REF_to_abs();
             transform.position = Utils.FromChrono(frame.GetPos());
             transform.rotation = Utils.FromChrono(frame.GetRot());*/

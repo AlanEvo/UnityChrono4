@@ -221,12 +221,12 @@ namespace chrono
                                ChStateDelta Dy  //< state increment Dy
                                )
         {
-            // double ynew = y_new[1]; // PROBLEM!  Huge cpu drain
+            double ynew = y_new[1]; // PROBLEM!  Huge cpu drain
             if (y.GetRows() == this.GetNcoords_x())
             {
                 // Incrementing the x part only, user provided only x  in y={x, dx/dt}
                 StateIncrementX(ref y_new, y, Dy);
-                //ynew = y_new[1];
+                ynew = y_new[1];
                 return;
             }
 
@@ -554,12 +554,12 @@ namespace chrono
                     case ChSolver::Type::PCG:
                         solver_speed = std::make_shared<ChSolverPCG>();
                         solver_stab = std::make_shared<ChSolverPCG>();
+                        break;*/
+                    case ChSolver.Type.APGD:
+                        solver_speed = new ChSolverAPGD();
+                        solver_stab = new ChSolverAPGD();
                         break;
-                    case ChSolver::Type::APGD:
-                        solver_speed = std::make_shared<ChSolverAPGD>();
-                        solver_stab = std::make_shared<ChSolverAPGD>();
-                        break;
-                    case ChSolver::Type::MINRES:
+                    /*case ChSolver::Type::MINRES:
                         solver_speed = std::make_shared<ChSolverMINRES>();
                         solver_stab = std::make_shared<ChSolverMINRES>();
                         break;
@@ -859,7 +859,7 @@ namespace chrono
         /// about the marker IDs. Will be made obsolete in future with new serialization systems.
         public void Reference_LM_byID()
         {
-            // TO DO
+            // TODO
         }
 
 

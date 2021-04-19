@@ -190,9 +190,9 @@ namespace chrono
         {
             system = m_system;
 
-            for(int i = 0; i < bodylist.Count; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].SetSystem(m_system);
+                body.SetSystem(m_system);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -219,9 +219,9 @@ namespace chrono
 
         public override void SyncCollisionModels()
         {
-            for (int i = 0; i < bodylist.Count; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].SyncCollisionModels();
+                body.SyncCollisionModels();
             }
             for (int i = 0; i < linklist.Count; i++)
             {
@@ -259,27 +259,27 @@ namespace chrono
             // Add any items queued for insertion in the assembly's lists.
             this.FlushBatch();
 
-            for (int i = 0; i < bodylist.Count; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].GetBodyFixed())
+                if (body.GetBodyFixed())
                     nbodies_fixed++;
-                else if (bodylist[i].GetSleeping())
+                else if (body.GetSleeping())
                     nbodies_sleep++;
                 else
                 {
                     nbodies++;
 
-                    bodylist[i].SetOffset_x(this.offset_x + ncoords);
-                    bodylist[i].SetOffset_w(this.offset_w + ncoords_w);
-                    bodylist[i].SetOffset_L(this.offset_L + ndoc_w);
+                    body.SetOffset_x(this.offset_x + ncoords);
+                    body.SetOffset_w(this.offset_w + ncoords_w);
+                    body.SetOffset_L(this.offset_L + ndoc_w);
 
                     // body->Setup(); // not needed since in bodies does nothing
 
-                    ncoords += bodylist[i].GetDOF();
-                    ncoords_w += bodylist[i].GetDOF_w();
-                    ndoc_w += bodylist[i].GetDOC();      // not really needed since ChBody introduces no constraints
-                    ndoc_w_C += bodylist[i].GetDOC_c();  // not really needed since ChBody introduces no constraints
-                    ndoc_w_D += bodylist[i].GetDOC_d();  // not really needed since ChBody introduces no constraints
+                    ncoords += body.GetDOF();
+                    ncoords_w += body.GetDOF_w();
+                    ndoc_w += body.GetDOC();      // not really needed since ChBody introduces no constraints
+                    ndoc_w_C += body.GetDOC_c();  // not really needed since ChBody introduces no constraints
+                    ndoc_w_D += body.GetDOC_d();  // not really needed since ChBody introduces no constraints
                 }
             }
 
@@ -325,9 +325,9 @@ namespace chrono
         public override void update(bool update_assets = true)
         {
             //// NOTE: do not switch these to range for loops (may want to use OMP for)
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].update(ChTime, update_assets);
+                body.update(ChTime, update_assets);
             }
             /* for (int ip = 0; ip < (int)otherphysicslist.Count; ++ip)
              {
@@ -346,9 +346,8 @@ namespace chrono
         /// Set zero speed (and zero accelerations) in state, without changing the position.
         public override void SetNoSpeedNoAcceleration()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
-            {
-                bodylist[i].SetNoSpeedNoAcceleration();
+            foreach (ChBody body in bodylist) { 
+                body.SetNoSpeedNoAcceleration();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -385,10 +384,10 @@ namespace chrono
             int displ_x = off_x - this.offset_x;
             int displ_v = off_v - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateGather(displ_x + bodylist[i].GetOffset_x(), ref x, displ_v + bodylist[i].GetOffset_w(), ref v, ref T);
+                if (body.IsActive())
+                    body.IntStateGather(displ_x + body.GetOffset_x(), ref x, displ_v + body.GetOffset_w(), ref v, ref T);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -414,10 +413,10 @@ namespace chrono
             int displ_x = off_x - this.offset_x;
             int displ_v = off_v - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateScatter(displ_x + bodylist[i].GetOffset_x(), x, displ_v + bodylist[i].GetOffset_w(), v, T);
+                if (body.IsActive())
+                    body.IntStateScatter(displ_x + body.GetOffset_x(), x, displ_v + body.GetOffset_w(), v, T);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -444,10 +443,10 @@ namespace chrono
         {
             int displ_a = off_a - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateGatherAcceleration(displ_a + bodylist[i].GetOffset_w(), ref a);
+                if (body.IsActive())
+                    body.IntStateGatherAcceleration(displ_a + body.GetOffset_w(), ref a);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -467,10 +466,10 @@ namespace chrono
         {
             int displ_a = off_a - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateScatterAcceleration(displ_a + bodylist[i].GetOffset_w(), a);
+                if (body.IsActive())
+                    body.IntStateScatterAcceleration(displ_a + body.GetOffset_w(), a);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -490,10 +489,10 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateGatherReactions(displ_L + bodylist[i].GetOffset_L(), ref L);
+                if (body.IsActive())
+                    body.IntStateGatherReactions(displ_L + body.GetOffset_L(), ref L);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -513,10 +512,10 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateScatterReactions(displ_L + bodylist[i].GetOffset_L(), L);
+                if (body.IsActive())
+                    body.IntStateScatterReactions(displ_L + body.GetOffset_L(), L);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -541,10 +540,10 @@ namespace chrono
             int displ_x = off_x - (int)this.offset_x;
             int displ_v = off_v - (int)this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntStateIncrement(displ_x + (int)bodylist[i].GetOffset_x(), ref x_new, x, displ_v + (int)bodylist[i].GetOffset_w(), Dv);
+                if (body.IsActive())
+                    body.IntStateIncrement(displ_x + body.GetOffset_x(), ref x_new, x, displ_v + body.GetOffset_w(), Dv);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -566,10 +565,10 @@ namespace chrono
         {
             int displ_v = off - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntLoadResidual_F(displ_v + bodylist[i].GetOffset_w(), ref R, c);
+                if (body.IsActive())
+                    body.IntLoadResidual_F(displ_v + body.GetOffset_w(), ref R, c);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -592,10 +591,10 @@ namespace chrono
         {
             int displ_v = off - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntLoadResidual_Mv(displ_v + bodylist[i].GetOffset_w(), ref R, w, c);
+                if (body.IsActive())
+                    body.IntLoadResidual_Mv(displ_v + body.GetOffset_w(), ref R, w, c);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -618,10 +617,10 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntLoadResidual_CqL(displ_L + bodylist[i].GetOffset_L(), ref R, L, c);
+                if (body.IsActive())
+                    body.IntLoadResidual_CqL(displ_L + body.GetOffset_L(), ref R, L, c);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -645,10 +644,10 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntLoadConstraint_C(displ_L + bodylist[i].GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
+                if (body.IsActive())
+                    body.IntLoadConstraint_C(displ_L + body.GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -668,10 +667,10 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntLoadConstraint_Ct(displ_L + bodylist[i].GetOffset_L(), ref Qc, c);
+                if (body.IsActive())
+                    body.IntLoadConstraint_Ct(displ_L + body.GetOffset_L(), ref Qc, c);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -697,10 +696,10 @@ namespace chrono
             int displ_L = off_L - this.offset_L;
             int displ_v = off_v - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntToDescriptor(displ_v + bodylist[i].GetOffset_w(), v, R, displ_L + bodylist[i].GetOffset_L(), L, Qc);
+                if (body.IsActive())
+                    body.IntToDescriptor(displ_v + body.GetOffset_w(), v, R, displ_L + body.GetOffset_L(), L, Qc);
             }
 
             for (int i = 0; i < linklist.Count ; i++)
@@ -727,10 +726,10 @@ namespace chrono
             int displ_L = off_L - this.offset_L;
             int displ_v = off_v - this.offset_w;
 
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                if (bodylist[i].IsActive())
-                    bodylist[i].IntFromDescriptor(displ_v + bodylist[i].GetOffset_w(), ref v, displ_L + bodylist[i].GetOffset_L(), ref L);
+                if (body.IsActive())
+                    body.IntFromDescriptor(displ_v + body.GetOffset_w(), ref v, displ_L + body.GetOffset_L(), ref L);
             }
 
             for (int i = 0; i < linklist.Count ; i++)
@@ -752,9 +751,9 @@ namespace chrono
 
         public override void InjectVariables(ref ChSystemDescriptor mdescriptor)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].InjectVariables(ref mdescriptor);
+                body.InjectVariables(ref mdescriptor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -772,9 +771,9 @@ namespace chrono
 
         public override void InjectConstraints(ref ChSystemDescriptor mdescriptor)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].InjectConstraints(ref mdescriptor);
+                body.InjectConstraints(ref mdescriptor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -791,9 +790,9 @@ namespace chrono
         }
         public override void ConstraintsLoadJacobians()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsLoadJacobians();
+                body.ConstraintsLoadJacobians();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -811,9 +810,9 @@ namespace chrono
 
         public override void InjectKRMmatrices(ref ChSystemDescriptor mdescriptor)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].InjectKRMmatrices(ref mdescriptor);
+                body.InjectKRMmatrices(ref mdescriptor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -830,9 +829,9 @@ namespace chrono
         }
         public override void KRMmatricesLoad(double Kfactor, double Rfactor, double Mfactor)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
+                body.KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -851,9 +850,9 @@ namespace chrono
         // Old bookkeeping system - to be removed soon
         public override void VariablesFbReset()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesFbReset();
+                body.VariablesFbReset();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -870,9 +869,9 @@ namespace chrono
         }
         public override void VariablesFbLoadForces(double factor = 1)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesFbLoadForces(factor);
+                body.VariablesFbLoadForces(factor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -889,9 +888,9 @@ namespace chrono
         }
         public override void VariablesQbLoadSpeed()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesQbLoadSpeed();
+                body.VariablesQbLoadSpeed();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -908,9 +907,9 @@ namespace chrono
         }
         public override void VariablesFbIncrementMq()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesFbIncrementMq();
+                body.VariablesFbIncrementMq();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -927,9 +926,9 @@ namespace chrono
         }
         public override void VariablesQbSetSpeed(double step = 0)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesQbSetSpeed(step);
+                body.VariablesQbSetSpeed(step);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -946,9 +945,9 @@ namespace chrono
         }
         public override void VariablesQbIncrementPosition(double dt_step)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].VariablesQbIncrementPosition(dt_step);
+                body.VariablesQbIncrementPosition(dt_step);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -965,9 +964,9 @@ namespace chrono
         }
         public override void ConstraintsBiReset()
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsBiReset();
+                body.ConstraintsBiReset();
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -984,9 +983,9 @@ namespace chrono
         }
         public override void ConstraintsBiLoad_C(double factor = 1, double recovery_clamp = 0.1, bool do_clamp = false)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
+                body.ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -1003,9 +1002,9 @@ namespace chrono
         }
         public override void ConstraintsBiLoad_Ct(double factor = 1)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsBiLoad_Ct(factor);
+                body.ConstraintsBiLoad_Ct(factor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -1022,9 +1021,9 @@ namespace chrono
         }
         public override void ConstraintsBiLoad_Qc(double factor = 1)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsBiLoad_Qc(factor);
+                body.ConstraintsBiLoad_Qc(factor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -1041,9 +1040,9 @@ namespace chrono
         }
         public override void ConstraintsFbLoadForces(double factor = 1)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsFbLoadForces(factor);
+                body.ConstraintsFbLoadForces(factor);
             }
             for (int i = 0; i < linklist.Count ; i++)
             {
@@ -1060,9 +1059,9 @@ namespace chrono
         }
         public override void ConstraintsFetch_react(double factor = 1)
         {
-            for (int i = 0; i < bodylist.Count ; i++)
+            foreach (ChBody body in bodylist)
             {
-                bodylist[i].ConstraintsFetch_react(factor);
+                body.ConstraintsFetch_react(factor);
             }
             for (int i = 0; i < linklist.Count; i++)
             {

@@ -78,7 +78,7 @@ namespace chrono
             // Check for a user-provided callback to modify the material
             if (this.container.GetAddContactCallback() != null)
             {
-                // this.container.GetAddContactCallback().OnAddContact(cinfo, mat);
+                this.container.GetAddContactCallback().OnAddContact(cinfo, mat);
             }
 
             Nx.Constraint2TuplesNall.SetFrictionCoefficient(mat.static_friction);
@@ -173,7 +173,7 @@ namespace chrono
 
             if (this.objA != null && this.objB != null)
             {
-                var oA = (ChBody)(object)this.objA;
+               /* var oA = (ChBody)(object)this.objA;
                 var oB = (ChBody)(object)this.objB;
                 if (this.restitution != 0)
                 {
@@ -193,7 +193,7 @@ namespace chrono
                             bounced = true;
                             Qc[off_L] += neg_rebounce_speed;
                         }
-                }
+                }*/
             }
 
             if (!bounced)
@@ -202,7 +202,7 @@ namespace chrono
 
                 if (this.compliance != 0)
                 {
-                    double h = 1.0 / c;  // was: this->container->GetSystem()->GetStep(); note not all steppers have c = 1/h
+                   /* double h = 1.0 / c;  // was: this->container->GetSystem()->GetStep(); note not all steppers have c = 1/h
 
                     double alpha = this.dampingf;              // [R]=alpha*[K]
                     double inv_hpa = 1.0 / (h + alpha);         // 1/(h+a)
@@ -223,10 +223,10 @@ namespace chrono
                         qc = ChMaths.ChMax(qc, -recovery_clamp);
                     }
 
-                    Qc[off_L] += qc;
+                    Qc[off_L] += qc;*/
 
                 } else{
-                    if (do_clamp)
+                   /* if (do_clamp)
                         if (this.Nx.Constraint2TuplesNall.GetCohesion() != 0)
                         {
                             Qc[off_L] += ChMaths.ChMin(0.0, ChMaths.ChMax(c * this.norm_dist, -recovery_clamp));
@@ -236,7 +236,7 @@ namespace chrono
                     else
                     {
                         Qc[off_L] += c * this.norm_dist;
-                    }
+                    }*/
                 }
             }
         }
@@ -293,7 +293,7 @@ namespace chrono
             {
                 if (this.restitution != 0)
                 {
-                    var oA = (ChContactable_1vars<Ta>)(object)this.objA;
+                   /* var oA = (ChContactable_1vars<Ta>)(object)this.objA;
                     var oB = (ChContactable_1vars<Ta>)(object)this.objB;
                     // compute normal rebounce speed
                     ChVector V1_w = oA.GetContactPointSpeed(this.p1);
@@ -310,7 +310,7 @@ namespace chrono
                             // CASE: BOUNCE
                             bounced = true;
                             Nx.Set_b_i(Nx.Get_b_i() + neg_rebounce_speed);
-                        }
+                        }*/
                 }
             }
 
@@ -321,32 +321,32 @@ namespace chrono
                 if (this.compliance != 0)
                 {
                     //  inverse timestep is factor
-                    double h = 1.0 / factor;
+                   /* double h = 1.0 / factor;
 
                     double alpha = this.dampingf;              // [R]=alpha*[K]
                     double inv_hpa = 1.0 / (h + alpha);         // 1/(h+a)
                     double inv_hhpa = 1.0 / (h * (h + alpha));  // 1/(h*(h+a))
 
-                    Nx.Set_cfm_i((inv_hhpa) * this.compliance);  // was (inv_hh)* ...   //***TEST DAMPING***//
-                    Tu.Set_cfm_i((inv_hhpa) * this.complianceT);
+                    Nx.Set_cfm_i((inv_hhpa) * this.compliance);  // was (inv_hh)* ...   //***TEST DAMPING***/
+                   /* Tu.Set_cfm_i((inv_hhpa) * this.complianceT);
                     Tv.Set_cfm_i((inv_hhpa) * this.complianceT);
 
                     double qc = inv_hpa * this.norm_dist;
 
                     // If clamping kicks in(when using large timesteps and low compliance), it acts as a numerical damping.
                     if (do_clamp)
-                        qc = ChMaths.ChMax(qc, -recovery_clamp);                    
+                        qc = ChMaths.ChMax(qc, -recovery_clamp); */                   
 
                 }
                 else
                 {
-                    if (do_clamp)
+                   /* if (do_clamp)
                         if (this.Nx.Constraint2TuplesNall.GetCohesion() != 0)
                             Nx.Set_b_i(Nx.Get_b_i() + ChMaths.ChMin(0.0, ChMaths.ChMax(factor * this.norm_dist, -recovery_clamp)));
                         else
                             Nx.Set_b_i(Nx.Get_b_i() + ChMaths.ChMax(factor * this.norm_dist, -recovery_clamp));
                     else
-                        Nx.Set_b_i(Nx.Get_b_i() + factor * this.norm_dist);
+                        Nx.Set_b_i(Nx.Get_b_i() + factor * this.norm_dist);*/
                 }
             }
         }

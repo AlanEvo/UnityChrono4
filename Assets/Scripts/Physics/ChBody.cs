@@ -78,6 +78,8 @@ namespace chrono
 
         public double radius;
 
+        public double rot;
+
        // [System.Serializable]
         public enum MaterialType
         {
@@ -128,7 +130,7 @@ namespace chrono
                     matsurface = gameObject.AddComponent<ChMaterialSurfaceNSC>();
                     matsurface.GetComponent<ChMaterialSurfaceNSC>().static_friction = friction;
                     matsurface.GetComponent<ChMaterialSurfaceNSC>().sliding_friction = friction;
-                    matsurface.GetComponent<ChMaterialSurfaceNSC>().rolling_friction = 0.04f;
+                    matsurface.GetComponent<ChMaterialSurfaceNSC>().rolling_friction = rolling_friction;
                     matsurface.GetComponent<ChMaterialSurfaceNSC>().spinning_friction = spinning_friction;
                     matsurface.GetComponent<ChMaterialSurfaceNSC>().restitution = restitution;
                     matsurface.GetComponent<ChMaterialSurfaceNSC>().cohesion = cohesion;
@@ -192,11 +194,11 @@ namespace chrono
                     break;
                 case CollisionType.Sphere:
 
-                    var size2 = transform.localScale.y / 2;
+                    var size2 = transform.localScale.y / 2.1;
 
                     if (automaticMass)
                     {
-                        mass = density * ((4.0 / 3.0) * Math.PI * Math.Pow(size2, 3));
+                        mass = density * ((4.0 / 3.0) * ChMaths.CH_C_PI * Math.Pow(size2, 3));
                         double inertia = (2.0 / 5.0) * mass * Math.Pow(size2, 2);
                         this.SetDensity((float)density);
                         this.SetMass(mass);
@@ -222,6 +224,7 @@ namespace chrono
                     BodyFrame.SetRot(new ChQuaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z));
 
                     BodyFrame.SetPos_dt(ToChrono(linearVelocity));
+                   // BodyFrame.SetWvel_par(ToChrono(angularVelocity));
                     BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
 
                     // ChSystem msystem2 = FindObjectOfType<ChSystem>();
@@ -439,7 +442,7 @@ namespace chrono
             sleep_minwvel = other.sleep_minwvel;
         }
 
-        public virtual void Update()
+        public virtual void FixedUpdate()
         {
 
             // Test = ChQuaternion.QNULL;
@@ -480,12 +483,13 @@ namespace chrono
             uMat[3] = uMat[7] = uMat[11] = 0.0f;
             uMat[15] = 1.0f;
 
-            transform.position = ExtractTranslationFromMatrix(uMat);
-            transform.rotation = ExtractRotationFromMatrix(uMat);
+           // transform.position = ExtractTranslationFromMatrix(uMat);
+            //rot = ExtractRotationFromMatrix(uMat).eulerAngles.y;
+            // transform.rotation = ExtractRotationFromMatrix(uMat);
 
-            /* var frame = GetFrame_REF_to_abs();
+             var frame = GetFrame_REF_to_abs();
              transform.position = Utils.FromChrono(frame.GetPos());
-             transform.rotation = Utils.FromChrono(frame.GetRot());*/
+             transform.rotation = Utils.FromChrono(frame.GetRot());
         }
 
         public static Vector3 FromChrono(ChVector v)
@@ -811,7 +815,7 @@ namespace chrono
             x_new[off_x + 2] = x[off_x + 2] + Dv[off_v + 2];
 
             // ADVANCE ROTATION: rot' = delta*rot  (use quaternion for delta rotation)
-            ChQuaternion mdeltarot = new ChQuaternion(0, 0, 0, 0);
+            ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
             ChQuaternion moldrot = x.ClipQuaternion((int)off_x + 3, 0);
             ChVector newwel_abs = BodyFrame.Amatrix * Dv.ClipVector((int)off_v + 3, 0);
             double mangle = newwel_abs.Length();
@@ -840,7 +844,6 @@ namespace chrono
             R[off + 0] += c * GetMass() * w[off + 0];  // w not working // Alan
             R[off + 1] += c * GetMass() * w[off + 1];
             R[off + 2] += c * GetMass() * w[off + 2];
-            //UnityEngine.Debug.Log("pos " + w[1]);
 
             ChVector Iw = GetInertia() * w.ClipVector(off + 3, 0);
             Iw *= c;
@@ -957,7 +960,7 @@ namespace chrono
             this.BodyFrame.SetPos(this.BodyFrame.GetPos() + newspeed * dt_step);
 
             // ADVANCE ROTATION: rot' = [dt*wwel]%rot  (use quaternion for delta rotation)
-            ChQuaternion mdeltarot = new ChQuaternion(0, 0, 0, 0);
+            ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
             ChQuaternion moldrot = this.BodyFrame.GetRot();
             ChVector newwel_abs = BodyFrame.Amatrix * newwel;
             double mangle = newwel_abs.Length() * dt_step;
@@ -979,10 +982,10 @@ namespace chrono
 
         /// Set no speed and no accelerations (but does not change the position)
         public override void SetNoSpeedNoAcceleration() {
-            this.BodyFrame.SetPos_dt(new ChVector(0, 0, 0));
-            this.BodyFrame.SetWvel_loc(new ChVector(0, 0, 0));
-            this.BodyFrame.SetPos_dtdt(new ChVector(0, 0, 0));
-            this.BodyFrame.SetRot_dtdt(new ChQuaternion(0, 0, 0, 0));
+            this.BodyFrame.SetPos_dt(ChVector.VNULL);
+            this.BodyFrame.SetWvel_loc(ChVector.VNULL);
+            this.BodyFrame.SetPos_dtdt(ChVector.VNULL);
+            this.BodyFrame.SetRot_dtdt(ChQuaternion.QNULL);
         }
 
         /// Change the collision model.
@@ -1475,13 +1478,10 @@ namespace chrono
             Xforce = Force_acc;
 
             // 1b- force caused by accumulation of torques in body's accumulator Force_acc
-            if (ChVector.Vnotnull(Torque_acc))
-            {
+            if (ChVector.Vnotnull(Torque_acc)) {
                 Xtorque = Dir_World2Body(Torque_acc);
-            }
-            else
-            {
-                Xtorque = new ChVector(0, 0, 0);
+            } else {
+                Xtorque = ChVector.VNULL;
             }
 
             // Debug.Log("torque " + Xtorque.y);
@@ -1490,8 +1490,7 @@ namespace chrono
             ChVector mforce = new ChVector(0, 0, 0);
             ChVector mtorque = new ChVector(0, 0, 0);
 
-            foreach (ChForce force in forcelist)
-            {
+            foreach (ChForce force in forcelist) {
                 // update positions, f=f(t,q)
                 force.update(mytime);
 
@@ -1503,13 +1502,11 @@ namespace chrono
             // 3 - accumulation of script forces
             Xforce += Scr_force;
 
-            if (ChVector.Vnotnull(Scr_torque))
-            {
+            if (ChVector.Vnotnull(Scr_torque)) {
                 Xtorque += Dir_World2Body(Scr_torque);
             }
 
-            if (GetSystem())
-            {
+            if (GetSystem()) {
                 Xforce += GetSystem().Get_G_acc() * this.GetMass();
             }
         }
