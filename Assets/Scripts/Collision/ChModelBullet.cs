@@ -238,20 +238,14 @@ namespace chrono
             public override void SyncPosition()
             {
                 ChCoordsys mcsys = this.mcontactable.GetCsysForCollisionModel();
-                bt_collision_object.GetWorldTransform()._origin = new IndexedVector3((float)mcsys.pos.x, (float)mcsys.pos.y, (float)mcsys.pos.z);
-                               
-                ChMatrix33<double> rA = new ChMatrix33<double>(mcsys.rot);
 
-                // IndexedBasisMatrix basisA = new  IndexedBasisMatrix((float)rA[0, 0], (float)rA[0, 1], (float)rA[0, 2], (float)rA[1, 0], (float)rA[1, 1], (float)rA[1, 2], 0, (float)rA[2, 0], (float)rA[2, 1], (float)rA[2, 2], 0, 0, 0, 0, 0, 0);
-
+                bt_collision_object.GetWorldTransform()._origin = new IndexedVector3(
+                    (float)mcsys.pos.x, (float)mcsys.pos.y, (float)mcsys.pos.z);                               
+                ChMatrix33<double> rA = new ChMatrix33<double>(mcsys.rot);             
                 IndexedBasisMatrix basisA = new IndexedBasisMatrix((float)rA[0, 0], (float)rA[0, 1], (float)rA[0, 2], (float)rA[1, 0],
-                                                                    (float)rA[1, 1], (float)rA[1, 2], (float)rA[2, 0], (float)rA[2, 1],
-                                                                    (float)rA[2, 2]);
-
-                bt_collision_object.GetWorldTransform()._basis = basisA;// new Matrix((float)rA[0, 0], (float)rA[0, 1], (float)rA[0, 2], (float)rA[1, 0], (float)rA[1, 1], (float)rA[1, 2], 0, (float)rA[2, 0], (float)rA[2, 1], (float)rA[2, 2], 0, 0, 0, 0, 0, 0);
-               // Matrix bas = bt_collision_object.GetWorldTransform().Basis;
-
-              //  collisionPosition = bt_collision_object.GetWorldTransform()._origin; // for debug
+                                                                   (float)rA[1, 1], (float)rA[1, 2], (float)rA[2, 0], (float)rA[2, 1],
+                                                                   (float)rA[2, 2]);
+                bt_collision_object.GetWorldTransform()._basis = basisA;
             }
 
             /// Returns the axis aligned bounding box (AABB) of the collision model,

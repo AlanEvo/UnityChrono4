@@ -31,15 +31,15 @@ namespace chrono
                 //((btDefaultCollisionConfiguration*)bt_collision_configuration)->setConvexConvexMultipointIterations(4,4);
 
                 //***OLD***
-              //  float sscene_size = (float)scene_size;
-              //  BulletSharp.Math.Vector3 worldAabbMin = new BulletSharp.Math.Vector3(-sscene_size, -sscene_size, -sscene_size);
-              //  BulletSharp.Math.Vector3 worldAabbMax = -worldAabbMin;//new IndexedVector3(sscene_size, sscene_size, sscene_size);
+                float sscene_size = (float)scene_size;
+                IndexedVector3 worldAabbMin = new IndexedVector3(-sscene_size, -sscene_size, -sscene_size);
+                IndexedVector3 worldAabbMax = -worldAabbMin;//new IndexedVector3(sscene_size, sscene_size, sscene_size);
                 // bt_broadphase = new bt32BitAxisSweep3(worldAabbMin,worldAabbMax, max_objects, 0, true); // true for disabling
                 // raycast accelerator
 
                 //***NEW***
-                //bt_broadphase = new AxisSweep3Internal(ref worldAabbMin, ref worldAabbMax, 0xfffe, 0xffff, 16384, null, false);
-                bt_broadphase = new DbvtBroadphase();
+                bt_broadphase = new AxisSweep3Internal(ref worldAabbMin, ref worldAabbMax, 0xfffe, 0xffff, 16384, null, false);
+                //bt_broadphase = new DbvtBroadphase();
 
                 bt_collision_world = new CollisionWorld(bt_dispatcher, bt_broadphase, bt_collision_configuration);
 
@@ -139,8 +139,6 @@ namespace chrono
                 // This should remove all old contacts (or at least rewind the index)
                 mcontactcontainer.BeginAddContact();
 
-                debug = bt_collision_world.GetNumCollisionObjects();
-
                 // NOTE: Bullet does not provide information on radius of curvature at a contact point.
                 // As such, for all Bullet-identified contacts, the default value will be used (SMC only). 
                 ChCollisionInfo icontact = new ChCollisionInfo();
@@ -210,7 +208,6 @@ namespace chrono
                                         mcontactcontainer.AddContact(icontact);
                                 }
                             }
-                        
                         }
                     }
 
