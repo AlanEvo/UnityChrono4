@@ -81,13 +81,13 @@ namespace chrono
 
             if (Body2.Variables().IsActive())
             {
-                R.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -c, Body2.Variables().GetOffset() + 3,
+                R.matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -c, Body2.Variables().GetOffset() + 3,
                                  0);
             }
 
             if (Body1.Variables().IsActive())
             {
-                R.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * c, Body1.Variables().GetOffset() + 3,
+                R.matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * c, Body1.Variables().GetOffset() + 3,
                                  0);
             }
         }
@@ -103,9 +103,9 @@ namespace chrono
             ChFrame<double> aframe2 = ChFrame<double>.BitShiftRight(this.frame2 , (this.Body2));
             ChVector m_abs_torque = aframe2.GetA().Matr_x_Vect(new ChVector(0, 0, mT));
 
-            Body2.Variables().Get_fb().PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -factor, 3, 0);
+            Body2.Variables().Get_fb().matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -factor, 3, 0);
 
-            Body1.Variables().Get_fb().PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * factor, 3, 0);
+            Body1.Variables().Get_fb().matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * factor, 3, 0);
         }
     }
 

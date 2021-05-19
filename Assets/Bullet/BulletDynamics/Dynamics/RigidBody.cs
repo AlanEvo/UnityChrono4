@@ -982,7 +982,7 @@ namespace BulletXNA.BulletDynamics
 			    SetAngularVelocity(GetAngularVelocity()+m_deltaAngularVelocity);
 			    //m_deltaLinearVelocity = IndexedVector3.Zero;
                 //m_deltaAngularVelocity = IndexedVector3.Zero;
-			    //m_originalBody->setCompanionId(-1);
+			    //m_originalBody.setCompanionId(-1);
 		    }
 	    }
 
@@ -1010,7 +1010,7 @@ namespace BulletXNA.BulletDynamics
 		        IndexedMatrix newTransform;
 		        TransformUtil.IntegrateTransform(GetWorldTransform(),m_pushVelocity,m_turnVelocity,timeStep,out newTransform);
 		        SetWorldTransform(ref newTransform);
-		        //m_originalBody->setCompanionId(-1);
+		        //m_originalBody.setCompanionId(-1);
 	        }
 #if DEBUG
 			if (BulletGlobals.g_streamWriter != null && BulletGlobals.debugRigidBody)

@@ -22,19 +22,19 @@ namespace chrono
     ///
     /// Further info at the @ref coordinate_transformations manual page.
     //[StructLayout(LayoutKind.Sequential)]
-    public class ChCoordsys
+    public struct ChCoordsys
     {
-        public ChVector pos = new ChVector(0, 0, 0);
-        public ChQuaternion rot = new ChQuaternion(1, 0, 0, 0);
+        public ChVector pos;// = new ChVector(0, 0, 0);
+        public ChQuaternion rot;// = new ChQuaternion(1, 0, 0, 0);
 
         // Default constructor (identity frame)
-        public ChCoordsys()
+        /*public ChCoordsys()
         {
             pos = new ChVector(0, 0, 0);
             rot = new ChQuaternion(1, 0, 0, 0);
-        }
+        }*/
         // Construct from position and rotation (as quaternion)
-        public ChCoordsys(ChVector mv, ChQuaternion mq)
+        public ChCoordsys(ChVector mv, ChQuaternion mq) : this()
         {
             pos = mv;
             rot = mq;
@@ -42,7 +42,7 @@ namespace chrono
         }
 
         // Construct from position mv and rotation of angle alpha around unit vector mu
-        public ChCoordsys(ChVector mv, double alpha, ChVector mu)
+        public ChCoordsys(ChVector mv, double alpha, ChVector mu) : this()
         {
             rot = new ChQuaternion(0, 0, 0, 0);
             pos = new ChVector(mv);
@@ -50,7 +50,7 @@ namespace chrono
         }
 
         /// Copy constructor
-        public ChCoordsys(ChCoordsys other)
+        public ChCoordsys(ChCoordsys other) : this()
         {
             pos = other.pos;
             rot = other.rot;

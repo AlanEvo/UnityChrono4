@@ -32,19 +32,19 @@ namespace chrono {
                      m_system.GetCollisionSystem().RayHit(from, to, mresult);
                      if (mresult.hit)
                      {
-                         if (ChBody mbo = dynamic_cast<ChBody*>(mresult.hitModel->GetContactable()))
+                         if (ChBody mbo = dynamic_cast<ChBody*>(mresult.hitModel.GetContactable()))
                          {
-                             app->selectedmover = new std::shared_ptr<ChBody>(mbo);
-                             app->selectedpoint = (*(app->selectedmover))->Point_World2Body(mresult.abs_hitPoint);
-                             app->selecteddist = (mfrom - mresult.abs_hitPoint).Length();
-                             app->selectedspring = new std::shared_ptr<ChLinkSpring>(new ChLinkSpring);
-                             app->selectedtruss = new std::shared_ptr<ChBody>(new ChBody);
-                             (*(app->selectedtruss))->SetBodyFixed(true);
-                             app->GetSystem()->AddBody(*(app->selectedtruss));
-                             (*(app->selectedspring))
-                                 ->Initialize(*app->selectedtruss, *app->selectedmover, false, mresult.abs_hitPoint,
+                             app.selectedmover = new std::shared_ptr<ChBody>(mbo);
+                             app.selectedpoint = (*(app.selectedmover)).Point_World2Body(mresult.abs_hitPoint);
+                             app.selecteddist = (mfrom - mresult.abs_hitPoint).Length();
+                             app.selectedspring = new std::shared_ptr<ChLinkSpring>(new ChLinkSpring);
+                             app.selectedtruss = new std::shared_ptr<ChBody>(new ChBody);
+                             (*(app.selectedtruss)).SetBodyFixed(true);
+                             app.GetSystem().AddBody(*(app.selectedtruss));
+                             (*(app.selectedspring))
+                                 .Initialize(*app.selectedtruss, *app.selectedmover, false, mresult.abs_hitPoint,
                                      mresult.abs_hitPoint);
-                             app->GetSystem()->AddLink(*(app->selectedspring));
+                             app.GetSystem().AddLink(*(app.selectedspring));
                          }
                      }
                  }

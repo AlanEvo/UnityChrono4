@@ -37,7 +37,7 @@ namespace chrono
             public float handbrake;
 
             public Vector3 inertiaXX = new Vector3();
-            protected ChMatrix33<double> m_inertia;
+            protected ChMatrix33<double> m_inertia = new ChMatrix33<double>(0);
             protected ChVector m_inertiaXX = new ChVector(0, 0, 0);
             protected ChVector m_inertiaXY = new ChVector(0, 0, 0);
 
@@ -65,24 +65,24 @@ namespace chrono
             {
                 m_system = GameObject.FindObjectOfType<ChSystem>();
 
-                m_inertia = new ChMatrix33<double>();
+               // m_inertia = new ChMatrix33<double>();
 
                 chassisBody = GetComponent<ChBodyAuxRef>();
-              /*  m_inertiaXX.data[0] = inertiaXX.x;
-                m_inertiaXX.data[1] = inertiaXX.y;
-                m_inertiaXX.data[2] = inertiaXX.z;
-                m_inertia.SetElement(0, 0, m_inertiaXX.data[0]);
-                m_inertia.SetElement(1, 1, m_inertiaXX.data[1]);
-                m_inertia.SetElement(2, 2, m_inertiaXX.data[2]);
+                m_inertiaXX.x = inertiaXX.x;
+                m_inertiaXX.y = inertiaXX.y;
+                m_inertiaXX.z = inertiaXX.z;
+                m_inertia.nm.matrix.SetElement(0, 0, m_inertiaXX.x);
+                m_inertia.nm.matrix.SetElement(1, 1, m_inertiaXX.y);
+                m_inertia.nm.matrix.SetElement(2, 2, m_inertiaXX.z);
 
-                m_inertia.SetElement(0, 1, m_inertiaXY.data[0]);
-                m_inertia.SetElement(0, 2, m_inertiaXY.data[1]);
-                m_inertia.SetElement(1, 2, m_inertiaXY.data[2]);
-                m_inertia.SetElement(1, 0, m_inertiaXY.data[0]);
-                m_inertia.SetElement(2, 0, m_inertiaXY.data[1]);
-                m_inertia.SetElement(2, 1, m_inertiaXY.data[2]);*/
+                m_inertia.nm.matrix.SetElement(0, 1, m_inertiaXY.x);
+                m_inertia.nm.matrix.SetElement(0, 2, m_inertiaXY.y);
+                m_inertia.nm.matrix.SetElement(1, 2, m_inertiaXY.z);
+                m_inertia.nm.matrix.SetElement(1, 0, m_inertiaXY.x);
+                m_inertia.nm.matrix.SetElement(2, 0, m_inertiaXY.y);
+                m_inertia.nm.matrix.SetElement(2, 1, m_inertiaXY.z);
 
-               // chassisBody.SetInertia(m_inertia);
+                chassisBody.SetInertia(m_inertia);
                 //SetAerodynamicDrag(0.5, 5.0, 1.2);
 
             }
@@ -103,11 +103,11 @@ namespace chrono
 
             void FixedUpdate()
             {
-                Unity_Time = Time.fixedDeltaTime;
-                Chrono_Time = m_system.GetChTime();
+               // Unity_Time = Time.fixedDeltaTime;
+              //  Chrono_Time = m_system.GetChTime();
 
-                vertical = Input.GetAxis("Vertical");
-                handbrake = Input.GetAxis("Handbrake");
+               // vertical = Input.GetAxis("Vertical");
+               // handbrake = Input.GetAxis("Handbrake");
 
               //  speed = GetSpeed();
 

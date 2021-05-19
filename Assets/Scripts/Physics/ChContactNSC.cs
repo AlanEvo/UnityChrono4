@@ -129,22 +129,22 @@ namespace chrono
         public override void ContIntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
         {
 
-            L[off_L] = react_force.x;
-            L[off_L + 1] = react_force.y;
-            L[off_L + 2] = react_force.z;
+            L.matrix[off_L] = react_force.x;
+            L.matrix[off_L + 1] = react_force.y;
+            L.matrix[off_L + 2] = react_force.z;
         }
 
         public override void ContIntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
         {
-            react_force.x = L[off_L];
-            react_force.y = L[off_L + 1];
-            react_force.z = L[off_L + 2];
+            react_force.x = L.matrix[off_L];
+            react_force.y = L.matrix[off_L + 1];
+            react_force.z = L.matrix[off_L + 2];
 
             if (reactions_cache != null)
             {
-                reactions_cache[0] = (float)L[off_L];      // react_force.x();
-                reactions_cache[1] = (float)L[off_L + 1];  // react_force.y();
-                reactions_cache[2] = (float)L[off_L + 2];  // react_force.z();
+                reactions_cache[0] = (float)L.matrix[off_L];      // react_force.x();
+                reactions_cache[1] = (float)L.matrix[off_L + 1];  // react_force.y();
+                reactions_cache[2] = (float)L.matrix[off_L + 2];  // react_force.z();
             }
         }
 
@@ -154,9 +154,9 @@ namespace chrono
                                          double c
                                          )
         {
-            this.Nx.MultiplyTandAdd(R, L[off_L] * c);
-            this.Tu.MultiplyTandAdd(R, L[off_L + 1] * c);
-            this.Tv.MultiplyTandAdd(R, L[off_L + 2] * c);
+            this.Nx.MultiplyTandAdd(R.matrix, L.matrix[off_L] * c);
+            this.Tu.MultiplyTandAdd(R.matrix, L.matrix[off_L + 1] * c);
+            this.Tv.MultiplyTandAdd(R.matrix, L.matrix[off_L + 2] * c);
         }
 
         public override void ContIntLoadConstraint_C(int off_L,
@@ -173,7 +173,7 @@ namespace chrono
 
             if (this.objA != null && this.objB != null)
             {
-               /* var oA = (ChBody)(object)this.objA;
+                var oA = (ChBody)(object)this.objA;
                 var oB = (ChBody)(object)this.objB;
                 if (this.restitution != 0)
                 {
@@ -191,9 +191,9 @@ namespace chrono
                         {
                             // CASE: BOUNCE
                             bounced = true;
-                            Qc[off_L] += neg_rebounce_speed;
+                            Qc.matrix[off_L] += neg_rebounce_speed;
                         }
-                }*/
+                }
             }
 
             if (!bounced)
@@ -202,7 +202,7 @@ namespace chrono
 
                 if (this.compliance != 0)
                 {
-                   /* double h = 1.0 / c;  // was: this->container->GetSystem()->GetStep(); note not all steppers have c = 1/h
+                    double h = 1.0 / c;  // was: this->container->GetSystem()->GetStep(); note not all steppers have c = 1/h
 
                     double alpha = this.dampingf;              // [R]=alpha*[K]
                     double inv_hpa = 1.0 / (h + alpha);         // 1/(h+a)
@@ -223,20 +223,20 @@ namespace chrono
                         qc = ChMaths.ChMax(qc, -recovery_clamp);
                     }
 
-                    Qc[off_L] += qc;*/
+                    Qc.matrix[off_L] += qc;
 
                 } else{
-                   /* if (do_clamp)
+                    if (do_clamp)
                         if (this.Nx.Constraint2TuplesNall.GetCohesion() != 0)
                         {
-                            Qc[off_L] += ChMaths.ChMin(0.0, ChMaths.ChMax(c * this.norm_dist, -recovery_clamp));
+                            Qc.matrix[off_L] += ChMaths.ChMin(0.0, ChMaths.ChMax(c * this.norm_dist, -recovery_clamp));
                         }else {
-                            Qc[off_L] += ChMaths.ChMax(c * this.norm_dist, -recovery_clamp);
+                            Qc.matrix[off_L] += ChMaths.ChMax(c * this.norm_dist, -recovery_clamp);
                         }
                     else
                     {
-                        Qc[off_L] += c * this.norm_dist;
-                    }*/
+                        Qc.matrix[off_L] += c * this.norm_dist;
+                    }
                 }
             }
         }
@@ -247,23 +247,23 @@ namespace chrono
                                      )
         {
             // only for solver warm start
-            Nx.Set_l_i(L[off_L]);
-            Tu.Set_l_i(L[off_L + 1]);
-            Tv.Set_l_i(L[off_L + 2]);
+            Nx.Set_l_i(L.matrix[off_L]);
+            Tu.Set_l_i(L.matrix[off_L + 1]);
+            Tv.Set_l_i(L.matrix[off_L + 2]);
 
             // solver known terms
-            Nx.Set_b_i(Qc[off_L]);
-            Tu.Set_b_i(Qc[off_L + 1]);
-            Tv.Set_b_i(Qc[off_L + 2]);
+            Nx.Set_b_i(Qc.matrix[off_L]);
+            Tu.Set_b_i(Qc.matrix[off_L + 1]);
+            Tv.Set_b_i(Qc.matrix[off_L + 2]);
         }
 
         public override void ContIntFromDescriptor(int off_L,
                                            ref ChVectorDynamic<double> L
                                            )
         {
-            L[off_L] = Nx.Get_l_i();
-            L[off_L + 1] = Tu.Get_l_i();
-            L[off_L + 2] = Tv.Get_l_i();
+            L.matrix[off_L] = Nx.Get_l_i();
+            L.matrix[off_L + 1] = Tu.Get_l_i();
+            L.matrix[off_L + 2] = Tv.Get_l_i();
             
         }
 

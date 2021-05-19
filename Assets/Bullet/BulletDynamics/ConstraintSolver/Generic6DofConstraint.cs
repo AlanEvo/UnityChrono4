@@ -532,12 +532,12 @@ namespace BulletXNA.BulletDynamics
 			if (powered || limit != 0)
 			{
 				// if the joint is powered, or has joint limits, add in the extra row
-				//float* J1 = rotational ? info->m_J1angularAxis : info->m_J1linearAxis;
-				//float* J2 = rotational ? info->m_J2angularAxis : 0;
-				//info2.m_J1linearAxis = currentConstraintRow->m_contactNormal;
-				//info2.m_J1angularAxis = currentConstraintRow->m_relpos1CrossNormal;
+				//float* J1 = rotational ? info.m_J1angularAxis : info.m_J1linearAxis;
+				//float* J2 = rotational ? info.m_J2angularAxis : 0;
+				//info2.m_J1linearAxis = currentConstraintRow.m_contactNormal;
+				//info2.m_J1angularAxis = currentConstraintRow.m_relpos1CrossNormal;
 				//info2.m_J2linearAxis = 0;
-				//info2.m_J2angularAxis = currentConstraintRow->m_relpos2CrossNormal;
+				//info2.m_J2angularAxis = currentConstraintRow.m_relpos2CrossNormal;
 				if (rotational != 0)
 				{
 					info.m_solverConstraints[row].m_relpos1CrossNormal = ax1;

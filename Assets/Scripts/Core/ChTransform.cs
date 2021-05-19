@@ -44,12 +44,12 @@ namespace chrono
             double my = parent.y - origin.y;
             double mz = parent.z - origin.z;
 
-            return new ChVector(((alignment.Get33Element(0, 0)) * mx) + ((alignment.Get33Element(1, 0)) * my) +
-                                ((alignment.Get33Element(2, 0)) * mz),
-                                ((alignment.Get33Element(0, 1)) * mx) + ((alignment.Get33Element(1, 1)) * my) +
-                                ((alignment.Get33Element(2, 1)) * mz),
-                                ((alignment.Get33Element(0, 2)) * mx) + ((alignment.Get33Element(1, 2)) * my) +
-                                ((alignment.Get33Element(2, 2)) * mz));
+            return new ChVector(((alignment.nm.matrix.Get33Element(0, 0)) * mx) + ((alignment.nm.matrix.Get33Element(1, 0)) * my) +
+                                ((alignment.nm.matrix.Get33Element(2, 0)) * mz),
+                                ((alignment.nm.matrix.Get33Element(0, 1)) * mx) + ((alignment.nm.matrix.Get33Element(1, 1)) * my) +
+                                ((alignment.nm.matrix.Get33Element(2, 1)) * mz),
+                                ((alignment.nm.matrix.Get33Element(0, 2)) * mx) + ((alignment.nm.matrix.Get33Element(1, 2)) * my) +
+                                ((alignment.nm.matrix.Get33Element(2, 2)) * mz));
         }
 
         /// This function transforms a point from the local reference
@@ -66,12 +66,12 @@ namespace chrono
             ChMatrix33<Real> alignment  //< rotation of frame respect to parent, in parent coords.
         )
         {
-            return new ChVector(((alignment.Get33Element(0, 0)) * local.x) + ((alignment.Get33Element(0, 1)) * local.y) +
-                            ((alignment.Get33Element(0, 2)) * local.z) + origin.x,
-                        ((alignment.Get33Element(1, 0)) * local.x) + ((alignment.Get33Element(1, 1)) * local.y) +
-                            ((alignment.Get33Element(1, 2)) * local.z) + origin.y,
-                        ((alignment.Get33Element(2, 0)) * local.x) + ((alignment.Get33Element(2, 1)) * local.y) +
-                            ((alignment.Get33Element(2, 2)) * local.z) + origin.z);
+            return new ChVector(((alignment.nm.matrix.Get33Element(0, 0)) * local.x) + ((alignment.nm.matrix.Get33Element(0, 1)) * local.y) +
+                            ((alignment.nm.matrix.Get33Element(0, 2)) * local.z) + origin.x,
+                        ((alignment.nm.matrix.Get33Element(1, 0)) * local.x) + ((alignment.nm.matrix.Get33Element(1, 1)) * local.y) +
+                            ((alignment.nm.matrix.Get33Element(1, 2)) * local.z) + origin.y,
+                        ((alignment.nm.matrix.Get33Element(2, 0)) * local.x) + ((alignment.nm.matrix.Get33Element(2, 1)) * local.y) +
+                            ((alignment.nm.matrix.Get33Element(2, 2)) * local.z) + origin.z);
         }
 
         // TRANSFORMATIONS, USING POSITION AND ROTATION QUATERNION

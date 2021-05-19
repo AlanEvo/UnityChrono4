@@ -14,7 +14,7 @@ namespace chrono
     /// Definition of general purpose 3d vector variables, such as points in 3D.
     /// This class implements the vectorial algebra in 3D (Gibbs products).
     /// ChVector is templated by precision, with default 'double'.
-    [StructLayout(LayoutKind.Sequential)]
+   // [StructLayout(LayoutKind.Sequential)]
     public struct ChVector //: IEquatable<ChVector>//, IFormattable
     {
 
@@ -36,7 +36,7 @@ namespace chrono
               data[2] = 0;
           }*/
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ChVector(double a) : this()
+        public ChVector(double a) //: this()
         {
             // data = new double[3];
             this.x = a;
@@ -45,7 +45,7 @@ namespace chrono
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ChVector(double x, double y, double z) : this()
+        public ChVector(double x, double y, double z) //: this()
         {
             //data = new double[3];
             this.x = x;
@@ -55,7 +55,7 @@ namespace chrono
 
         /// Copy constructor with type change.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ChVector(ChVector other) : this()
+        public ChVector(ChVector other) //: this()
         {
             //data = new double[3];
             this.x = other.x;
@@ -108,8 +108,8 @@ namespace chrono
 
         /// Return true if this vector is equal to another vector, within a tolerance 'tol'.
         public bool Equals(ChVector other, double tol) {
-            return (Math.Abs(other.x - this.x) < tol) && (Math.Abs(other.y - this.y) < tol) &&
-                   (Math.Abs(other.z - this.z) < tol);
+            return (Mathfx.Abs(other.x - this.x) < tol) && (Mathfx.Abs(other.y - this.y) < tol) &&
+                   (Mathfx.Abs(other.z - this.z) < tol);
         }
 
         // VECTOR NORMS
@@ -126,7 +126,7 @@ namespace chrono
 
         /// Compute the infinity norm of the vector, that is the maximum absolute value of one of its elements.
         public double LengthInf() {
-            return Math.Max(Math.Max(Math.Abs(this.x), Math.Abs(this.y)), Math.Abs(this.z));
+            return Math.Max(Math.Max(Mathfx.Abs(this.x), Mathfx.Abs(this.y)), Mathfx.Abs(this.z));
         }
 
 
@@ -186,14 +186,14 @@ namespace chrono
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ChVector operator *(double a, ChVector s)
+        public static ChVector operator *(double s, ChVector V)
         {
             // ChVector<Real> v = new ChVector<Real>();
             /*  a.data[0] = a.data[0] * s;
               a.data[1] = a.data[1] * s;
               a.data[2] = a.data[2] * s;
               return a;*/
-            return new ChVector(a * s.x, a * s.y, a * s.z);
+            return new ChVector(V.x * s, V.y * s, V.z * s);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -431,7 +431,7 @@ namespace chrono
         }
         public static ChVector Vcross(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector(0, 0, 0);
+            ChVector result = ChVector.VNULL;
             result.x = (va.y * vb.z) - (va.z * vb.y);
             result.y = (va.z * vb.x) - (va.x * vb.z);
             result.z = (va.x * vb.y) - (va.y * vb.x);
@@ -468,7 +468,7 @@ namespace chrono
 
         public ChVector Cross(ChVector other)
         {
-            ChVector v = new ChVector(0, 0, 0);
+            ChVector v = ChVector.VNULL;
             v.Cross(this, other);
             return v;
         }
@@ -495,7 +495,7 @@ namespace chrono
         }
         public static ChVector Vmul(ChVector va, double fact)
         {
-            ChVector result = new ChVector(0, 0, 0);
+            ChVector result = ChVector.VNULL;
             result.x = va.x * fact;
             result.y = va.y * fact;
             result.z = va.z * fact;
@@ -504,7 +504,7 @@ namespace chrono
 
         public static ChVector Vadd(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector(0, 0, 0);
+            ChVector result = ChVector.VNULL;
             result.x = va.x + vb.x;
             result.y = va.y + vb.y;
             result.z = va.z + vb.z;
@@ -512,7 +512,7 @@ namespace chrono
         }
         public static ChVector Vsub(ChVector va, ChVector vb)
         {
-            ChVector result = new ChVector(0, 0, 0);
+            ChVector result = ChVector.VNULL;
             result.x = va.x - vb.x;
             result.y = va.y - vb.y;
             result.z = va.z - vb.z;
@@ -541,11 +541,11 @@ namespace chrono
             // If close to singularity, change reference vector
             if (zlen < 0.0001) {
                 ChVector mVsingular = new ChVector(0, 0, 0);
-                if (Math.Abs(Vsingular.x) < 0.9)
+                if (Mathfx.Abs(Vsingular.x) < 0.9)
                     mVsingular = new ChVector(0, 0, 1);
-                if (Math.Abs(Vsingular.y) < 0.9)
+                if (Mathfx.Abs(Vsingular.y) < 0.9)
                     mVsingular = new ChVector(0, 1, 0);
-                if (Math.Abs(Vsingular.z) < 0.9)
+                if (Mathfx.Abs(Vsingular.z) < 0.9)
                     mVsingular = new ChVector(1, 0, 0);
                 Vz = Vcross(Vx, mVsingular);
                 zlen = Vlength(Vz);  // now should be nonzero length.
@@ -576,11 +576,11 @@ namespace chrono
             {
                 ChVector mVsingular = new ChVector(0, 0, 0);
 
-                if (Math.Abs(Vsingular.x) < 0.9)
+                if (Mathfx.Abs(Vsingular.x) < 0.9)
                     mVsingular = new ChVector(1, 0, 0);
-                else if (Math.Abs(Vsingular.y) < 0.9)
+                else if (Mathfx.Abs(Vsingular.y) < 0.9)
                     mVsingular = new ChVector(0, 1, 0);
-                else if (Math.Abs(Vsingular.z) < 0.9)
+                else if (Mathfx.Abs(Vsingular.z) < 0.9)
                     mVsingular = new ChVector(0, 0, 1);
 
                 Vz.Cross(Vx, mVsingular);
@@ -597,13 +597,13 @@ namespace chrono
         public int GetMaxComponent()
         {
             int idx = 0;
-            double max = Math.Abs(this.x);
-            if (Math.Abs(this.y) > max)
+            double max = Mathfx.Abs(this.x);
+            if (Mathfx.Abs(this.y) > max)
             {
                 idx = 1;
                 max = this.y;
             }
-            if (Math.Abs(this.z) > max)
+            if (Mathfx.Abs(this.z) > max)
             {
                 idx = 2;
                 max = this.z;

@@ -397,7 +397,7 @@ namespace chrono
 
 			// initialize pivot index array
 			//m_pindices.resize(m_num_rows);
-			ListExtras.Resize(m_pindices, m_num_rows);
+			//ListExtras.Resize(m_pindices, m_num_rows);
 			for (int ind = 0; ind < m_num_rows; ind++)
 			{
 				m_pindices[ind] = ind;
@@ -507,7 +507,7 @@ namespace chrono
 
 			// initialize pivot index array
 			//m_pindices.resize(m_num_rows);
-			ListExtras.Resize(m_pindices, m_num_rows);
+			//ListExtras.Resize(m_pindices, m_num_rows);
 			for (int ind = 0; ind < m_num_rows; ind++)
 			{
 				m_pindices[ind] = ind;

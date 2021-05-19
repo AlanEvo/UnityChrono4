@@ -40,6 +40,8 @@ namespace chrono
         private Vector3 EndPoint1Abs = new Vector3();
         private Vector3 EndPoint2Abs = new Vector3();
 
+        // TEST
+        ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
 
         public ChLinkDistance() {
             pos1 = new ChVector(0, 0, 0);
@@ -61,7 +63,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone()  { return new ChLinkDistance(this); }
 
-        public void Start()
+        public void Awake()
         {
             pos1.x = transform.position.x;
             pos1.y = transform.position.y;
@@ -130,7 +132,7 @@ namespace chrono
             ChVector D2temp = (ChVector.Vnorm(Body1.TransformPointLocalToParent(pos1) - Body2.TransformPointLocalToParent(pos2)));
             ChVector D2rel = Body2.TransformDirectionParentToLocal(D2temp);
             ChVector Vx = new ChVector(0, 0, 0), Vy = new ChVector(0, 0, 0), Vz = new ChVector(0, 0, 0);
-            ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
+            //ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
             ChVector.XdirToDxDyDz(D2rel, ChVector.VECT_Y, ref Vx, ref Vy, ref Vz);
             rel_matrix.Set_A_axis(Vx, Vy, Vz);
 
@@ -212,10 +214,10 @@ namespace chrono
         //
 
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L) {
-            L[off_L] = -react_force.x;
+            L.matrix[off_L] = -react_force.x;
         }
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L) {
-            react_force.x = -L[off_L];
+            react_force.x = -L.matrix[off_L];
             react_force.y = 0;
             react_force.z = 0;
 
@@ -228,7 +230,7 @@ namespace chrono
             if (!IsActive())
                 return;
 
-            Cx.MultiplyTandAdd(R, L[off_L] * c);
+            Cx.MultiplyTandAdd(R.matrix, L.matrix[off_L] * c);
         }
         public override void IntLoadConstraint_C(int off_L,
                                          ref ChVectorDynamic<double> Qc,
@@ -239,9 +241,9 @@ namespace chrono
                 return;
 
             if (do_clamp)
-                Qc[off_L] += ChMaths.ChMin(ChMaths.ChMax(c * (curr_dist - distance), -recovery_clamp), recovery_clamp);
+                Qc.matrix[off_L] += ChMaths.ChMin(ChMaths.ChMax(c * (curr_dist - distance), -recovery_clamp), recovery_clamp);
             else
-                Qc[off_L] += c * (curr_dist - distance);
+                Qc.matrix[off_L] += c * (curr_dist - distance);
         }
         public override void IntToDescriptor(int off_v,
                                      ChStateDelta v,
@@ -252,9 +254,9 @@ namespace chrono
             if (!IsActive())
                 return;
 
-            Cx.Set_l_i(L[off_L]);
+            Cx.Set_l_i(L.matrix[off_L]);
 
-            Cx.Set_b_i(Qc[off_L]);
+            Cx.Set_b_i(Qc.matrix[off_L]);
         }
         public override void IntFromDescriptor(int off_v,
                                        ref ChStateDelta v,
@@ -263,7 +265,7 @@ namespace chrono
             if (!IsActive())
                 return;
 
-            L[off_L] = Cx.Get_l_i();
+            L.matrix[off_L] = Cx.Get_l_i();
         }
 
         //

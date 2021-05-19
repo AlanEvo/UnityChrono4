@@ -63,7 +63,8 @@ namespace chrono
 
             for (int iv = 0; iv < mvariables.Count; iv++) {
                 if (mvariables[iv].IsActive()) {
-                    mvariables[iv].Compute_invMb_v(mvariables[iv].Get_qb(), mvariables[iv].Get_fb());  // q = [M]'*fb
+
+                    mvariables[iv].Compute_invMb_v(mvariables[iv].Get_qb().matrix, mvariables[iv].Get_fb().matrix);  // q = [M]'*fb
                 }
             }
 
@@ -98,7 +99,7 @@ namespace chrono
                                            mconstraints[ic].Get_cfm_i() * mconstraints[ic].Get_l_i();
 
                         // true constraint violation may be different from 'mresidual' (ex:clamped if unilateral)
-                        double candidate_violation = Math.Abs(mconstraints[ic].Violation(mresidual));
+                        double candidate_violation = Mathfx.Abs(mconstraints[ic].Violation(mresidual));
 
                         // compute:  delta_lambda = -(omega/g_i) * ([Cq_i]*q + b_i + cfm_i*l_i )
                         double deltal = (omega / mconstraints[ic].Get_g_i()) * (-mresidual);
@@ -112,7 +113,7 @@ namespace chrono
                             i_friction_comp++;
 
                             if (i_friction_comp == 1)
-                                candidate_violation = Math.Abs(ChMaths.ChMin(0.0, mresidual));
+                                candidate_violation = Mathfx.Abs(ChMaths.ChMin(0.0, mresidual));
 
                             if (i_friction_comp == 3) {
                                 mconstraints[ic - 2].Project();  // the N normal component will take care of N,U,V
@@ -137,9 +138,9 @@ namespace chrono
                                 mconstraints[ic - 0].Increment_q(true_delta_2);
 
                                 if (this.record_violation_history) {
-                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Math.Abs(true_delta_0));
-                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Math.Abs(true_delta_1));
-                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Math.Abs(true_delta_2));
+                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Mathfx.Abs(true_delta_0));
+                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Mathfx.Abs(true_delta_1));
+                                    maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Mathfx.Abs(true_delta_2));
                                 }
                                 i_friction_comp = 0;
                             }
@@ -168,7 +169,7 @@ namespace chrono
                             mconstraints[ic].Increment_q(true_delta);
 
                             if (this.record_violation_history)
-                                maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Math.Abs(true_delta));
+                                maxdeltalambda = ChMaths.ChMax(maxdeltalambda, Mathfx.Abs(true_delta));
                         }
 
                         maxviolation = ChMaths.ChMax(maxviolation, Mathfx.Abs(candidate_violation));

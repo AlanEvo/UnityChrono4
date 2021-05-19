@@ -27,13 +27,13 @@ using System.Diagnostics;
 using BulletXNA.LinearMath;
 using BulletXNA.BulletDynamics;
 using System;
-using chrono;
+//using chrono;
 
 namespace BulletXNA.BulletCollision
 {
     public class CollisionWorld
     {
-        private ChTimer<double> timer_collision_broad = new chrono.ChTimer<double>();
+       // private ChTimer<double> timer_collision_broad = new chrono.ChTimer<double>();
 
         //this constructor doesn't own the dispatcher and paircache/broadphase
         public CollisionWorld(IDispatcher dispatcher, IBroadphaseInterface broadphasePairCache, ICollisionConfiguration collisionConfiguration)
@@ -47,9 +47,25 @@ namespace BulletXNA.BulletCollision
 
         public virtual void Cleanup()
         {
-            foreach (CollisionObject collisionObject in m_collisionObjects)
+            /* foreach (CollisionObject collisionObject in m_collisionObjects)
+             {
+                 BroadphaseProxy bp = collisionObject.GetBroadphaseHandle();
+                 if (bp != null)
+                 {
+                     //
+                     // only clear the cached algorithms
+                     //
+                     if (GetBroadphase().GetOverlappingPairCache() != null)
+                     {
+                         GetBroadphase().GetOverlappingPairCache().CleanProxyFromPairs(bp, m_dispatcher1);
+                     }
+                     GetBroadphase().DestroyProxy(bp, m_dispatcher1);
+                     collisionObject.SetBroadphaseHandle(null);
+                 }
+             }*/
+            for(int i = 0; i < m_collisionObjects.Count; i++) // Alan
             {
-                BroadphaseProxy bp = collisionObject.GetBroadphaseHandle();
+                BroadphaseProxy bp = m_collisionObjects[i].GetBroadphaseHandle();
                 if (bp != null)
                 {
                     //
@@ -60,7 +76,7 @@ namespace BulletXNA.BulletCollision
                         GetBroadphase().GetOverlappingPairCache().CleanProxyFromPairs(bp, m_dispatcher1);
                     }
                     GetBroadphase().DestroyProxy(bp, m_dispatcher1);
-                    collisionObject.SetBroadphaseHandle(null);
+                    m_collisionObjects[i].SetBroadphaseHandle(null);
                 }
             }
         }
@@ -340,8 +356,8 @@ namespace BulletXNA.BulletCollision
                 case BroadphaseNativeTypes.CONE_SHAPE_PROXYTYPE:
                     {
                         ConeShape coneShape = (ConeShape)shape;
-                        float radius = coneShape.GetRadius();//+coneShape->getMargin();
-                        float height = coneShape.GetHeight();//+coneShape->getMargin();
+                        float radius = coneShape.GetRadius();//+coneShape.getMargin();
+                        float height = coneShape.GetHeight();//+coneShape.getMargin();
 
                         int upAxis = coneShape.GetConeUpIndex();
                         GetDebugDrawer().DrawCone(radius, height, upAxis, ref worldTransform, ref color);
@@ -415,7 +431,7 @@ namespace BulletXNA.BulletCollision
                         {
                             ConcaveShape concaveMesh = (ConcaveShape)shape;
 
-                            ///@todo pass camera, for some culling? no -> we are not a graphics lib
+                            ///@todo pass camera, for some culling? no . we are not a graphics lib
                             IndexedVector3 aabbMax = MathUtil.MAX_VECTOR;
                             IndexedVector3 aabbMin = MathUtil.MIN_VECTOR;
                             using (BulletXNA.DebugDrawcallback drawCallback = BulletGlobals.DebugDrawcallbackPool.Get())
@@ -622,9 +638,9 @@ namespace BulletXNA.BulletCollision
 
             {
                 BulletGlobals.StartProfile("calculateOverlappingPairs");
-                timer_collision_broad.start(); //***RADU***
+               // timer_collision_broad.start(); //***RADU***
                 m_broadphasePairCache.CalculateOverlappingPairs(m_dispatcher1);
-                timer_collision_broad.stop(); //***RADU***
+               // timer_collision_broad.stop(); //***RADU***
                 BulletGlobals.StopProfile();
             }
 
@@ -671,8 +687,27 @@ namespace BulletXNA.BulletCollision
             m_forceUpdateAllAabbs = forceUpdateAllAabbs;
         }
 
+        // Alan
+        public void rayTest(IndexedVector3 rayFromWorld, IndexedVector3 rayToWorld, RayResultCallback resultCallback)
+        {
+            //BT_PROFILE("rayTest");
+            /// use the broadphase to accelerate the search for objects, based on their aabb
+            /// and for each object with ray-aabb overlap, perform an exact ray test
+            SingleRayCallback rayCB = new SingleRayCallback(ref rayFromWorld, ref rayToWorld, this, resultCallback);
 
-        public static void RayTestSingle(ref IndexedMatrix rayFromTrans, ref IndexedMatrix rayToTrans,
+            //# ifndef USE_BRUTEFORCE_RAYBROADPHASE
+            m_broadphasePairCache.RayTest(ref rayFromWorld, ref rayToWorld, rayCB);
+            /*#else
+                for (int i=0;i<this.getNumCollisionObjects();i++)
+                {
+                    rayCB.process(m_collisionObjects[i].getBroadphaseHandle());
+                }
+            #endif //USE_BRUTEFORCE_RAYBROADPHASE*/
+
+        }
+
+
+public static void RayTestSingle(ref IndexedMatrix rayFromTrans, ref IndexedMatrix rayToTrans,
                           CollisionObject collisionObject,
                           CollisionShape collisionShape,
                           ref IndexedMatrix colObjWorldTransform,
@@ -1256,15 +1291,20 @@ namespace BulletXNA.BulletCollision
         public AllHitsRayResultCallback(IndexedVector3 rayFromWorld, IndexedVector3 rayToWorld)
             : this(ref rayFromWorld, ref rayToWorld)
         { }
-
-
-		public AllHitsRayResultCallback(ref IndexedVector3	rayFromWorld,ref IndexedVector3 rayToWorld)
+        public AllHitsRayResultCallback(ref IndexedVector3	rayFromWorld,ref IndexedVector3 rayToWorld)
 		{
 		    m_rayFromWorld = rayFromWorld;
 		    m_rayToWorld = rayToWorld;
 		}
 
-		public ObjectArray<CollisionObject>	m_collisionObjects = new ObjectArray<CollisionObject>();
+        // Alan
+        public void New(IndexedVector3 rayFromWorld, IndexedVector3 rayToWorld)
+        {
+            m_rayFromWorld = rayFromWorld;
+            m_rayToWorld = rayToWorld;
+        }
+
+        public ObjectArray<CollisionObject>	m_collisionObjects = new ObjectArray<CollisionObject>();
 
 		IndexedVector3	m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
 		IndexedVector3	m_rayToWorld;

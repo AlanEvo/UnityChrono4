@@ -98,8 +98,8 @@ namespace chrono
             }
             else
             {
-                Gizmos.color = new Color(255, 255, 0);                
-                Gizmos.DrawLine(transform.position, position2.position);
+                Gizmos.color = new Color(255, 255, 0);
+                Utils.drawSpring(radius, new ChVector(transform.position.x, transform.position.y, transform.position.z), new ChVector(position2.position.x, position2.position.y, position2.position.z), springResolution, springTurns);
             }
         }
 

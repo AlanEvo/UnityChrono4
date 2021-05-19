@@ -186,7 +186,7 @@ namespace BulletXNA.BulletCollision
                     m_convexTriangleCallback.SetTimeStepAndCounters(collisionMarginTriangle, dispatchInfo, resultOut);
 
                     //Disable persistency. previously, some older algorithm calculated all contacts in one go, so you can clear it here.
-                    //m_dispatcher->clearManifold(m_btConvexTriangleCallback.m_manifoldPtr);
+                    //m_dispatcher.clearManifold(m_btConvexTriangleCallback.m_manifoldPtr);
 
                     m_convexTriangleCallback.m_manifoldPtr.SetBodies(convexBody, triBody);
                     IndexedVector3 min = m_convexTriangleCallback.GetAabbMin();

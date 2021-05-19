@@ -18,10 +18,11 @@ namespace chrono
 
         private double torque_react;                //< reaction torque
         private ChConstraintTwoGeneric constraint = new ChConstraintTwoGeneric();  //< used as an interface to the solver
-        private ChShaft shaft = new ChShaft();                     //< connected shaft
-        private ChBodyFrame body = new ChBodyFrame();                  //< connected body
-        private ChVector shaft_dir = new ChVector(0, 0, 0);               //< shaft direction
+        public ChShaft shaft;//= new ChShaft();                     //< connected shaft
+        public ChBody body;// = new ChBody();                  //< connected body
+        public ChVector shaft_dir = new ChVector(0, 0, 0);               //< shaft direction
 
+        public Vector3 shaftDirection;
 
         public ChShaftsBody()
         {
@@ -41,6 +42,18 @@ namespace chrono
             return new ChShaftsBody(this);
         }
 
+        public void Awake()
+        {
+            shaft_dir.x = shaftDirection.x;
+            shaft_dir.y = shaftDirection.y;
+            shaft_dir.z = shaftDirection.z;
+            Initialize(shaft, body.BodyFrame, shaft_dir);
+
+           // ChSystem msystem = FindObjectOfType<ChSystem>();
+           // msystem.Add(this);
+            ChSystem.system.Add(this);
+        }
+
         /// Get the number of scalar variables affected by constraints in this link
         public virtual int GetNumCoords() { return 6 + 1; }
 
@@ -51,18 +64,18 @@ namespace chrono
 
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
         {
-            L[off_L] = -torque_react;
+            L.matrix[off_L] = -torque_react;
         }
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
         {
-            torque_react = -L[off_L];
+            torque_react = -L.matrix[off_L];
         }
         public override void IntLoadResidual_CqL(int off_L,
                                      ref ChVectorDynamic<double> R,
                                      ChVectorDynamic<double> L,
                                      double c)
         {
-            constraint.MultiplyTandAdd(R, L[off_L] * c);
+            constraint.MultiplyTandAdd(R.matrix, L.matrix[off_L] * c);
         }
         public override void IntLoadConstraint_C(int off_L,
                                      ref ChVectorDynamic<double> Qc,
@@ -79,7 +92,7 @@ namespace chrono
                 cnstr_violation = ChMaths.ChMin(ChMaths.ChMax(cnstr_violation, -recovery_clamp), recovery_clamp);
             }
 
-            Qc[off_L] += cnstr_violation;
+            Qc.matrix[off_L] += cnstr_violation;
         }
         public override void IntLoadConstraint_Ct(int off, ref ChVectorDynamic<double> Qc, double c)
         {
@@ -92,16 +105,16 @@ namespace chrono
                                  ChVectorDynamic<double> L,
                                  ChVectorDynamic<double> Qc)
         {
-            constraint.Set_l_i(L[off_L]);
+            constraint.Set_l_i(L.matrix[off_L]);
 
-            constraint.Set_b_i(Qc[off_L]);
+            constraint.Set_b_i(Qc.matrix[off_L]);
         }
         public override void IntFromDescriptor(int off_v,
                                    ref ChStateDelta v,
                                    int off_L,
                                    ref ChVectorDynamic<double> L)
         {
-            L[off_L] = constraint.Get_l_i();
+            L.matrix[off_L] = constraint.Get_l_i();
         }
 
         // Override/implement system functions of ChPhysicsItem
@@ -109,7 +122,7 @@ namespace chrono
 
         public override void InjectConstraints(ref ChSystemDescriptor mdescriptor)
         {
-            // if (!IsActive())
+           //  if (!IsActive())
             //	return;
 
             mdescriptor.InsertConstraint(constraint);
@@ -169,7 +182,7 @@ namespace chrono
             //Debug.Assert(mm1 == null && mm2 == null);
 
             shaft = mm1;
-            body = mm2;
+            body.BodyFrame = mm2;
             shaft_dir = ChVector.Vnorm(mdir);
 
             constraint.SetVariables(mm1.Variables(), mm2.Variables());
@@ -181,7 +194,7 @@ namespace chrono
         /// Get the shaft
         public ChShaft GetShaft() { return shaft; }
         /// Get the body
-        public ChBodyFrame GetBody() { return body; }
+        public ChBodyFrame GetBody() { return body.BodyFrame; }
 
         /// Set the direction of the shaft respect to 3D body, as a
         /// normalized vector expressed in the coordinates of the body.

@@ -47,8 +47,8 @@ namespace chrono
             variables = mvariables;
 
             // destroy the K matrix if needed
-            if (K != null)
-                K = null;
+           // if (K != null)
+            //    K = null;
 
             int msize = 0;
             for (int iv = 0; iv < variables.Count; iv++)
@@ -66,7 +66,7 @@ namespace chrono
 
         /// Access the K stiffness matrix as a single block,
         /// referring only to the referenced ChVariable objects
-        public override ChMatrix Get_K() { return K; }
+        public override ChMatrix Get_K() { return K.matrix; }
 
         /// Computes the product of the corresponding blocks in the
         /// system matrix (ie. the K matrix blocks) by 'vect', and add to 'result'.
@@ -99,7 +99,7 @@ namespace chrono
                                 double tot = 0;
                                 for (int c = 0; c < jn; c++)
                                 {
-                                    tot += this.K[kio + r, kjo + c] * vect[jo + c];
+                                    tot += this.K.matrix[kio + r, kjo + c] * vect[jo + c];
                                 }
                                 result[io + r] += tot;
                             }
@@ -131,7 +131,7 @@ namespace chrono
                 {
                     for (int r = 0; r < ina; r++) {
                         // GetLog() << "Summing" << result(io+r) << " to " << (*this.K)(kio+r,kio+r) << "\n";
-                        result[io + r] += this.K[kio + r, kio + r];
+                        result[io + r] += this.K.matrix[kio + r, kio + r];
                     }
                 }
                 kio += ina;
@@ -144,8 +144,8 @@ namespace chrono
         /// direct solvers, for dumping full matrix to Matlab for checks, etc.
         public override void Build_K(ref ChSparseMatrix storage, bool add)
         {
-            if (K == null)
-                return;
+           // if (K == null)
+            //    return;
 
             int kio = 0;
             for (int iv = 0; iv < this.GetNvars(); iv++)
@@ -164,9 +164,9 @@ namespace chrono
                         if (this.GetVariableN(jv).IsActive())
                         {
                             if (add)
-                                storage.PasteSumClippedMatrix(K, kio, kjo, ina, jn, io, jo);
+                                storage.PasteSumClippedMatrix(K.matrix, kio, kjo, ina, jn, io, jo);
                             else
-                                storage.PasteClippedMatrix(K, kio, kjo, ina, jn, io, jo);
+                                storage.PasteClippedMatrix(K.matrix, kio, kjo, ina, jn, io, jo);
                         }
 
                         kjo += jn;

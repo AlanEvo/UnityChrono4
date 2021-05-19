@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 namespace chrono
 {
@@ -87,7 +88,7 @@ namespace chrono
         public virtual void AddBody(ChBody body)
         {
             // Debug.Assert(std::find(std::begin(bodylist), std::end(bodylist), body) == bodylist.end());
-            //  Debug.Assert(body.GetSystem() == null);  // should remove from other system before adding here
+            //  Debug.Assert(bodylist[i].GetSystem() == null);  // should remove from other system before adding here
 
             // set system and also add collision models to system
             body.SetSystem(system);
@@ -107,7 +108,15 @@ namespace chrono
         /// Attach a ChPhysicsItem object that is not a body, link, or mesh.
         public virtual void AddOtherPhysicsItem(ChPhysicsItem item)
         {
+            /* assert(!std::dynamic_pointer_cast<ChBody>(item));
+             assert(!std::dynamic_pointer_cast<ChLink>(item));
+             assert(!std::dynamic_pointer_cast<ChMesh>(item));
+             assert(std::find(std::begin(otherphysicslist), std::end(otherphysicslist), item) == otherphysicslist.end());*/
+            // assert(otherphysicslist[i].GetSystem()==nullptr); // should remove from other system before adding here
 
+            // set system and also add collision models to system
+            item.SetSystem(system);
+            otherphysicslist.Add(item);
         }
 
         /// Attach an arbitrary ChPhysicsItem (e.g. ChBody, ChParticles, ChLink, etc.) to the assembly.
@@ -116,25 +125,23 @@ namespace chrono
         /// Note, you cannot call Add() during an Update (i.e. items like particle generators that
         /// are already inserted in the assembly cannot call this) because not thread safe; instead,
         /// use AddBatch().
-        public void Add(ChPhysicsItem item, int key)
+        public void Add(ChPhysicsItem item)
         {
-            ChBody body = new ChBody();
-            if (body == (ChBody)item)
-            {
-                body = (ChBody)item;
-                Add(body, key);
+            //ChBody body = new ChBody();
+            System.Type body = typeof(ChBody);
+            if (body.Equals(item))
+            { 
+                ChBody b = (ChBody)item;
+                AddBody(b);
                 return;
             }
-
-            /* if (auto link = std::dynamic_pointer_cast<ChLink>(item)) {
-                 AddLink(link);
-                 return;
-             }
-
-             if (auto mesh = std::dynamic_pointer_cast<fea::ChMesh>(item)) {
-                 AddMesh(mesh);
-                 return;
-             }*/
+            System.Type link = typeof(ChLink);
+            if (link.Equals(item))
+            {
+                ChLink l = (ChLink)item;
+                AddLink(l);
+                return;
+            }
 
             AddOtherPhysicsItem(item);
         }
@@ -190,22 +197,18 @@ namespace chrono
         {
             system = m_system;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.SetSystem(m_system);
+                bodylist[i].SetSystem(m_system);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].SetSystem(m_system);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->SetSystem(m_system);
+                otherphysicslist[i].SetSystem(m_system);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->SetSystem(m_system);
-            }*/
         }
 
         public void FlushBatch()
@@ -219,27 +222,23 @@ namespace chrono
 
         public override void SyncCollisionModels()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.SyncCollisionModels();
+                bodylist[i].SyncCollisionModels();
             }
             for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].SyncCollisionModels();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->SyncCollisionModels();
+                otherphysicslist[i].SyncCollisionModels();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->SyncCollisionModels();
-            }*/
         }
 
         /// Counts the number of bodies, links, and meshes.
         /// Computes the offsets of object states in the global state.
-        /// Assumes that this->offset_x this->offset_w this->offset_L are already set
+        /// Assumes that this.offset_x this.offset_w this.offset_L are already set
         /// as starting point for offsetting all the contained sub objects.
         public override void Setup()
         {
@@ -259,27 +258,27 @@ namespace chrono
             // Add any items queued for insertion in the assembly's lists.
             this.FlushBatch();
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.GetBodyFixed())
+                if (bodylist[i].GetBodyFixed())
                     nbodies_fixed++;
-                else if (body.GetSleeping())
+                else if (bodylist[i].GetSleeping())
                     nbodies_sleep++;
                 else
                 {
                     nbodies++;
 
-                    body.SetOffset_x(this.offset_x + ncoords);
-                    body.SetOffset_w(this.offset_w + ncoords_w);
-                    body.SetOffset_L(this.offset_L + ndoc_w);
+                    bodylist[i].SetOffset_x(this.offset_x + ncoords);
+                    bodylist[i].SetOffset_w(this.offset_w + ncoords_w);
+                    bodylist[i].SetOffset_L(this.offset_L + ndoc_w);
 
-                    // body->Setup(); // not needed since in bodies does nothing
+                    // body.Setup(); // not needed since in bodies does nothing
 
-                    ncoords += body.GetDOF();
-                    ncoords_w += body.GetDOF_w();
-                    ndoc_w += body.GetDOC();      // not really needed since ChBody introduces no constraints
-                    ndoc_w_C += body.GetDOC_c();  // not really needed since ChBody introduces no constraints
-                    ndoc_w_D += body.GetDOC_d();  // not really needed since ChBody introduces no constraints
+                    ncoords += bodylist[i].GetDOF();
+                    ncoords_w += bodylist[i].GetDOF_w();
+                    ndoc_w += bodylist[i].GetDOC();      // not really needed since ChBody introduces no constraints
+                    ndoc_w_C += bodylist[i].GetDOC_c();  // not really needed since ChBody introduces no constraints
+                    ndoc_w_D += bodylist[i].GetDOC_d();  // not really needed since ChBody introduces no constraints
                 }
             }
 
@@ -297,11 +296,28 @@ namespace chrono
 
                     ncoords += linklist[i].GetDOF();
                     ncoords_w += linklist[i].GetDOF_w();
-                    ndoc_w += linklist[i].GetDOC(); 
+                    ndoc_w += linklist[i].GetDOC();
 
                     ndoc_w_C += linklist[i].GetDOC_c();
-                    ndoc_w_D += linklist[i].GetDOC_d(); 
+                    ndoc_w_D += linklist[i].GetDOC_d();
                 }
+            }
+
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                nphysicsitems++;
+
+                otherphysicslist[i].SetOffset_x(this.offset_x + ncoords);
+                otherphysicslist[i].SetOffset_w(this.offset_w + ncoords_w);
+                otherphysicslist[i].SetOffset_L(this.offset_L + ndoc_w);
+
+                otherphysicslist[i].Setup();
+
+                ncoords += otherphysicslist[i].GetDOF();
+                ncoords_w += otherphysicslist[i].GetDOF_w();
+                ndoc_w += otherphysicslist[i].GetDOC();
+                ndoc_w_C += otherphysicslist[i].GetDOC_c();
+                ndoc_w_D += otherphysicslist[i].GetDOC_d();
             }
 
             ndoc = ndoc_w + nbodies;          // number of constraints including quaternion constraints.
@@ -325,42 +341,37 @@ namespace chrono
         public override void update(bool update_assets = true)
         {
             //// NOTE: do not switch these to range for loops (may want to use OMP for)
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.update(ChTime, update_assets);
+                bodylist[i].update(ChTime, update_assets);
             }
-            /* for (int ip = 0; ip < (int)otherphysicslist.Count; ++ip)
-             {
-                 otherphysicslist[ip].update(ChTime, update_assets);
-             }*/
-            for (int ip = 0; ip < (int)linklist.Count ; ++ip)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                linklist[ip].update(ChTime, update_assets);
+                otherphysicslist[i].update(ChTime, update_assets);
             }
-            /* for (int ip = 0; ip < (int)meshlist.size(); ++ip)
-             {
-                 meshlist[ip]->Update(ChTime, update_assets);
-             }*/
+            for (int i = 0; i < (int)linklist.Count; ++i)
+            {
+                linklist[i].update(ChTime, update_assets);
+            }
+
+
         }
 
         /// Set zero speed (and zero accelerations) in state, without changing the position.
         public override void SetNoSpeedNoAcceleration()
         {
-            foreach (ChBody body in bodylist) { 
-                body.SetNoSpeedNoAcceleration();
+            for (int i = 0; i < bodylist.Count; i++)
+            {
+                bodylist[i].SetNoSpeedNoAcceleration();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].SetNoSpeedNoAcceleration();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->SetNoSpeedNoAcceleration();
+                otherphysicslist[i].SetNoSpeedNoAcceleration();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->SetNoSpeedNoAcceleration();
-            }*/
         }
 
         /// Get the number of scalar coordinates (ex. dim of position vector)
@@ -384,24 +395,20 @@ namespace chrono
             int displ_x = off_x - this.offset_x;
             int displ_v = off_v - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateGather(displ_x + body.GetOffset_x(), ref x, displ_v + body.GetOffset_w(), ref v, ref T);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateGather(displ_x + bodylist[i].GetOffset_x(), ref x, displ_v + bodylist[i].GetOffset_w(), ref v, ref T);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateGather(displ_x + linklist[i].GetOffset_x(), ref x, displ_v + linklist[i].GetOffset_w(), ref v, ref T);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntStateGather(displ_x + mesh->GetOffset_x(), x, displ_v + mesh->GetOffset_w(), v, T);
+                otherphysicslist[i].IntStateGather(displ_x + otherphysicslist[i].GetOffset_x(), ref x, displ_v + otherphysicslist[i].GetOffset_w(), ref v, ref T);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntStateGather(displ_x + item->GetOffset_x(), x, displ_v + item->GetOffset_w(), v, T);
-            }*/
             T = GetChTime();
         }
         public override void IntStateScatter(int off_x,
@@ -413,123 +420,104 @@ namespace chrono
             int displ_x = off_x - this.offset_x;
             int displ_v = off_v - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateScatter(displ_x + body.GetOffset_x(), x, displ_v + body.GetOffset_w(), v, T);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateScatter(displ_x + bodylist[i].GetOffset_x(), x, displ_v + bodylist[i].GetOffset_w(), v, T);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
-               // if (linklist[i].IsActive())
+                if (linklist[i].IsActive())
                     linklist[i].IntStateScatter(displ_x + linklist[i].GetOffset_x(), x, displ_v + linklist[i].GetOffset_w(), v, T);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntStateScatter(displ_x + mesh->GetOffset_x(), x, displ_v + mesh->GetOffset_w(), v, T);
+                otherphysicslist[i].IntStateScatter(displ_x + otherphysicslist[i].GetOffset_x(), x, displ_v + otherphysicslist[i].GetOffset_w(), v, T);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntStateScatter(displ_x + item->GetOffset_x(), x, displ_v + item->GetOffset_w(), v, T);
-            }*/
             SetChTime(T);
 
             // Note: all those IntStateScatter() above should call Update() automatically
             // for each object in the loop, therefore:
             // -do not call Update() on this.
-            // -do not call ChPhysicsItem::IntStateScatter() -it calls this->Update() anyway-
+            // -do not call ChPhysicsItem::IntStateScatter() -it calls this.Update() anyway-
             // because this would cause redundant updates.
         }
         public override void IntStateGatherAcceleration(int off_a, ref ChStateDelta a)
         {
             int displ_a = off_a - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateGatherAcceleration(displ_a + body.GetOffset_w(), ref a);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateGatherAcceleration(displ_a + bodylist[i].GetOffset_w(), ref a);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateGatherAcceleration(displ_a + linklist[i].GetOffset_w(), ref a);
             }
-            /*for (auto & mesh : meshlist)
-             {
-                 mesh->IntStateGatherAcceleration(displ_a + mesh->GetOffset_w(), a);
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntStateGatherAcceleration(displ_a + item->GetOffset_w(), a);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntStateGatherAcceleration(displ_a + otherphysicslist[i].GetOffset_w(), ref a);
+            }
         }
         public override void IntStateScatterAcceleration(int off_a, ChStateDelta a)
         {
             int displ_a = off_a - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateScatterAcceleration(displ_a + body.GetOffset_w(), a);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateScatterAcceleration(displ_a + bodylist[i].GetOffset_w(), a);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateScatterAcceleration(displ_a + linklist[i].GetOffset_w(), a);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntStateScatterAcceleration(displ_a + mesh->GetOffset_w(), a);
+                otherphysicslist[i].IntStateScatterAcceleration(displ_a + otherphysicslist[i].GetOffset_w(), a);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntStateScatterAcceleration(displ_a + item->GetOffset_w(), a);
-            }*/
         }
+
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
         {
             int displ_L = off_L - this.offset_L;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateGatherReactions(displ_L + body.GetOffset_L(), ref L);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateGatherReactions(displ_L + bodylist[i].GetOffset_L(), ref L);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateGatherReactions(displ_L + linklist[i].GetOffset_L(), ref L);
             }
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntStateGatherReactions(displ_L + mesh->GetOffset_L(), L);
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntStateGatherReactions(displ_L + item->GetOffset_L(), L);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntStateGatherReactions(displ_L + otherphysicslist[i].GetOffset_L(), ref L);
+            }
         }
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
         {
             int displ_L = off_L - this.offset_L;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateScatterReactions(displ_L + body.GetOffset_L(), L);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateScatterReactions(displ_L + bodylist[i].GetOffset_L(), L);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateScatterReactions(displ_L + linklist[i].GetOffset_L(), L);
             }
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntStateScatterReactions(displ_L + mesh->GetOffset_L(), L);
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntStateScatterReactions(displ_L + item->GetOffset_L(), L);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntStateScatterReactions(displ_L + otherphysicslist[i].GetOffset_L(), L);
+            }
         }
         public override void IntStateIncrement(int off_x,
                                    ref ChState x_new,
@@ -540,49 +528,39 @@ namespace chrono
             int displ_x = off_x - (int)this.offset_x;
             int displ_v = off_v - (int)this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntStateIncrement(displ_x + body.GetOffset_x(), ref x_new, x, displ_v + body.GetOffset_w(), Dv);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntStateIncrement(displ_x + bodylist[i].GetOffset_x(), ref x_new, x, displ_v + bodylist[i].GetOffset_w(), Dv);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntStateIncrement(displ_x + linklist[i].GetOffset_x(), ref x_new, x, displ_v + linklist[i].GetOffset_w(), Dv);
             }
-
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntStateIncrement(displ_x + mesh->GetOffset_x(), x_new, x, displ_v + mesh->GetOffset_w(), Dv);
-             }
-
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntStateIncrement(displ_x + item->GetOffset_x(), x_new, x, displ_v + item->GetOffset_w(), Dv);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntStateIncrement(displ_x + otherphysicslist[i].GetOffset_x(), ref x_new, x, displ_v + otherphysicslist[i].GetOffset_w(), Dv);
+            }
         }
         public override void IntLoadResidual_F(int off, ref ChVectorDynamic<double> R, double c)
         {
             int displ_v = off - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntLoadResidual_F(displ_v + body.GetOffset_w(), ref R, c);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntLoadResidual_F(displ_v + bodylist[i].GetOffset_w(), ref R, c);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntLoadResidual_F(displ_v + linklist[i].GetOffset_w(), ref R, c);
             }
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntLoadResidual_F(displ_v + mesh->GetOffset_w(), R, c);
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntLoadResidual_F(displ_v + item->GetOffset_w(), R, c);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntLoadResidual_F(displ_v + otherphysicslist[i].GetOffset_w(), ref R, c);
+            }
         }
         public override void IntLoadResidual_Mv(int off,
                                     ref ChVectorDynamic<double> R,
@@ -591,24 +569,20 @@ namespace chrono
         {
             int displ_v = off - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntLoadResidual_Mv(displ_v + body.GetOffset_w(), ref R, w, c);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntLoadResidual_Mv(displ_v + bodylist[i].GetOffset_w(), ref R, w, c);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntLoadResidual_Mv(displ_v + linklist[i].GetOffset_w(), ref R, w, c);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntLoadResidual_Mv(displ_v + mesh->GetOffset_w(), R, w, c);
+                otherphysicslist[i].IntLoadResidual_Mv(displ_v + otherphysicslist[i].GetOffset_w(), ref R, w, c);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntLoadResidual_Mv(displ_v + item->GetOffset_w(), R, w, c);
-            }*/
         }
         public override void IntLoadResidual_CqL(int off_L,
                                      ref ChVectorDynamic<double> R,
@@ -617,24 +591,20 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntLoadResidual_CqL(displ_L + body.GetOffset_L(), ref R, L, c);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntLoadResidual_CqL(displ_L + bodylist[i].GetOffset_L(), ref R, L, c);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntLoadResidual_CqL(displ_L + linklist[i].GetOffset_L(), ref R, L, c);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntLoadResidual_CqL(displ_L + mesh->GetOffset_L(), R, L, c);
+                otherphysicslist[i].IntLoadResidual_CqL(displ_L + otherphysicslist[i].GetOffset_L(), ref R, L, c);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntLoadResidual_CqL(displ_L + item->GetOffset_L(), R, L, c);
-            }*/
         }
         public override void IntLoadConstraint_C(int off_L,
                                      ref ChVectorDynamic<double> Qc,
@@ -644,47 +614,39 @@ namespace chrono
         {
             int displ_L = off_L - this.offset_L;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntLoadConstraint_C(displ_L + body.GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntLoadConstraint_C(displ_L + bodylist[i].GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntLoadConstraint_C(displ_L + linklist[i].GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntLoadConstraint_C(displ_L + mesh->GetOffset_L(), Qc, c, do_clamp, recovery_clamp);
+                otherphysicslist[i].IntLoadConstraint_C(displ_L + otherphysicslist[i].GetOffset_L(), ref Qc, c, do_clamp, recovery_clamp);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntLoadConstraint_C(displ_L + item->GetOffset_L(), Qc, c, do_clamp, recovery_clamp);
-            }*/
         }
         public override void IntLoadConstraint_Ct(int off_L, ref ChVectorDynamic<double> Qc, double c)
         {
             int displ_L = off_L - this.offset_L;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntLoadConstraint_Ct(displ_L + body.GetOffset_L(), ref Qc, c);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntLoadConstraint_Ct(displ_L + bodylist[i].GetOffset_L(), ref Qc, c);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntLoadConstraint_Ct(displ_L + linklist[i].GetOffset_L(), ref Qc, c);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->IntLoadConstraint_Ct(displ_L + mesh->GetOffset_L(), Qc, c);
+                otherphysicslist[i].IntLoadConstraint_Ct(displ_L + otherphysicslist[i].GetOffset_L(), ref Qc, c);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->IntLoadConstraint_Ct(displ_L + item->GetOffset_L(), Qc, c);
-            }*/
         }
         public override void IntToDescriptor(int off_v,
                                  ChStateDelta v,
@@ -696,27 +658,21 @@ namespace chrono
             int displ_L = off_L - this.offset_L;
             int displ_v = off_v - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntToDescriptor(displ_v + body.GetOffset_w(), v, R, displ_L + body.GetOffset_L(), L, Qc);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntToDescriptor(displ_v + bodylist[i].GetOffset_w(), v, R, displ_L + bodylist[i].GetOffset_L(), L, Qc);
             }
 
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntToDescriptor(displ_v + linklist[i].GetOffset_w(), v, R, displ_L + linklist[i].GetOffset_L(), L, Qc);
             }
-
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntToDescriptor(displ_v + mesh->GetOffset_w(), v, R, displ_L + mesh->GetOffset_L(), L, Qc);
-             }
-
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntToDescriptor(displ_v + item->GetOffset_w(), v, R, displ_L + item->GetOffset_L(), L, Qc);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntToDescriptor(displ_v + otherphysicslist[i].GetOffset_w(), v, R, displ_L + otherphysicslist[i].GetOffset_L(), L, Qc);
+            }
         }
         public override void IntFromDescriptor(int off_v,
                                    ref ChStateDelta v,
@@ -726,362 +682,288 @@ namespace chrono
             int displ_L = off_L - this.offset_L;
             int displ_v = off_v - this.offset_w;
 
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                if (body.IsActive())
-                    body.IntFromDescriptor(displ_v + body.GetOffset_w(), ref v, displ_L + body.GetOffset_L(), ref L);
+                if (bodylist[i].IsActive())
+                    bodylist[i].IntFromDescriptor(displ_v + bodylist[i].GetOffset_w(), ref v, displ_L + bodylist[i].GetOffset_L(), ref L);
             }
 
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 if (linklist[i].IsActive())
                     linklist[i].IntFromDescriptor(displ_v + linklist[i].GetOffset_w(), ref v, displ_L + linklist[i].GetOffset_L(), ref L);
             }
-
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->IntFromDescriptor(displ_v + mesh->GetOffset_w(), v, displ_L + mesh->GetOffset_L(), L);
-             }
-
-             for (auto & item : otherphysicslist)
-             {
-                 item->IntFromDescriptor(displ_v + item->GetOffset_w(), v, displ_L + item->GetOffset_L(), L);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].IntFromDescriptor(displ_v + otherphysicslist[i].GetOffset_w(), ref v, displ_L + otherphysicslist[i].GetOffset_L(), ref L);
+            }
         }
 
         public override void InjectVariables(ref ChSystemDescriptor mdescriptor)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.InjectVariables(ref mdescriptor);
+                bodylist[i].InjectVariables(ref mdescriptor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].InjectVariables(ref mdescriptor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->InjectVariables(mdescriptor);
+                otherphysicslist[i].InjectVariables(ref mdescriptor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->InjectVariables(mdescriptor);
-            }*/
         }
 
         public override void InjectConstraints(ref ChSystemDescriptor mdescriptor)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.InjectConstraints(ref mdescriptor);
+                bodylist[i].InjectConstraints(ref mdescriptor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].InjectConstraints(ref mdescriptor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->InjectConstraints(mdescriptor);
+                otherphysicslist[i].InjectConstraints(ref mdescriptor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->InjectConstraints(mdescriptor);
-            }*/
         }
         public override void ConstraintsLoadJacobians()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsLoadJacobians();
+                bodylist[i].ConstraintsLoadJacobians();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsLoadJacobians();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsLoadJacobians();
+                otherphysicslist[i].ConstraintsLoadJacobians();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsLoadJacobians();
-            }*/
         }
 
         public override void InjectKRMmatrices(ref ChSystemDescriptor mdescriptor)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.InjectKRMmatrices(ref mdescriptor);
+                bodylist[i].InjectKRMmatrices(ref mdescriptor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].InjectKRMmatrices(ref mdescriptor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->InjectKRMmatrices(mdescriptor);
+                otherphysicslist[i].InjectKRMmatrices(ref mdescriptor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->InjectKRMmatrices(mdescriptor);
-            }*/
         }
         public override void KRMmatricesLoad(double Kfactor, double Rfactor, double Mfactor)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
+                bodylist[i].KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
+                otherphysicslist[i].KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->KRMmatricesLoad(Kfactor, Rfactor, Mfactor);
-            }*/
         }
 
         // Old bookkeeping system - to be removed soon
         public override void VariablesFbReset()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesFbReset();
+                bodylist[i].VariablesFbReset();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesFbReset();
             }
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->VariablesFbReset();
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->VariablesFbReset();
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].VariablesFbReset();
+            }
         }
         public override void VariablesFbLoadForces(double factor = 1)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesFbLoadForces(factor);
+                bodylist[i].VariablesFbLoadForces(factor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesFbLoadForces(factor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->VariablesFbLoadForces(factor);
+                otherphysicslist[i].VariablesFbLoadForces(factor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->VariablesFbLoadForces(factor);
-            }*/
         }
         public override void VariablesQbLoadSpeed()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesQbLoadSpeed();
+                bodylist[i].VariablesQbLoadSpeed();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesQbLoadSpeed();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->VariablesQbLoadSpeed();
+                otherphysicslist[i].VariablesQbLoadSpeed();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->VariablesQbLoadSpeed();
-            }*/
         }
         public override void VariablesFbIncrementMq()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesFbIncrementMq();
+                bodylist[i].VariablesFbIncrementMq();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesFbIncrementMq();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->VariablesFbIncrementMq();
+                otherphysicslist[i].VariablesFbIncrementMq();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->VariablesFbIncrementMq();
-            }*/
         }
         public override void VariablesQbSetSpeed(double step = 0)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesQbSetSpeed(step);
+                bodylist[i].VariablesQbSetSpeed(step);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesQbSetSpeed(step);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->VariablesQbSetSpeed(step);
+                otherphysicslist[i].VariablesQbSetSpeed(step);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->VariablesQbSetSpeed(step);
-            }*/
         }
         public override void VariablesQbIncrementPosition(double dt_step)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.VariablesQbIncrementPosition(dt_step);
+                bodylist[i].VariablesQbIncrementPosition(dt_step);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].VariablesQbIncrementPosition(dt_step);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->VariablesQbIncrementPosition(dt_step);
+                otherphysicslist[i].VariablesQbIncrementPosition(dt_step);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->VariablesQbIncrementPosition(dt_step);
-            }*/
         }
         public override void ConstraintsBiReset()
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsBiReset();
+                bodylist[i].ConstraintsBiReset();
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsBiReset();
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsBiReset();
+                otherphysicslist[i].ConstraintsBiReset();
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsBiReset();
-            }*/
         }
         public override void ConstraintsBiLoad_C(double factor = 1, double recovery_clamp = 0.1, bool do_clamp = false)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
+                bodylist[i].ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
+                otherphysicslist[i].ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
-            }*/
         }
         public override void ConstraintsBiLoad_Ct(double factor = 1)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsBiLoad_Ct(factor);
+                bodylist[i].ConstraintsBiLoad_Ct(factor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsBiLoad_Ct(factor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsBiLoad_Ct(factor);
+                otherphysicslist[i].ConstraintsBiLoad_Ct(factor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsBiLoad_Ct(factor);
-            }*/
         }
         public override void ConstraintsBiLoad_Qc(double factor = 1)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsBiLoad_Qc(factor);
+                bodylist[i].ConstraintsBiLoad_Qc(factor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsBiLoad_Qc(factor);
             }
-            /* for (auto & mesh : meshlist)
-             {
-                 mesh->ConstraintsBiLoad_Qc(factor);
-             }
-             for (auto & item : otherphysicslist)
-             {
-                 item->ConstraintsBiLoad_Qc(factor);
-             }*/
+            for (int i = 0; i < otherphysicslist.Count; i++)
+            {
+                otherphysicslist[i].ConstraintsBiLoad_Qc(factor);
+            }
         }
         public override void ConstraintsFbLoadForces(double factor = 1)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsFbLoadForces(factor);
+                bodylist[i].ConstraintsFbLoadForces(factor);
             }
-            for (int i = 0; i < linklist.Count ; i++)
+            for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsFbLoadForces(factor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsFbLoadForces(factor);
+                otherphysicslist[i].ConstraintsFbLoadForces(factor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsFbLoadForces(factor);
-            }*/
         }
         public override void ConstraintsFetch_react(double factor = 1)
         {
-            foreach (ChBody body in bodylist)
+            for (int i = 0; i < bodylist.Count; i++)
             {
-                body.ConstraintsFetch_react(factor);
+                bodylist[i].ConstraintsFetch_react(factor);
             }
             for (int i = 0; i < linklist.Count; i++)
             {
                 linklist[i].ConstraintsFetch_react(factor);
             }
-            /*for (auto & mesh : meshlist)
+            for (int i = 0; i < otherphysicslist.Count; i++)
             {
-                mesh->ConstraintsFetch_react(factor);
+                otherphysicslist[i].ConstraintsFetch_react(factor);
             }
-            for (auto & item : otherphysicslist)
-            {
-                item->ConstraintsFetch_react(factor);
-            }*/
         }
 
 
-        protected List<ChBody> bodylist = new List<ChBody>();                 //< list of rigid bodies
+        public List<ChBody> bodylist = new List<ChBody>();                 //< list of rigid bodies
         protected List<ChLink> linklist = new List<ChLink>();                 //< list of joints (links)
         // std::vector<std::shared_ptr<fea::ChMesh>> meshlist;            ///< list of meshes
-        protected List<ChPhysicsItem> otherphysicslist = new List<ChPhysicsItem>();  //< list of other physics objects
+        public List<ChPhysicsItem> otherphysicslist = new List<ChPhysicsItem>();  //< list of other physics objects
         protected List<ChPhysicsItem> batch_to_insert = new List<ChPhysicsItem>();   //< list of items to insert at once
 
         // Statistics:

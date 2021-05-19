@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine.Assertions;
+//using System.Linq;
 
 namespace chrono
 {
@@ -24,16 +25,17 @@ namespace chrono
     ///  Warning: for optimization reasons, not all functions will
     /// check about boundaries of element indexes and matrix sizes (in
     /// some cases, if sizes are wrong, debug asserts are used).
-    public unsafe class ChMatrix
+    public struct ChMatrix
     {
         //
         // DATA
         //
-        public int rows = 1;
-        public int columns = 1;
+        public int rows;// = 1;
+        public int columns;// = 1;
+
 
         public double[] address;
-        //public double* address;
+        //public Stack<string> numbers = new Stack<string>();
 
         //
         // CONSTRUCTORS (none - abstract class that must be implemented with child classes)
@@ -48,9 +50,11 @@ namespace chrono
         {
             get
             {
-                // return ref address[col + (row * columns)];
-                fixed(double* add = address)
+                /*fixed (double* add = &address[0])
+                {
                     return ref (*(add + col + (row * columns)));
+                }*/
+                return ref address[col + (row * columns)];
                 // return ref (*(address + col + (row * columns)));
             }
         }
@@ -59,9 +63,9 @@ namespace chrono
         {
             get
             {
-                // return ref address[el];
-                fixed (double* add = address)
-                    return ref (*(add + el));
+                 return ref address[el];
+               /* fixed (double* add = &address[0])
+                    return ref (*(add + el));*/
                 // return ref (*(address + el));
             }
         }
@@ -108,7 +112,7 @@ namespace chrono
 
         public static ChMatrix operator +(ChMatrix a, ChMatrixDynamic<double> mat)
         {
-            a.MatrScale(mat);
+            a.MatrScale(mat.matrix);
             return a;
         }
 
@@ -135,9 +139,9 @@ namespace chrono
         public void SetElement(int row, int col, double elem)
         {
             //Debug.Assert(row >= 0 && col >= 0 && row < rows && col < columns);  // boundary checks
-            //address[col + (row * columns)] = elem;
-            fixed (double* add = address)
-                *(add + col + (row * columns)) = elem;
+            address[col + (row * columns)] = elem;
+            //fixed (double* add = &address[0])
+             //   *(add + col + (row * columns)) = elem;
             // *(address + col + (row * columns)) = elem;
         }
 
@@ -147,9 +151,9 @@ namespace chrono
         public double GetElement(int row, int col)
         {
             //Debug.Assert(row >= 0 && col >= 0 && row < rows && col < columns);  // boundary checks
-            // return address[col + (row * columns)];
-            fixed (double* add = address)
-                return (*(add + col + (row * columns)));
+            return address[col + (row * columns)];
+            //fixed (double* add = &address[0])
+              //  return (*(add + col + (row * columns)));
             //  return (*(address + col + (row * columns)));
         }
 
@@ -157,9 +161,9 @@ namespace chrono
         void SetElementN(int index, double elem)
         {
             // Debug.Assert(index >= 0 && index < (rows * columns));  // boundary checks
-            // address[index] = elem;
-            fixed (double* add = address)
-                *(add + index) = elem;
+            address[index] = elem;
+            //fixed (double* add = &address[0])
+             //   *(add + index) = elem;
             // *(address + index) = elem;
         }
 
@@ -167,9 +171,9 @@ namespace chrono
         public double GetElementN(int index)
         {
             // Debug.Assert(index >= 0 && index < (rows * columns));
-            // return address[index]; 
-            fixed (double* add = address)
-                return (*(add + index));
+             return address[index]; 
+           // fixed (double* add = &address[0])
+              //  return (*(add + index));
             // return (*(address + index));
         }
 
@@ -179,9 +183,9 @@ namespace chrono
         public ref double Element(int row, int col)
         {
             // Debug.Assert(row >= 0 && col >= 0 && row < rows && col < columns);
-            // return ref address[col + row * columns];
-            fixed (double* add = address)
-                return ref (*(add + col + (row * columns)));
+            return ref address[col + row * columns];
+           // fixed (double* add = &address[0])
+            //    return ref (*(add + col + (row * columns)));
             // return ref (*(address + col + (row * columns)));
         }
 
@@ -190,18 +194,18 @@ namespace chrono
         public ref double ElementN(int index)
         {
             // Debug.Assert(index >= 0 && index < (rows * columns));
-            //  return ref address[index];
-            fixed (double* add = address)
-                return ref (*(add + index));
+              return ref address[index];
+           // fixed (double* add = &address[0])
+             //   return ref (*(add + index));
             //  return ref (*(address + index));
         }
 
         /// Access directly the "double* address" buffer. Warning! this is a low level
         /// function, it should be used in rare cases, if really needed!
-        public double* GetAddress() {
-            //return address; 
-            fixed (double* add = address)
-                return add;
+        public double[] GetAddress() {
+            return address; 
+           // fixed (double* add = & address[0])
+             //   return add;
         }
 
         /// Gets the number of rows
@@ -222,14 +226,14 @@ namespace chrono
             if ((other.GetColumns() != this.columns) || (other.GetRows() != this.rows))
                 return false;
             for (int nel = 0; nel < rows * columns; ++nel)
-                if (Math.Abs(ElementN(nel) - other.ElementN(nel)) > tol)
+                if (Mathfx.Abs(ElementN(nel) - other.ElementN(nel)) > tol)
                     return false;
             return true;
         }
 
 
         /// doublelocate memory for a new size. VIRTUAL! Must be implemented by child classes!
-        public virtual void Resize(int nrows, int ncols) { }
+        public void Resize(int nrows, int ncols) { }
 
         /// Swaps the columns a and b
         public void SwapColumns(int a, int b)
@@ -271,7 +275,7 @@ namespace chrono
         }
 
         /// Resets the matrix to zero  (warning: simply sets memory to 0 bytes!)
-        public virtual void Reset()
+        public void Reset()
         {
             // SetZero(rows*columns); //memset(address, 0, sizeof(double) * rows * columns);
             for (int i = 0; i < rows * columns; ++i)
@@ -485,13 +489,13 @@ namespace chrono
             }
             else  // Naive implementation for rectangular case. Not in-place. Slower.
             {
-                ChMatrixDynamic<double> matrcopy = (ChMatrixDynamic<double>)this;
+               /* ChMatrixDynamic<double> matrcopy = (ChMatrixDynamic<double>)this;
                 int tmpr = rows;
                 rows = columns;
                 columns = tmpr;  // dont' realloc buffer, anyway
                 for (int row = 0; row < rows; ++row)
                     for (int col = 0; col < columns; ++col)
-                        Element(row, col) = matrcopy.Element(col, row);
+                        Element(row, col) = matrcopy.Element(col, row);*/
             }
         }
 
@@ -598,22 +602,22 @@ namespace chrono
 
         /// Computes dot product between two column-matrices (vectors) with
         /// same size. Returns a scalar value.
-    public double MatrDot(ChMatrix ma, ChMatrix mb) {
-        //ssert(ma.GetColumns() == mb.GetColumns() && ma.GetRows() == mb.GetRows());
-        double tot = 0;
-        for (int i = 0; i<ma.GetRows(); ++i)
-            tot += (double) (ma.ElementN(i) * mb.ElementN(i));
-        return tot;
-    }
+        public double MatrDot(ChMatrix ma, ChMatrix mb) {
+            //ssert(ma.GetColumns() == mb.GetColumns() && ma.GetRows() == mb.GetRows());
+            double tot = 0;
+            for (int i = 0; i<ma.GetRows(); ++i)
+                tot += (double) (ma.ElementN(i) * mb.ElementN(i));
+            return tot;
+        }
 
-    /// Gets the norm infinite of the matrix, i.e. the max.
-    /// of its elements in absolute value.
-    public double NormInf()
+        /// Gets the norm infinite of the matrix, i.e. the max.
+        /// of its elements in absolute value.
+        public double NormInf()
         {
             double norm = 0;
             for (int nel = 0; nel < rows * columns; ++nel)
-                if ((Math.Abs(ElementN(nel))) > norm)
-                    norm = Math.Abs(ElementN(nel));
+                if ((Mathfx.Abs(ElementN(nel))) > norm)
+                    norm = Mathfx.Abs(ElementN(nel));
             return norm;
         }
 

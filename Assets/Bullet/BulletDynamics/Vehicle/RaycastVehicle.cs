@@ -83,10 +83,10 @@ namespace BulletXNA.BulletDynamics
 
         public IndexedMatrix GetChassisWorldTransform()
         {
-            /*if (getRigidBody()->getMotionState())
+            /*if (getRigidBody().getMotionState())
             {
                 btTransform chassisWorldTrans;
-                getRigidBody()->getMotionState()->getWorldTransform(chassisWorldTrans);
+                getRigidBody().getMotionState().getWorldTransform(chassisWorldTrans);
                 return chassisWorldTrans;
             }
             */

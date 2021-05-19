@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0518c9b9912892e4995d836274fdee1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  density: 100
+  density: 1000
   automaticMass: 0
   bodyfixed: 0
   collide: 1
@@ -439,6 +439,10 @@ PrefabInstance:
       propertyPath: body1
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 2587200810334983505, guid: 3d9ae0dbc7e99bb419b9ab4abc33f3ff, type: 3}
+      propertyPath: radius
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 2701665229317072438, guid: 3d9ae0dbc7e99bb419b9ab4abc33f3ff, type: 3}
       propertyPath: body1
       value: 
@@ -447,6 +451,14 @@ PrefabInstance:
       propertyPath: body2
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 2701665229317072438, guid: 3d9ae0dbc7e99bb419b9ab4abc33f3ff, type: 3}
+      propertyPath: mot_tau
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2701665229317072438, guid: 3d9ae0dbc7e99bb419b9ab4abc33f3ff, type: 3}
+      propertyPath: shaft_mode
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5567248406240909132, guid: 3d9ae0dbc7e99bb419b9ab4abc33f3ff, type: 3}
       propertyPath: body1
       value: 
@@ -564,6 +576,14 @@ PrefabInstance:
       propertyPath: body2
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 6038136648137330868, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
+      propertyPath: mot_tau
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038136648137330868, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
+      propertyPath: shaft_mode
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 6075779537251520357, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
       propertyPath: body1
       value: 
@@ -584,6 +604,18 @@ PrefabInstance:
       propertyPath: body1
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 6122544771434489188, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
+      propertyPath: radius
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122544771434489188, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
+      propertyPath: springCoefficient
+      value: 28300
+      objectReference: {fileID: 0}
+    - target: {fileID: 6122544771434489188, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
+      propertyPath: dampingCoefficient
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 6522010395858827211, guid: 5f8efd86277cf2c4c83a044a1241c173, type: 3}
       propertyPath: body1
       value: 
@@ -1407,6 +1439,10 @@ PrefabInstance:
       propertyPath: body1
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 4943735458990139268, guid: f4873086a7f82da469b50aaac90e39be, type: 3}
+      propertyPath: radius
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 6028991709894324646, guid: f4873086a7f82da469b50aaac90e39be, type: 3}
       propertyPath: body1
       value: 
@@ -2176,6 +2212,10 @@ PrefabInstance:
       propertyPath: body1
       value: 
       objectReference: {fileID: 212513910}
+    - target: {fileID: 8755909465182871865, guid: 30f84c97636a62044b4735b49ab0e283, type: 3}
+      propertyPath: radius
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 8755909465182871865, guid: 30f84c97636a62044b4735b49ab0e283, type: 3}
       propertyPath: position2
       value: 

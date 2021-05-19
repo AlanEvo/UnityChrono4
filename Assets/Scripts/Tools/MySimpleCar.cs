@@ -8,8 +8,8 @@ namespace chrono {
     {
         // THE DATA
 
-        public ChLinkMotorRotationTorque link_engineL;
-        public ChLinkMotorRotationTorque link_engineR;
+        public ChLinkEngine link_engineL;
+        public ChLinkEngine link_engineR;
         public ChLinkDistance link_distLSTEER;
         public ChLinkDistance link_distRSTEER;
 
@@ -26,8 +26,8 @@ namespace chrono {
             throttle = 0;  // initially, gas throttle is 0.
             conic_tau = 0.2;
             gear_tau = 0.3;
-            max_motor_torque = 80;
-            max_motor_speed = 800;
+            max_motor_torque = 1;
+            max_motor_speed = 1;
         }
 
         // Update is called once per frame
@@ -55,7 +55,7 @@ namespace chrono {
             // the speed of the engine transmission shaft is the average of the two wheel speeds,
             // multiplied the conic gear transmission ratio inversed:
             double shaftspeed = (1.0 / this.conic_tau) * 0.5 *
-                                (this.link_engineL.GetMotorRot_dt() + this.link_engineR.GetMotorRot_dt());
+                                (this.link_engineL.Get_mot_rot_dt() + this.link_engineR.Get_mot_rot_dt());
             // The motorspeed is the shaft speed multiplied by gear ratio inversed:
             double motorspeed = (1.0 / this.gear_tau) * shaftspeed;
             // The torque depends on speed-torque curve of the motor: here we assume a
@@ -69,8 +69,8 @@ namespace chrono {
             // it is half of the shaft torque  (multiplied the conic gear transmission ratio)
             double singlewheeltorque = 0.5 * shafttorque * (1.0 / this.conic_tau);
             // Set the wheel torque in both 'engine' links, connecting the wheels to the truss;
-            ChFunction_Const mfun1 = (ChFunction_Const)link_engineL.GetTorqueFunction();
-            ChFunction_Const mfun2 = (ChFunction_Const)link_engineR.GetTorqueFunction();
+            ChFunction_Const mfun1 = (ChFunction_Const)link_engineL.Get_tor_funct();
+            ChFunction_Const mfun2 = (ChFunction_Const)link_engineR.Get_tor_funct();
             //if (mfun == link_engineL as )
             mfun1.Set_yconst(singlewheeltorque);
             mfun2.Set_yconst(singlewheeltorque);

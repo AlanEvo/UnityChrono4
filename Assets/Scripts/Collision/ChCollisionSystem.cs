@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-
+using BulletXNA.BulletCollision;
+using BulletXNA.BulletDynamics;
+using BulletXNA.LinearMath;
 
 namespace chrono
 {
@@ -125,13 +127,15 @@ namespace chrono
             };
 
             /// Perform a ray-hit test with the collision models.
-            public abstract bool RayHit(ChVector from, ChVector to, ref ChRayhitResult mresult);
+            public abstract bool RayHit(ChVector from, ChVector to, ChCollisionModel model, ref ChRayhitResult mresult);
 
             /// Perform a ray-hit test with the specified collision model.
             public abstract bool RayHit(ChVector from,
                         ChVector to,
                         ChCollisionModel model,
-                        ref ChRayhitResult mresult);
+                        ref ChRayhitResult mresult,
+                        CollisionFilterGroups filter_group,
+                        CollisionFilterGroups filter_mask);
 
             public int debug;
             protected BroadphaseCallback broad_callback;    //< user callback for each near-enough pair of shapes

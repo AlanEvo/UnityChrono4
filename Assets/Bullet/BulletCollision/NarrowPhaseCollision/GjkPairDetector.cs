@@ -299,7 +299,7 @@ namespace BulletXNA.BulletCollision
                     }
 #endif //
 
-                    //redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
+                    //redundant m_simplexSolver.compute_points(pointOnA, pointOnB);
 
                     //are we getting any closer ?
                     if (previousSquaredDistance - squaredDistance <= MathUtil.SIMD_EPSILON * previousSquaredDistance)
@@ -323,8 +323,8 @@ namespace BulletXNA.BulletCollision
                         //        m_cachedSeparatingAxis.getY(),   
                         //        m_cachedSeparatingAxis.getZ(),   
                         //        squaredDistance,   
-                        //        m_minkowskiA->getShapeType(),   
-                        //        m_minkowskiB->getShapeType());   
+                        //        m_minkowskiA.getShapeType(),   
+                        //        m_minkowskiB.getShapeType());   
 
                         //#endif   
                         break;
@@ -332,7 +332,7 @@ namespace BulletXNA.BulletCollision
                     }
 
                     bool check = (!m_simplexSolver.FullSimplex());
-                    //bool check = (!m_simplexSolver->fullSimplex() && squaredDistance > SIMD_EPSILON * m_simplexSolver->maxVertex());
+                    //bool check = (!m_simplexSolver.fullSimplex() && squaredDistance > SIMD_EPSILON * m_simplexSolver.maxVertex());
 
                     if (!check)
                     {

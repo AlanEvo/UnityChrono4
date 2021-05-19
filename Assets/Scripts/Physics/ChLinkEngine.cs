@@ -304,10 +304,10 @@ namespace chrono
             {
                 if (impose_reducer)
                 {
-                   /* mot_rerot_dt = spe_funct.Get_y(ChTime);
+                    mot_rerot_dt = spe_funct.Get_y(ChTime);
                     mot_rerot_dtdt = spe_funct.Get_y_dx(ChTime);
                     mot_rot_dt = mot_rerot_dt * mot_tau;
-                    mot_rot_dtdt = mot_rerot_dtdt * mot_tau;*/
+                    mot_rot_dtdt = mot_rerot_dtdt * mot_tau;
                 }
                 else
                 {
@@ -317,7 +317,7 @@ namespace chrono
                     mot_rerot_dtdt = mot_rot_dtdt / mot_tau;
                 }
                 deltaC.rot = ChQuaternion.Qnorm(GetRelM().rot);  // just keep current position, -assume always good after integration-.
-                ChMatrix33<double> relA = new ChMatrix33<double>();
+                ChMatrix33<double> relA = new ChMatrix33<double>(0);
                 relA.Set_A_quaternion(GetRelM().rot);  // ..but adjust to keep Z axis aligned to shaft, anyway!
                 ChVector displaced_z_axis = relA.Get_A_Zaxis();
                 ChVector adjustment = ChVector.Vcross(displaced_z_axis, ChVector.VECT_Z);
@@ -333,7 +333,7 @@ namespace chrono
             // First, inherit to parent class
             base.UpdateForces(mytime);
 
-           /* if (!IsActive())
+            if (!IsActive())
                 return;
 
             // DEFAULTS set null torques
@@ -374,9 +374,9 @@ namespace chrono
             if (eng_mode == eCh_eng_mode.ENG_MODE_SPEED)
             {
                 // trick: zeroes Z rotat. violation to tell that rot.position is always ok
-                if (C.GetRows() != 0)
-                    C.SetElement(C.GetRows() - 1, 0, 0.0);
-            }*/
+                if (C.matrix.GetRows() != 0)
+                    C.matrix.SetElement(C.matrix.GetRows() - 1, 0, 0.0);
+            }
         }
         /// Updates the r3d time, so perform differentiation for computing speed in case of keyframed motion
 

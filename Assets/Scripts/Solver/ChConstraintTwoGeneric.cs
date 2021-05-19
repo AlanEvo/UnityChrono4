@@ -26,34 +26,37 @@ namespace chrono
         protected ChMatrixDynamic<double> Eq_a;  ///< The [Eq_a] product [Eq_a]=[invM_a]*[Cq_a]'
         protected ChMatrixDynamic<double> Eq_b;  ///< The [Eq_a] product [Eq_b]=[invM_b]*[Cq_b]'
 
+        // TEST
+        ChMatrixDynamic<double> mtemp1 = new ChMatrixDynamic<double>(0);
+        ChMatrixDynamic<double> res = new ChMatrixDynamic<double>(0);
 
         /// Default constructor
         public ChConstraintTwoGeneric() {
-            Cq_a = null; 
+           /* Cq_a = null; 
             Cq_b = null; 
             Eq_a = null; 
-            Eq_b = null;
+            Eq_b = null;*/
         }
 
         /// Construct and immediately set references to variables
         public ChConstraintTwoGeneric(ChVariables mvariables_a, ChVariables mvariables_b) {
-            Cq_a = null;
+           /* Cq_a = null;
             Cq_b = null;
             Eq_a = null;
-            Eq_b = null;
+            Eq_b = null;*/
             SetVariables(mvariables_a, mvariables_b);
         }
 
         /// Copy constructor
         public ChConstraintTwoGeneric(ChConstraintTwoGeneric other) {
-            Cq_a = Cq_b = Eq_a = Eq_b = null;
-            if (other.Cq_a != null)
+           // Cq_a = Cq_b = Eq_a = Eq_b = null;
+           // if (other.Cq_a != null)
                 Cq_a = new ChMatrixDynamic<double>(other.Cq_a);
-            if (other.Cq_b != null)
+           // if (other.Cq_b != null)
                 Cq_b = new ChMatrixDynamic<double>(other.Cq_b);
-            if (other.Eq_a != null)
+           // if (other.Eq_a != null)
                 Eq_a = new ChMatrixDynamic<double>(other.Eq_a);
-            if (other.Eq_b != null)
+           // if (other.Eq_b != null)
                 Eq_b = new ChMatrixDynamic<double>(other.Eq_b);
         }
 
@@ -62,14 +65,14 @@ namespace chrono
     }
 
         /// Access jacobian matrix
-        public override ChMatrix Get_Cq_a() { return Cq_a; }
+        public override ChMatrix Get_Cq_a() { return Cq_a.matrix; }
         /// Access jacobian matrix
-        public override ChMatrix Get_Cq_b() { return Cq_b; }
+        public override ChMatrix Get_Cq_b() { return Cq_b.matrix; }
 
         /// Access auxiliary matrix (ex: used by iterative solvers)
-        public override ChMatrix Get_Eq_a() { return Eq_a; }
+        public override ChMatrix Get_Eq_a() { return Eq_a.matrix; }
         /// Access auxiliary matrix (ex: used by iterative solvers)
-        public override ChMatrix Get_Eq_b() { return Eq_b; }
+        public override ChMatrix Get_Eq_b() { return Eq_b.matrix; }
 
         /// Set references to the constrained objects, each of ChVariables type,
         /// automatically creating/resizing jacobians if needed.
@@ -86,46 +89,46 @@ namespace chrono
 
             if (variables_a.Get_ndof() != 0)
             {
-                if (Cq_a == null)
-                    Cq_a = new ChMatrixDynamic<double>(1, variables_a.Get_ndof());
-                else
+               // if (Cq_a == null)
+                 //   Cq_a = new ChMatrixDynamic<double>(1, variables_a.Get_ndof());
+               // else
                     Cq_a.Resize(1, variables_a.Get_ndof());
 
-                if (Eq_a == null)
-                    Eq_a = new ChMatrixDynamic<double>(variables_a.Get_ndof(), 1);
-                else
+               // if (Eq_a == null)
+                //    Eq_a = new ChMatrixDynamic<double>(variables_a.Get_ndof(), 1);
+              //  else
                     Eq_a.Resize(variables_a.Get_ndof(), 1);
             }
             else
             {
-                if (Cq_a != null)
-                    Cq_a = null;
+              /*  if (Cq_a != null)
+                   Cq_a = null;
                 Cq_a = null;
                 if (Eq_a != null)
                     Eq_a = null;
-                Eq_a = null;
+                Eq_a = null;*/
             }
 
             if (variables_b.Get_ndof() != 0)
             {
-                if (Cq_b == null)
-                    Cq_b = new ChMatrixDynamic<double>(1, variables_b.Get_ndof());
-                else
+               // if (Cq_b == null)
+                //    Cq_b = new ChMatrixDynamic<double>(1, variables_b.Get_ndof());
+               // else
                     Cq_b.Resize(1, variables_b.Get_ndof());
 
-                if (Eq_b == null)
-                    Eq_b = new ChMatrixDynamic<double>(variables_b.Get_ndof(), 1);
-                else
+               // if (Eq_b == null)
+                //    Eq_b = new ChMatrixDynamic<double>(variables_b.Get_ndof(), 1);
+               // else
                     Eq_b.Resize(variables_b.Get_ndof(), 1);
             }
             else
             {
-                if (Cq_b != null)
+                /*if (Cq_b != null)
                     Cq_b = null;
                 Cq_b = null;
                 if (Eq_b != null)
                     Eq_b = null;
-                Eq_b = null;
+                Eq_b = null;*/
             }
         }
 
@@ -141,32 +144,35 @@ namespace chrono
             if (variables_a.IsActive())
                 if (variables_a.Get_ndof() != 0)
                 {
-                    ChMatrixDynamic<double> mtemp1 = new ChMatrixDynamic<double>(variables_a.Get_ndof(), 1);
-                    mtemp1.CopyFromMatrixT(Cq_a);
-                    variables_a.Compute_invMb_v(Eq_a, mtemp1);
+                    //  ChMatrixDynamic<double> mtemp1 = new ChMatrixDynamic<double>(variables_a.Get_ndof(), 1);
+                    mtemp1.New(variables_a.Get_ndof(), 1);
+                    mtemp1.matrix.CopyFromMatrixT(Cq_a.matrix);
+                    variables_a.Compute_invMb_v(Eq_a.matrix, mtemp1.matrix);
                 }
             if (variables_b.IsActive())
                 if (variables_b.Get_ndof() != 0)
                 {
-                    ChMatrixDynamic<double> mtemp1 = new ChMatrixDynamic<double>(variables_b.Get_ndof(), 1);
-                    mtemp1.CopyFromMatrixT(Cq_b);
-                    variables_b.Compute_invMb_v(Eq_b, mtemp1);
+                    // ChMatrixDynamic<double> mtemp1 = new ChMatrixDynamic<double>(variables_b.Get_ndof(), 1);
+                    mtemp1.New(variables_b.Get_ndof(), 1);
+                    mtemp1.matrix.CopyFromMatrixT(Cq_b.matrix);
+                    variables_b.Compute_invMb_v(Eq_b.matrix, mtemp1.matrix);
                 }
 
             // 2- Compute g_i = [Cq_i]*[invM_i]*[Cq_i]' + cfm_i
             g_i = 0;
-            ChMatrixDynamic<double> res = new ChMatrixDynamic<double>(1, 1);
+            //ChMatrixDynamic<double> res = new ChMatrixDynamic<double>(1, 1);
+            res.New(1, 1);
             if (variables_a.IsActive())
                 if (variables_a.Get_ndof() != 0)
                 {
-                    res.MatrMultiply(Cq_a, Eq_a);
-                    g_i = res[0, 0];
+                    res.matrix.MatrMultiply(Cq_a.matrix, Eq_a.matrix);
+                    g_i = res.matrix[0, 0];
                 }
             if (variables_b.IsActive())
                 if (variables_b.Get_ndof() != 0)
                 {
-                    res.MatrMultiply(Cq_b, Eq_b);
-                    g_i += res[0, 0];
+                    res.matrix.MatrMultiply(Cq_b.matrix, Eq_b.matrix);
+                    g_i += res.matrix[0, 0];
                 }
 
             // 3- adds the constraint force mixing term (usually zero):
@@ -182,12 +188,12 @@ namespace chrono
             double ret = 0;
 
             if (variables_a.IsActive())
-                for (int i = 0; i < Cq_a.GetColumns(); i++)
-                    ret += Cq_a.ElementN(i) * variables_a.Get_qb().ElementN(i);
+                for (int i = 0; i < Cq_a.matrix.GetColumns(); i++)
+                    ret += Cq_a.matrix.ElementN(i) * variables_a.Get_qb().matrix.ElementN(i);
 
             if (variables_b.IsActive())
-                for (int i = 0; i < Cq_b.GetColumns(); i++)
-                    ret += Cq_b.ElementN(i) * variables_b.Get_qb().ElementN(i);
+                for (int i = 0; i < Cq_b.matrix.GetColumns(); i++)
+                    ret += Cq_b.matrix.ElementN(i) * variables_b.Get_qb().matrix.ElementN(i);
 
             return ret;
         }
@@ -198,12 +204,12 @@ namespace chrono
         ///  This is used for some iterative solvers.
         public override void Increment_q(double deltal) {
             if (variables_a.IsActive())
-                for (int i = 0; i < Eq_a.GetRows(); i++)
-                    variables_a.Get_qb()[i] += Eq_a.ElementN(i) * deltal;
+                for (int i = 0; i < Eq_a.matrix.GetRows(); i++)
+                    variables_a.Get_qb().matrix[i] += Eq_a.matrix.ElementN(i) * deltal;
 
             if (variables_b.IsActive())
-                for (int i = 0; i < Eq_b.GetRows(); i++)
-                    variables_b.Get_qb()[i] += Eq_b.ElementN(i) * deltal;
+                for (int i = 0; i < Eq_b.matrix.GetRows(); i++)
+                    variables_b.Get_qb().matrix[i] += Eq_b.matrix.ElementN(i) * deltal;
         }
 
         /// Computes the product of the corresponding block in the
@@ -217,12 +223,12 @@ namespace chrono
             int off_b = variables_b.GetOffset();
 
             if (variables_a.IsActive())
-                for (int i = 0; i < Cq_a.GetColumns(); i++)
-                    result += vect[off_a + i] * Cq_a.ElementN(i);
+                for (int i = 0; i < Cq_a.matrix.GetColumns(); i++)
+                    result += vect[off_a + i] * Cq_a.matrix.ElementN(i);
 
             if (variables_b.IsActive())
-                for (int i = 0; i < Cq_b.GetColumns(); i++)
-                    result += vect[off_b + i] * Cq_b.ElementN(i);
+                for (int i = 0; i < Cq_b.matrix.GetColumns(); i++)
+                    result += vect[off_b + i] * Cq_b.matrix.ElementN(i);
         }
 
         /// Computes the product of the corresponding transposed blocks in the
@@ -236,12 +242,12 @@ namespace chrono
             int off_b = variables_b.GetOffset();
 
             if (variables_a.IsActive())
-                for (int i = 0; i < Cq_a.GetColumns(); i++)
-                    result[off_a + i] += Cq_a.ElementN(i) * l;
+                for (int i = 0; i < Cq_a.matrix.GetColumns(); i++)
+                    result[off_a + i] += Cq_a.matrix.ElementN(i) * l;
 
             if (variables_b.IsActive())
-                for (int i = 0; i < Cq_b.GetColumns(); i++)
-                    result[off_b + i] += Cq_b.ElementN(i) * l;
+                for (int i = 0; i < Cq_b.matrix.GetColumns(); i++)
+                    result[off_b + i] += Cq_b.matrix.ElementN(i) * l;
         }
 
         /// Puts the two jacobian parts into the 'insrow' row of a sparse matrix,
@@ -249,15 +255,15 @@ namespace chrono
         /// offset of the corresponding ChVariable.
         public override void Build_Cq(ref ChSparseMatrix storage, int insrow) {
             if (variables_a.IsActive())
-                storage.PasteMatrix(Cq_a, insrow, variables_a.GetOffset());
+                storage.PasteMatrix(Cq_a.matrix, insrow, variables_a.GetOffset());
             if (variables_b.IsActive())
-                storage.PasteMatrix(Cq_b, insrow, variables_b.GetOffset());
+                storage.PasteMatrix(Cq_b.matrix, insrow, variables_b.GetOffset());
         }
         public override void Build_CqT(ref ChSparseMatrix storage, int inscol) {
             if (variables_a.IsActive())
-                storage.PasteTranspMatrix(Cq_a, variables_a.GetOffset(), inscol);
+                storage.PasteTranspMatrix(Cq_a.matrix, variables_a.GetOffset(), inscol);
             if (variables_b.IsActive())
-                storage.PasteTranspMatrix(Cq_b, variables_b.GetOffset(), inscol);
+                storage.PasteTranspMatrix(Cq_b.matrix, variables_b.GetOffset(), inscol);
         }
 
     }

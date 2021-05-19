@@ -31,7 +31,7 @@ public class FPSCounter : MonoBehaviour
         float guiWidth = Screen.width / 2f;
 
 
-        GUI.Label(new Rect(Screen.width - 400 - guiWidth, 35, 40, 150), "Fps : " + _fpsText);
+        GUI.Label(new Rect(Screen.width - 200 - guiWidth, 35, 40, 150), "Fps : " + _fpsText);
 
 
     }

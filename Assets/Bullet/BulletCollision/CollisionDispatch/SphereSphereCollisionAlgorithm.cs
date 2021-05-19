@@ -107,7 +107,7 @@ namespace BulletXNA.BulletCollision
             }
 
             ///point on A (worldspace)
-            ///btVector3 pos0 = col0->getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
+            ///btVector3 pos0 = col0.getWorldTransform().getOrigin() - radius0 * normalOnSurfaceB;
             ///point on B (worldspace)
             IndexedVector3 pos1 = body1.GetWorldTransform()._origin + radius1 * normalOnSurfaceB;
 

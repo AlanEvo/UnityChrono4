@@ -162,7 +162,7 @@ namespace chrono
             {
                 lastcontact_6_6.MoveNext();
                 contactlist_6_6.Remove(lastcontact_6_6.Current);
-                lastcontact_6_6 = null;
+                lastcontact_6_6 = contactlist_6_6.GetEnumerator();
             }
 
         }
@@ -236,16 +236,16 @@ namespace chrono
         where Tb : ChContactable_1vars<IntInterface.Six>
         {
 
-            if (lastcontact != null && lastcontact.Current != contactlist.LastOrDefault())
+            if (/*lastcontact != null && */lastcontact.Current != contactlist.LastOrDefault())
             {
                 // reuse old contacts
                 lastcontact.MoveNext();
-                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)lastcontact).Current.Reset(objA, objB, cinfo);
+                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)lastcontact).Current.Reset(objA, objB, cinfo);
             }
             else
             {
                 ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>> mc = new ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>(mcontainer, objA, objB, cinfo);
-                Tcont coont = (dynamic)mc;
+                Tcont coont = (Tcont)mc;
 
                 contactlist.Add(coont);
 
@@ -255,7 +255,7 @@ namespace chrono
                 {
                     iter.MoveNext();
                 }
-                lastcontact = (dynamic)iter;
+                lastcontact = (IEnumerator<Titer>)iter;
 
                 // lastcontact = (dynamic)contactlist.GetEnumerator();
 
@@ -264,15 +264,16 @@ namespace chrono
         }
 
         public void _ReportAllContacts<Tcont>(ref List<Tcont> contactlist, ChContactContainer.ReportContactCallback mcallback)
+            where Tcont : ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
-            while (itercontact.Current != (dynamic)contactlist.LastOrDefault())
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
                 bool proceed = mcallback.OnReportContact(
-                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetContactP1(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetContactP2(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetContactPlane(),
-                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetContactDistance(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetEffectiveCurvatureRadius(),
-                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetContactForce(), new ChVector(0, 0, 0), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetObjA(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.GetObjB());
+                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP1(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactP2(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactPlane(),
+                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactDistance(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetEffectiveCurvatureRadius(),
+                    ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetContactForce(), new ChVector(0, 0, 0), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjA(), ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.GetObjB());
                 if (!proceed)
                     break;
             }
@@ -293,14 +294,15 @@ namespace chrono
         }
 
         public void _IntLoadResidual_F<Tcont>(ref List<Tcont> contactlist, ref ChVectorDynamic<double> R, double c)
+            where Tcont : ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             //itercontact.MoveNext();
-            while (itercontact.Current != (dynamic)contactlist.LastOrDefault())
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
-                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.ContIntLoadResidual_F(ref R, c);
+                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContIntLoadResidual_F(ref R, c);
 
             }
         }
@@ -320,14 +322,15 @@ namespace chrono
         }
 
         public void _KRMmatricesLoad<Tcont>(List<Tcont> contactlist, double Kfactor, double Rfactor)
+            where Tcont : ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             //itercontact.MoveNext();
-            while (itercontact.Current != (dynamic)contactlist.LastOrDefault())
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
-                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.ContKRMmatricesLoad(Kfactor, Rfactor);
+                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContKRMmatricesLoad(Kfactor, Rfactor);
 
             }
         }
@@ -347,14 +350,15 @@ namespace chrono
         }
 
         public void _InjectKRMmatrices<Tcont>(List<Tcont> contactlist, ref ChSystemDescriptor mdescriptor)
+            where Tcont : ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>
         {
             List<Tcont>.Enumerator itercontact = contactlist.GetEnumerator();
 
             //itercontact.MoveNext();
-            while (itercontact.Current != (dynamic)contactlist.LastOrDefault())
+            while (itercontact.Current != contactlist.LastOrDefault())
             {
                 itercontact.MoveNext();
-                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)(dynamic)itercontact).Current.ContInjectKRMmatrices(ref mdescriptor);
+                ((IEnumerator<ChContactSMC<ChContactable_1vars<IntInterface.Six>, ChContactable_1vars<IntInterface.Six>>>)itercontact).Current.ContInjectKRMmatrices(ref mdescriptor);
 
             }
         }

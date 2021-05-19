@@ -83,7 +83,7 @@ namespace chrono
              ChCoordsys rel_pos_dt,
              ChCoordsys rel_pos_dtdt)
         {
-            SetNameString(name);
+           // SetNameString(name);
             Body = body;
 
             motion_X = new ChFunction_Const(0);  // default: no motion
@@ -163,9 +163,10 @@ namespace chrono
             ChBody my_body;
             my_body = GetBody();
 
-            ChCoordsys csys = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys.CSYSNULL;
+            ChCoordsys csys;// = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));//ChCoordsys.CSYSNULL;
             // coordsys: transform the representation from the parent reference frame
             // to the local reference frame.
+
             csys.pos = ChTransform<double>.TransformParentToLocal(m_coord.pos, my_body.BodyFrame.GetCoord().pos, my_body.BodyFrame.GetA());
             csys.rot = ChQuaternion.Qcross(ChQuaternion.Qconjugate(my_body.BodyFrame.GetCoord().rot), m_coord.rot);
             // apply the imposition on local  coordinate and resting coordinate:
@@ -364,7 +365,7 @@ namespace chrono
             if (GetBody() == null)
                 return;
 
-            GetBody().BodyFrame.TransformLocalToParent(this.FrameMoving, ref abs_frame);
+            GetBody().BodyFrame.TransformLocalToParent(this.FrameMoving, abs_frame);
            // Debug.Log("data " + abs_frame.GetPos().z);
         }
 

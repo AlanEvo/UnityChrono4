@@ -67,7 +67,7 @@ namespace chrono
             //     still unconstrained system:
             for (int iv = 0; iv < nVars; iv++)
                 if (mvariables[iv].IsActive())
-                    mvariables[iv].Compute_invMb_v(mvariables[iv].Get_qb(), mvariables[iv].Get_fb());  // q = [M]'*fb
+                    mvariables[iv].Compute_invMb_v(mvariables[iv].Get_qb().matrix, mvariables[iv].Get_fb().matrix);  // q = [M]'*fb
 
             // 3)  For all items with variables, add the effect of initial (guessed)
             //     lagrangian reactions of constraints, if a warm start is desired.

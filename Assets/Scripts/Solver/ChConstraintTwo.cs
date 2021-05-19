@@ -46,9 +46,9 @@ namespace chrono
         public abstract ChMatrix Get_Eq_b();
 
         /// Access the first variable object
-        public ChVariables GetVariables_a() { return variables_a; }
+        public ref ChVariables GetVariables_a() { return ref variables_a; }
         /// Access the second variable object
-        public ChVariables GetVariables_b() { return variables_b; }
+        public ref ChVariables GetVariables_b() { return ref variables_b; }
 
         /// Set references to the constrained objects, each of ChVariables type,
         /// automatically creating/resizing jacobians if needed.

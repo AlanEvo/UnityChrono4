@@ -14,13 +14,13 @@ namespace chrono
     public class ChShaft : ChPhysicsItem
     {
 
-        private double torque;  //< The torque acting on shaft (force, if used as linear DOF)
+        public double torque;  //< The torque acting on shaft (force, if used as linear DOF)
 
         private double pos;       //< shaft angle
         private double pos_dt;    //< shaft angular velocity
         private double pos_dtdt;  //< shaft angular acceleration
 
-        private double inertia;  //< shaft J moment of inertia (or mass, if used as linear DOF)
+        public double inertia;  //< shaft J moment of inertia (or mass, if used as linear DOF)
 
         private ChVariablesShaft variables = new ChVariablesShaft();  //< used as an interface to the solver
 
@@ -31,13 +31,15 @@ namespace chrono
         private float sleep_minwvel;
         private float sleep_starttime;
 
-        private bool mfixed;
+        public bool mfixed;
         private bool limitspeed;
         private bool sleeping;
         private bool use_sleeping;
 
         private int id;  //< shaft id used for internal indexing
 
+        public double shaftspeed;
+        public double shaftRotation;
 
         public ChShaft()
         {
@@ -81,6 +83,22 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone() { return new ChShaft(this); }
 
+        public void Awake()
+        {
+            SetInertia(inertia);
+            SetPos_dt(0);
+            SetShaftFixed(mfixed);
+            ChSystem.system.Add(this);
+        }
+
+        void FixedUpdate()
+        {
+            // SetAppliedTorque(torque);
+
+            shaftRotation = GetPos();
+            shaftspeed = GetPos_dt();
+        }
+
         //
         // FLAGS
         //
@@ -90,7 +108,7 @@ namespace chrono
         public void SetShaftFixed(bool mev)
         {
             mfixed = mev;
-            variables.SetDisabled(mev);
+           variables.SetDisabled(mev);
         }
 
         public bool GetShaftFixed() { return mfixed; }
@@ -164,12 +182,12 @@ namespace chrono
 
         // (override/implement interfaces for global state vectors, see ChPhysicsItem for comments.)
         public override void IntStateGather(int off_x,
-                            ref ChState x,
-                            int off_v,
-                            ref ChStateDelta v,
-                            ref double T) {
-            x[off_x] = pos;
-            v[off_v] = pos_dt;
+                                            ref ChState x,
+                                            int off_v,
+                                            ref ChStateDelta v,
+                                            ref double T) {
+            x.matrix[off_x] = pos;
+            v.matrix[off_v] = pos_dt;
             T = GetChTime();
         }
 
@@ -178,41 +196,46 @@ namespace chrono
                                  int off_v,
                                  ChStateDelta v,
                                  double T) {
-            SetPos(x[off_x]);
-            SetPos_dt(v[off_v]);
+            SetPos(x.matrix[off_x]);
+            SetPos_dt(v.matrix[off_v]);
             update(T);
         }
 
         public override void IntStateGatherAcceleration(int off_a, ref ChStateDelta a) {
-            a[off_a] = pos_dtdt;
+            a.matrix[off_a] = pos_dtdt;
         }
+
         public override void IntStateScatterAcceleration(int off_a, ChStateDelta a) {
-            SetPos_dtdt(a[off_a]);
+            SetPos_dtdt(a.matrix[off_a]);
         }
+
         public override void IntLoadResidual_F(int off, ref ChVectorDynamic<double> R, double c) {
             // add applied forces to 'fb' vector
-            R[off] += torque * c;
+            R.matrix[off] += torque * c;
         }
+
         public override void IntLoadResidual_Mv(int off,
                                     ref ChVectorDynamic<double> R,
                                     ChVectorDynamic<double> w,
                                     double c) {
-            R[off] += c * inertia * w[off];
+            R.matrix[off] += c * inertia * w.matrix[off];
         }
+
         public override void IntToDescriptor(int off_v,
                                  ChStateDelta v,
                                  ChVectorDynamic<double> R,
                                  int off_L,
                                  ChVectorDynamic<double> L,
                                  ChVectorDynamic<double> Qc) {
-            variables.Get_qb()[0, 0] = v[off_v];
-            variables.Get_fb()[0, 0] = R[off_v];
+            variables.Get_qb().matrix[0, 0] = v.matrix[off_v];
+            variables.Get_fb().matrix[0, 0] = R.matrix[off_v];
         }
+
         public override void IntFromDescriptor(int off_v,
                                    ref ChStateDelta v,
                                    int off_L,
                                    ref ChVectorDynamic<double> L) {
-            v[off_v] = variables.Get_qb()[0, 0];
+            v.matrix[off_v] = variables.Get_qb().matrix[0, 0];
         }
 
         //
@@ -224,13 +247,13 @@ namespace chrono
 
         /// Sets the 'fb' part of the encapsulated ChVariables to zero.
         public override void VariablesFbReset() {
-            variables.Get_fb().FillElem(0.0);
+            variables.Get_fb().matrix.FillElem(0.0);
         }
 
         /// Adds the current torques in the 'fb' part: qf+=torques*factor
         public override void VariablesFbLoadForces(double factor = 1) {
-            // add applied torques to 'fb' vector
-            variables.Get_fb().ElementN(0) += torque * factor;
+           // add applied torques to 'fb' vector
+            variables.Get_fb().matrix.ElementN(0) += torque * factor;
         }
 
         /// Initialize the 'qb' part of the ChVariables with the
@@ -238,14 +261,14 @@ namespace chrono
         /// function seems unnecessary, unless used before VariablesFbIncrementMq()
         public override void VariablesQbLoadSpeed() {
             // set current speed in 'qb', it can be used by the solver when working in incremental mode
-            variables.Get_qb().SetElement(0, 0, pos_dt);
+            variables.Get_qb().matrix.SetElement(0, 0, pos_dt);
         }
 
         /// Adds M*q (masses multiplied current 'qb') to Fb, ex. if qb is initialized
         /// with v_old using VariablesQbLoadSpeed, this method can be used in
         /// timestepping schemes that do: M*v_new = M*v_old + forces*dt
         public override void VariablesFbIncrementMq() {
-            variables.Compute_inc_Mb_v(ref variables.Get_fb(), variables.Get_qb());
+            variables.Compute_inc_Mb_v(ref variables.Get_fb().matrix, variables.Get_qb().matrix);
         }
 
         /// Fetches the shaft speed from the 'qb' part of the ChVariables (does not
@@ -256,7 +279,7 @@ namespace chrono
             double old_dt = pos_dt;
 
             // from 'qb' vector, sets body speed, and updates auxiliary data
-            pos_dt = variables.Get_qb().GetElement(0, 0);
+            pos_dt = variables.Get_qb().matrix.GetElement(0, 0);
 
             // apply limits (if in speed clamping mode) to speeds.
             ClampSpeed();
@@ -278,7 +301,7 @@ namespace chrono
             // Updates position with incremental action of speed contained in the
             // 'qb' vector:  pos' = pos + dt * speed   , like in an Eulero step.
 
-            double newspeed = variables.Get_qb().GetElement(0, 0);
+            double newspeed = variables.Get_qb().matrix.GetElement(0, 0);
 
             // ADVANCE POSITION: pos' = pos + dt * vel
             pos = pos + newspeed * dt_step;

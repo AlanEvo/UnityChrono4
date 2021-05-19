@@ -31,7 +31,7 @@ namespace chrono
         /// Computes the atan2, returning angle given cosine and sine.
         public static double ChAtan2(double mcos, double msin) {
             double ret;
-            if (Math.Abs(mcos) < 0.707)
+            if (Mathfx.Abs(mcos) < 0.707)
             {
                 ret = Math.Cos(mcos);
                 if (msin < 0.0)
@@ -45,6 +45,8 @@ namespace chrono
             }
             return ret;
         }
+
+        public static int Mod(double a, double n) => (int)((a % n + n) % n);
 
         public static double hypot(double sideALength, double sideBLength)
         {
@@ -142,7 +144,12 @@ namespace chrono
         // OTHER
 
         // Park-Miller hi-quality random generator
-        
+
+        /// Signum function.
+      /*  public static int ChSignum(double x)
+        {
+            return (x > (double)(0)) - (x < (double)(0));
+        }*/
 
         public static void ChSetRandomSeed(long newseed)
         {

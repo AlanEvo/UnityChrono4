@@ -132,10 +132,10 @@ namespace chrono
 
             // Move markers 1 and 2 to align them as gear teeth
 
-            ChMatrix33<double> ma1 = new ChMatrix33<double>();
-            ChMatrix33<double> ma2 = new ChMatrix33<double>();
-            ChMatrix33<double> mrotma = new ChMatrix33<double>();
-            ChMatrix33<double> marot_beta = new ChMatrix33<double>();
+            ChMatrix33<double> ma1 = new ChMatrix33<double>(0);
+            ChMatrix33<double> ma2 = new ChMatrix33<double>(0);
+            ChMatrix33<double> mrotma = new ChMatrix33<double>(0);
+            ChMatrix33<double> marot_beta = new ChMatrix33<double>(0);
             ChVector mx;
             ChVector my;
             ChVector mz;
@@ -208,7 +208,7 @@ namespace chrono
             vrota.y = beta;
             vrota.z = 0.0;
             mrotma.Set_A_Rxyz(vrota);
-            marot_beta.MatrMultiply(ma1, mrotma);
+            marot_beta.nm.matrix.MatrMultiply(ma1.nm.matrix, mrotma.nm.matrix);
             // rotate csys because of alpha
             vrota.x = 0.0;
             vrota.y = 0.0;
@@ -218,9 +218,9 @@ namespace chrono
             else
                 vrota.z = -alpha;
             mrotma.Set_A_Rxyz(vrota);
-            ma1.MatrMultiply(marot_beta, mrotma);
+            ma1.nm.matrix.MatrMultiply(marot_beta.nm.matrix, mrotma.nm.matrix);
 
-            ma2.CopyFromMatrix(ma1);
+            ma2.nm.matrix.CopyFromMatrix(ma1.nm.matrix);
 
             // is a bevel gear?
             double be = Math.Acos(ChVector.Vdot(Get_shaft_dir1(), Get_shaft_dir2()));

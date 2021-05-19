@@ -161,7 +161,7 @@ namespace chrono
             //for (int i = 0; i <= 1; i++, contactlist_6_6.GetEnumerator().MoveNext())
             // {
             //iter.Current;
-            contactlist_6_6.Clear();
+           // contactlist_6_6.Clear();
             lastcontact_6_6 = contactlist_6_6.GetEnumerator();
             n_added_6_6 = 0;
             //}
@@ -184,7 +184,7 @@ namespace chrono
              n_added_666_333 = 0;
              lastcontact_666_666 = (IEnumerator<ChContactNSC_666_666>)Enumerable.Empty<ChContactNSC_666_666>();// = (IEnumerator<ChContactNSC_666_666>)contactlist_666_666.FirstOrDefault();
              n_added_666_666 = 0;*/
-            contactlist_6_6_rolling.Clear();
+           // contactlist_6_6_rolling.Clear();
             lastcontact_6_6_rolling = contactlist_6_6_rolling.GetEnumerator();// = (IEnumerator<ChContactNSCrolling_6_6>)contactlist_6_6_rolling.FirstOrDefault();
             n_added_6_6_rolling = 0;
         }
@@ -199,7 +199,7 @@ namespace chrono
             {
                 lastcontact_6_6.MoveNext();
                 contactlist_6_6.Remove(lastcontact_6_6.Current);
-                lastcontact_6_6 = null;
+                lastcontact_6_6 = contactlist_6_6.GetEnumerator();
             }
             while (lastcontact_6_3 != contactlist_6_3.LastOrDefault())
             {
@@ -312,15 +312,15 @@ namespace chrono
                      // 3_3
                      _OptimalContactInsert(ref contactlist_3_3, ref lastcontact_3_3, ref n_added_3_3, this, mmboA, mmboB, mcontact);         
                } else if (mmboB == (contactableB as ChContactable_1vars<IntInterface.Six>)) {
-                   // 3_6 -> 6_3
+                   // 3_6 . 6_3
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_6_3, ref lastcontact_6_3, ref n_added_6_3, this, mmboB, mmboA, swapped_contact);
                } else if (mmboB == (contactableB as ChContactable_3vars<IntInterface.Three, IntInterface.Three, IntInterface.Three>)) {
-                   // 3_333 -> 333_3
+                   // 3_333 . 333_3
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_333_3, ref lastcontact_333_3, ref n_added_333_3, this, mmboB, mmboA, swapped_contact);
                } else if (mmboB == (contactableB as ChContactable_3vars<IntInterface.Six, IntInterface.Six, IntInterface.Six>)) {
-                   // 3_666 -> 666_3
+                   // 3_666 . 666_3
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_666_3, ref lastcontact_666_3, ref n_added_666_3, this, mmboB, mmboA,
                                          swapped_contact);
@@ -343,12 +343,12 @@ namespace chrono
                        _OptimalContactInsert(ref contactlist_6_6, ref lastcontact_6_6, ref n_added_6_6, this, mmboA, mmboB, mcontact);
                   // }
                } else if (mmboB == (contactableB as ChContactable_3vars<IntInterface.Three, IntInterface.Three, IntInterface.Three>)) {
-                   // 6_333 -> 333_6
+                   // 6_333 . 333_6
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_333_6, ref lastcontact_333_6, ref n_added_333_6, this, mmboB, mmboA,
                                          swapped_contact);
                } else if (mmboB == (contactableB as ChContactable_3vars<IntInterface.Six, IntInterface.Six, IntInterface.Six>)) {
-                   // 6_666 -> 666_6
+                   // 6_666 . 666_6
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_666_6, ref lastcontact_666_6, ref n_added_666_6, this, mmboB, mmboA,
                                          swapped_contact);
@@ -366,7 +366,7 @@ namespace chrono
                    _OptimalContactInsert(ref contactlist_333_333, ref lastcontact_333_333, ref n_added_333_333, this, mmboA, mmboB,
                                          mcontact);
                } else if (mmboB == (contactableB as ChContactable_3vars<IntInterface.Six, IntInterface.Six, IntInterface.Six>)) {
-                   // 333_666 -> 666_333
+                   // 333_666 . 666_333
                    collision.ChCollisionInfo swapped_contact = new collision.ChCollisionInfo(mcontact, true);
                    _OptimalContactInsert(ref contactlist_666_333, ref lastcontact_666_333, ref n_added_666_333, this, mmboB, mmboA,
                                          swapped_contact);

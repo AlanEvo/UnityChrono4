@@ -31,8 +31,8 @@ namespace chrono
     public abstract class ChVariables
     {
 
-        private ChMatrix qb;  //< variables (accelerations, speeds, etc. depending on the problem)
-        private ChMatrix fb;  //< known vector (forces, or impulses, etc. depending on the problem)
+        private ChMatrixDynamic<double> qb;  //< variables (accelerations, speeds, etc. depending on the problem)
+        private ChMatrixDynamic<double> fb;  //< known vector (forces, or impulses, etc. depending on the problem)
         private int ndof;        //< number of degrees of freedom (number of contained scalar variables)
         private bool disabled;   //< user activation/deactivation of variables
 
@@ -43,8 +43,8 @@ namespace chrono
         {
             disabled = false;
             ndof = 0;
-            qb = null;
-            fb = null;
+            //qb = null;
+           // fb = null;
             offset = 0;
         }
         public ChVariables(int m_ndof) {
@@ -61,7 +61,7 @@ namespace chrono
             }
             else
             {
-                qb = fb = null;
+               // qb = fb = null;
             }
         }
 
@@ -87,7 +87,7 @@ namespace chrono
         /// of freedom q in system:
         ///    | M -Cq'|*|q|- | f|= |0| ,  c>0, l>0, l*r=0;
         ///    | Cq  0 | |l|  |-b|  |c|
-        public ref ChMatrix Get_qb() { return ref qb; }
+        public ref ChMatrixDynamic<double> Get_qb() { return ref qb; }
 
         /// Compute fb, body-relative part of known
         /// vector f in system.
@@ -105,7 +105,7 @@ namespace chrono
         ///    | Cq  0 | |l|  |-b|  |c|
         /// This function can be used to set values of fb vector
         /// before starting the solver.
-        public ref ChMatrix Get_fb() { return ref fb; }
+        public ref ChMatrixDynamic<double> Get_fb() { return ref fb; }
 
         /// Computes the product of the inverse mass matrix by a
         /// vector, and store in result: result = [invMb]*vect

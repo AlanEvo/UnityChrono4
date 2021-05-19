@@ -91,13 +91,13 @@ namespace chrono {
         //
 
         /// Access the vector of constraints
-        public List<ChConstraint> GetConstraintsList() { return vconstraints; }
+        public ref List<ChConstraint> GetConstraintsList() { return ref vconstraints; }
 
         /// Access the vector of variables
-        public List<ChVariables> GetVariablesList() { return vvariables; }
+        public ref List<ChVariables> GetVariablesList() { return ref vvariables; }
 
         /// Access the vector of stiffness matrix blocks
-        public List<ChKblock> GetKblocksList() { return vstiffness; }
+        public ref List<ChKblock> GetKblocksList() { return ref vstiffness; }
 
         /// Begin insertion of items
         public virtual void BeginInsertion()
@@ -196,7 +196,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    Fvector.PasteMatrix(vvariables[iv].Get_fb(), vvariables[iv].GetOffset(), 0);
+                    Fvector.PasteMatrix(vvariables[iv].Get_fb().matrix, vvariables[iv].GetOffset(), 0);
                 }
             }
             return this.n_q;
@@ -238,7 +238,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    Dvector.PasteMatrix(vvariables[iv].Get_fb(), vvariables[iv].GetOffset(), 0);
+                    Dvector.PasteMatrix(vvariables[iv].Get_fb().matrix, vvariables[iv].GetOffset(), 0);
                 }
             }
             // Fill the '-b' vector (with flipped sign!)
@@ -315,7 +315,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    mvector.PasteMatrix(vvariables[iv].Get_qb(), vvariables[iv].GetOffset(), 0);
+                    mvector.PasteMatrix(vvariables[iv].Get_qb().matrix, vvariables[iv].GetOffset(), 0);
                 }
             }
 
@@ -341,7 +341,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    vvariables[iv].Get_qb().PasteClippedMatrix(mvector, vvariables[iv].GetOffset(), 0,
+                    vvariables[iv].Get_qb().matrix.PasteClippedMatrix(mvector, vvariables[iv].GetOffset(), 0,
                                                                 vvariables[iv].Get_ndof(), 1, 0, 0);
                 }
             }
@@ -436,7 +436,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    mvector.PasteMatrix(vvariables[iv].Get_qb(), vvariables[iv].GetOffset(), 0);
+                    mvector.PasteMatrix(vvariables[iv].Get_qb().matrix, vvariables[iv].GetOffset(), 0);
                 }
             }
             // Fill the second part of vector, x.l, with constraint multipliers -l (with flipped sign!)
@@ -471,7 +471,7 @@ namespace chrono {
             {
                 if (vvariables[iv].IsActive())
                 {
-                    vvariables[iv].Get_qb().PasteClippedMatrix(mvector, vvariables[iv].GetOffset(), 0,
+                    vvariables[iv].Get_qb().matrix.PasteClippedMatrix(mvector, vvariables[iv].GetOffset(), 0,
                                                                 vvariables[iv].Get_ndof(), 1, 0, 0);
                 }
             }
@@ -526,7 +526,7 @@ namespace chrono {
 
             for (int iv = 0; iv < (int)vvariables.Count; iv++) {
                 if (vvariables[iv].IsActive())
-                    vvariables[iv].Get_qb().FillElem(0);
+                    vvariables[iv].Get_qb().matrix.FillElem(0);
             }
 
             // 2 - performs    qb=[M^(-1)][Cq']*l  by
@@ -546,9 +546,9 @@ namespace chrono {
 
                     if (process) {
                         double li;
-                        if (lvector != null)
-                            li = lvector[s_c, 0];
-                        else
+                       // if (lvector != null)
+                       //     li = lvector[s_c, 0];
+                      //  else
                             li = vconstraints[ic].Get_l_i();
 
                         // Compute qb += [M^(-1)][Cq']*l_i
@@ -596,23 +596,23 @@ namespace chrono {
             n_q = this.CountActiveVariables();
             n_c = this.CountActiveConstraints();
 
-            ChMatrix x_ql = null;
+           // ChMatrix x_ql = null;
 
             ChMatrix vect = new ChMatrix();
 
-            if (x != null)
-            {
+           // if (x != null)
+           // {
               //  Debug.Assert(x.GetRows() == n_q + n_c);
               //  Debug.Assert(x.GetColumns() == 1);
 
                 vect = x;
-            }
-            else
-            {
-                x_ql = new ChMatrixDynamic<double>(n_q + n_c, 1);
-                vect = x_ql;
+           // }
+           // else
+           // {
+               // x_ql = new ChMatrixDynamic<double>(n_q + n_c, 1);
+               // vect = x_ql;
                 this.FromUnknownsToVector(ref vect);
-            }
+          //  }
 
             result.Reset(n_q + n_c, 1);  // fast! Reset() method does not realloc if size doesn't change
 
@@ -653,8 +653,8 @@ namespace chrono {
             }
 
             // if a temp vector has been created because x was not provided, then delete it
-            if (x_ql != null)
-                x_ql = null;
+           // if (x_ql != null)
+            //    x_ql = null;
         }
 
         /// Performs projection of constraint multipliers onto allowed set (in case
@@ -769,11 +769,11 @@ namespace chrono {
                 H.Reset(n_q, n_q);
             if (E != null)
                 E.Reset(mn_c, mn_c);
-            if (Fvector != null)
+           // if (Fvector != null)
                 Fvector.Reset(n_q, 1);
-            if (Bvector != null)
+           // if (Bvector != null)
                 Bvector.Reset(mn_c, 1);
-            if (Frict != null)
+           // if (Frict != null)
                 Frict.Reset(mn_c, 1);
 
             // Fills H submasses and 'f' vector,
@@ -785,8 +785,8 @@ namespace chrono {
                 {
                     if (H != null)
                         mvariables[iv].Build_M(H, s_q, s_q, this.c_a);  // .. fills  H  (often H=M , the mass)
-                    if (Fvector != null)
-                        Fvector.PasteMatrix(vvariables[iv].Get_fb(), s_q, 0);  // .. fills  'f'
+                   // if (Fvector != null)
+                        Fvector.PasteMatrix(vvariables[iv].Get_fb().matrix, s_q, 0);  // .. fills  'f'
                     s_q += mvariables[iv].Get_ndof();
                 }
             }

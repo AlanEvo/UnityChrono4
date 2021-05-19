@@ -12,8 +12,8 @@ namespace chrono
     {
 
         private ChShaft m_shaft;      //< associated shaft element
-        private double m_inertia;      ///< shaft inertia
-        private double m_inv_inertia;  ///< inverse of shaft inertia value
+        private double m_inertia;      //< shaft inertia
+        private double m_inv_inertia;  //< inverse of shaft inertia value
 
 
         public ChVariablesShaft() : base(1) {

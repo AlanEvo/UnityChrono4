@@ -6,7 +6,7 @@ using UnityEngine;
 namespace chrono
 {
 
-    public static class Utils { 
+    public static class Utils {
 
 
         public static Vector3 FromChrono(ChVector v)
@@ -38,7 +38,7 @@ namespace chrono
                                int mresolution,
                                double turns)
         {
-            ChMatrix33<double> rel_matrix = new ChMatrix33<double>();
+            ChMatrix33<double> rel_matrix = new ChMatrix33<double>(0);
             ChVector dist = end - start;
             ChVector Vx = new ChVector(0, 0, 0);
             ChVector Vy = new ChVector(0, 0, 0);
@@ -90,5 +90,78 @@ namespace chrono
                 angle += 360f / segments;
             }
         }
+        public static void DrawHalfEllipse(Vector3 pos, UnityEngine.Quaternion rotation, float ang, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+        {
+            float angle = 0;// rotation;           
+            UnityEngine.Quaternion rot = rotation;//UnityEngine.Quaternion.LookRotation(forward, up);
+            Vector3 lastPoint = Vector3.zero;
+            Vector3 thisPoint = Vector3.zero;
+
+            for (int i = 0; i < segments + 1; i++)
+            {
+                thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                if (i > 0)
+                {
+                    Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                }
+
+                lastPoint = thisPoint;
+                angle += ang / segments;
+            }
+        }
+
+        public static void DrawHalfEllipse2(Vector3 pos, float _rotation, float ang1, float ang2, float radiusX, float radiusY, int segments, Color color, float duration = 0)
+        {
+           /* ChVector p1 = new ChVector(Math.Cos((float)ang1), -Math.Sin((float)ang1), 0);
+            ChVector p2 = new ChVector(Math.Cos((float)ang2), -Math.Sin((float)ang2), 0);
+            //Vector3 lastPoint = Vector3.zero;
+            // Vector3 thisPoint = Vector3.zero;
+            List<Vector3> arcPoints = new List<Vector3>();
+            float angle = ang1;
+            float arcLength = ang2 - ang1;
+            for (int i = 0; i <= segments; i++)
+            {
+                float x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                float y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                arcPoints.Add(new Vector3(x, y));
+
+                Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                /* if (i > 0)
+                 {
+                     Debug.DrawLine(/*rot * */
+                /*arcPoints[i] + pos, /*rot * *//*thisPoint + pos, color, duration);*/
+
+
+               /* angle += (arcLength / segments);
+            }*/
+
+           /* for (int i = 0; i <= arcPoints.Count-1; i++)
+            {
+                // Debug.DrawLine(rot * lastPoint + pos, rot * thisPoint + pos, color, duration);
+                Gizmos.DrawCube(arcPoints[i], new Vector3(0.1f, 0.1f, 0.1f));
+            }*/
+
+                  float angle = 0;// rotation;           
+                 // UnityEngine.Quaternion rot = rotation;//UnityEngine.Quaternion.LookRotation(forward, up);
+                  Vector3 lastPoint = Vector3.zero;
+                  Vector3 thisPoint = Vector3.zero;
+
+                  for (int i = 0; i < segments + 1; i++)
+                  {
+                      thisPoint.x = Mathf.Sin(Mathf.Deg2Rad * angle) * radiusX;
+                      thisPoint.y = Mathf.Cos(Mathf.Deg2Rad * angle) * radiusY;
+
+                      if (i > 0)
+                      {
+                          Debug.DrawLine(lastPoint + pos, thisPoint + pos, color, duration);
+                      }
+
+                      lastPoint = thisPoint;
+                      angle += ang1 / segments;
+                  }
+            }
     }
 }

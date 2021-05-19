@@ -107,9 +107,9 @@ namespace chrono
             // base behaviour too
             base.ContIntStateGatherReactions(off_L, ref L);
 
-            L[off_L + 3] = react_torque.x;
-            L[off_L + 4] = react_torque.y;
-            L[off_L + 5] = react_torque.z;
+            L.matrix[off_L + 3] = react_torque.x;
+            L.matrix[off_L + 4] = react_torque.y;
+            L.matrix[off_L + 5] = react_torque.z;
         }
 
         public override void ContIntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
@@ -117,9 +117,9 @@ namespace chrono
             // base behaviour too
             base.ContIntStateScatterReactions(off_L, L);
 
-            react_torque.x = L[off_L + 3];
-            react_torque.y = L[off_L + 4];
-            react_torque.z = L[off_L + 5];
+            react_torque.x = L.matrix[off_L + 3];
+            react_torque.y = L.matrix[off_L + 4];
+            react_torque.z = L.matrix[off_L + 5];
         }
 
         public override void ContIntLoadResidual_CqL(int off_L,
@@ -130,9 +130,9 @@ namespace chrono
             // base behaviour too
             base.ContIntLoadResidual_CqL(off_L, ref R, L, c);
 
-            this.Rx.MultiplyTandAdd(R, L[off_L + 3] * c);
-            this.Ru.MultiplyTandAdd(R, L[off_L + 4] * c);
-            this.Rv.MultiplyTandAdd(R, L[off_L + 5] * c);
+            this.Rx.MultiplyTandAdd(R.matrix, L.matrix[off_L + 3] * c);
+            this.Ru.MultiplyTandAdd(R.matrix, L.matrix[off_L + 4] * c);
+            this.Rv.MultiplyTandAdd(R.matrix, L.matrix[off_L + 5] * c);
         }
 
         public override void ContIntLoadConstraint_C(int off_L,
@@ -168,13 +168,13 @@ namespace chrono
             // base behaviour too
             base.ContIntToDescriptor(off_L, L, Qc);
 
-            Rx.Set_l_i(L[off_L + 3]);
-            Ru.Set_l_i(L[off_L + 4]);
-            Rv.Set_l_i(L[off_L + 5]);
+            Rx.Set_l_i(L.matrix[off_L + 3]);
+            Ru.Set_l_i(L.matrix[off_L + 4]);
+            Rv.Set_l_i(L.matrix[off_L + 5]);
 
-            Rx.Set_b_i(Qc[off_L + 3]);
-            Ru.Set_b_i(Qc[off_L + 4]);
-            Rv.Set_b_i(Qc[off_L + 5]);
+            Rx.Set_b_i(Qc.matrix[off_L + 3]);
+            Ru.Set_b_i(Qc.matrix[off_L + 4]);
+            Rv.Set_b_i(Qc.matrix[off_L + 5]);
         }
 
         public override void ContIntFromDescriptor(int off_L,
@@ -183,9 +183,9 @@ namespace chrono
             // base behaviour too
             base.ContIntFromDescriptor(off_L, ref L);
 
-            L[off_L + 3] = Rx.Get_l_i();
-            L[off_L + 4] = Ru.Get_l_i();
-            L[off_L + 5] = Rv.Get_l_i();
+            L.matrix[off_L + 3] = Rx.Get_l_i();
+            L.matrix[off_L + 4] = Ru.Get_l_i();
+            L.matrix[off_L + 5] = Rv.Get_l_i();
         }
 
         public override void InjectConstraints(ref ChSystemDescriptor mdescriptor)

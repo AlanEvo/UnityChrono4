@@ -32,19 +32,19 @@ namespace chrono
         {
             ndof = m_ndof;
             Mmass = new ChMatrixDynamic<double>(ndof, ndof);
-            Mmass.SetIdentity();
+            Mmass.matrix.SetIdentity();
             inv_Mmass = new ChMatrixDynamic<double>(ndof, ndof);
-            inv_Mmass.SetIdentity();
+            inv_Mmass.matrix.SetIdentity();
         }
 
         /// Assignment operator: copy from other object
         // ChVariablesGeneric& operator=(const ChVariablesGeneric& other);
 
         /// Access the inertia matrix
-        public ChMatrix GetMass() { return Mmass; }
+        public ChMatrix GetMass() { return Mmass.matrix; }
 
         /// Access the inverted inertia matrix
-        public ChMatrix GetInvMass() { return inv_Mmass; }
+        public ChMatrix GetInvMass() { return inv_Mmass.matrix; }
 
         // IMPLEMENT PARENT CLASS METHODS
 
@@ -56,17 +56,17 @@ namespace chrono
         /// vector, and add to result: result = [invMb]*vect
         public override void Compute_invMb_v(ChMatrix result, ChMatrix vect)
         {
-            Debug.Assert(result.GetRows() == vect.GetRows());
+           /* Debug.Assert(result.GetRows() == vect.GetRows());
             Debug.Assert(vect.GetRows() == Get_ndof());
-            result = inv_Mmass * vect;
+            result = inv_Mmass.matrix * vect;*/
         }
 
         /// Computes the product of the inverse mass matrix by a
         /// vector, and increment result: result += [invMb]*vect
         public override void Compute_inc_invMb_v(ref ChMatrix result, ChMatrix vect)
         {
-            Debug.Assert(result.GetRows() == vect.GetRows());
-            Debug.Assert(vect.GetRows() == Get_ndof());
+            //Debug.Assert(result.GetRows() == vect.GetRows());
+            //Debug.Assert(vect.GetRows() == Get_ndof());
             result += inv_Mmass * vect;
         }
 
@@ -74,8 +74,8 @@ namespace chrono
         /// vector, and set in result: result = [Mb]*vect
         public override void Compute_inc_Mb_v(ref ChMatrix result, ChMatrix vect)
         {
-            Debug.Assert(result.GetRows() == vect.GetRows());
-            Debug.Assert(vect.GetRows() == Get_ndof());
+           // Debug.Assert(result.GetRows() == vect.GetRows());
+          //  Debug.Assert(vect.GetRows() == Get_ndof());
             result += (Mmass) * vect;
         }
 
@@ -89,14 +89,14 @@ namespace chrono
                                     ChMatrix vect,
                                     double c_a)
         {
-            Debug.Assert(result.GetColumns() == 1 && vect.GetColumns() == 1);
+            //Debug.Assert(result.GetColumns() == 1 && vect.GetColumns() == 1);
 
-            for (int i = 0; i < Mmass.GetRows(); i++)
+            for (int i = 0; i < Mmass.matrix.GetRows(); i++)
             {
                 double tot = 0;
-                for (int j = 0; j < Mmass.GetColumns(); j++)
+                for (int j = 0; j < Mmass.matrix.GetColumns(); j++)
                 {
-                    tot += Mmass[i, j] * vect[this.offset + i];
+                    tot += Mmass.matrix[i, j] * vect[this.offset + i];
                 }
                 result[this.offset + i] += c_a * tot;
             }
@@ -108,10 +108,10 @@ namespace chrono
         /// will use the ChVariable offset (that must be already updated) as index.
         public override void DiagonalAdd(ref ChMatrix result, double c_a)
         {
-            Debug.Assert(result.GetColumns() == 1);
-            for (int i = 0; i < Mmass.GetRows(); i++)
+            //Debug.Assert(result.GetColumns() == 1);
+            for (int i = 0; i < Mmass.matrix.GetRows(); i++)
             {
-                result[this.offset + i] += c_a * Mmass[i, i];
+                result[this.offset + i] += c_a * Mmass.matrix[i, i];
             }
         }
 
@@ -121,9 +121,9 @@ namespace chrono
         /// Note, most iterative solvers don't need to know mass matrix explicitly.
         public override void Build_M(ChSparseMatrix storage, int insrow, int inscol, double c_a)
         {
-            for (int row = 0; row < Mmass.GetRows(); ++row)
-                for (int col = 0; col < Mmass.GetColumns(); ++col)
-                    storage.SetElement(insrow + row, inscol + col, c_a * Mmass.GetElement(row, col));
+            for (int row = 0; row < Mmass.matrix.GetRows(); ++row)
+                for (int col = 0; col < Mmass.matrix.GetColumns(); ++col)
+                    storage.SetElement(insrow + row, inscol + col, c_a * Mmass.matrix.GetElement(row, col));
         }
     }
 }

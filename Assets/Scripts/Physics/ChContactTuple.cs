@@ -22,7 +22,7 @@ namespace chrono
         protected ChVector p2;      //< max penetration point on geo2, after refining, in abs space
         protected ChVector normal;  //< normal, on surface of master reference (geo1)
 
-        protected ChMatrix33<double> contact_plane = new ChMatrix33<double>();  //< the plane of contact (X is normal direction)
+        protected ChMatrix33<double> contact_plane = new ChMatrix33<double>(0);  //< the plane of contact (X is normal direction)
 
         protected double norm_dist;   //< penetration distance (negative if going inside) after refining
         protected double eff_radius;  //< effective radius of curvature at contact

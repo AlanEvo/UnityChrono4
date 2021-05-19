@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Linq;
+//using System.Linq;
 
 namespace chrono
 {
@@ -21,30 +21,35 @@ namespace chrono
     /// this matrix can be resized anyway (but for larger size than NxM, it falls back to
     /// heap allocation). Note that if resizing is often required, it may be better
     /// to create a ChMatrixDyamic instead, from the beginning.
-    public unsafe class ChMatrixNM<A, B> : ChMatrix       
+    public struct ChMatrixNM<A, B>// : ChMatrix   
+        
        // where Real : unmanaged
         where A : IntInterface.IBase, new()
         where B : IntInterface.IBase, new()
     {
+        public ChMatrix matrix;
+
         // private dynamic preall_rows = typeof(A);
         // private dynamic preall_columns = typeof(B);
-        protected double[] buffer;// = new double[0];
+        public double[] buffer;// = new double[0];
 
-        public static ChMatrixNM<IntInterface.Three, IntInterface.Four> NMNULL3_4 = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-        public static ChMatrixNM<IntInterface.Four, IntInterface.Four> NMNULL4_4 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
+        public static ChMatrixNM<IntInterface.One, IntInterface.One> NMNULL1_1 = new ChMatrixNM<IntInterface.One, IntInterface.One>(0);
+        public static ChMatrixNM<IntInterface.Six, IntInterface.One> NMNULL6_1 = new ChMatrixNM<IntInterface.Six, IntInterface.One>(0);
+        public static ChMatrixNM<IntInterface.Three, IntInterface.Four> NMNULL3_4 = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+        public static ChMatrixNM<IntInterface.Four, IntInterface.Four> NMNULL4_4 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
 
         //
         // CONSTRUCTORS
         //
 
         /// The default constructor builds a NxN matrix
-        public ChMatrixNM()   
+        public ChMatrixNM(int a) //: this()
         {
-         
-            this.rows = new A().Masta;
-            this.columns = new B().Masta;
-            buffer = new double[this.rows * this.columns + 3];
-            this.address = buffer;
+            matrix = new ChMatrix();
+            this.matrix.rows = new A().Masta;
+            this.matrix.columns = new B().Masta;
+            buffer = new double[this.matrix.rows * this.matrix.columns + 3];
+            this.matrix.address = buffer;
             /*this.address = (double*)Marshal.AllocHGlobal(buffer.Length * sizeof(double));
             for (int i = 0; i < this.buffer.Length; i++)
             {
@@ -52,16 +57,16 @@ namespace chrono
             }*/
             //for (int i = 0; i < buffer.Length; ++i)
             //  this.address[i] = buffer[i];
-            SetZero(this.rows * this.columns);
+            SetZero(this.matrix.rows * this.matrix.columns);
         }
 
-        public ChMatrixNM(bool a)
+        public ChMatrixNM(bool a) //: this()
         {
 
-            this.rows = 3;//new A().Masta;
-            this.columns = 3;// new B().Masta;
-            buffer = new double[this.rows * this.columns + 3];
-            this.address = buffer;
+            this.matrix.rows = 3;//new A().Masta;
+            this.matrix.columns = 3;// new B().Masta;
+            buffer = new double[this.matrix.rows * this.matrix.columns + 3];
+            this.matrix.address = buffer;
             /*this.address = (double*)Marshal.AllocHGlobal(buffer.Length * sizeof(double));
             for (int i = 0; i < this.buffer.Length; i++)
             {
@@ -69,31 +74,31 @@ namespace chrono
             }*/
             //for (int i = 0; i < buffer.Length; ++i)
             //  this.address[i] = buffer[i];
-            SetZero(this.rows * this.columns);
+            SetZero(this.matrix.rows * this.matrix.columns);
         }
 
 
         /// Copy constructor
-        public ChMatrixNM(ChMatrixNM<A, B> msource)
+        public ChMatrixNM(ChMatrixNM<A, B> msource)//: this()
         {
-            this.rows = new A().Masta;
-            this.columns = new B().Masta;
-            buffer = new double[this.rows * this.columns + 3];
+            this.matrix.rows = new A().Masta;
+            this.matrix.columns = new B().Masta;
+            buffer = new double[this.matrix.rows * this.matrix.columns + 3];
             // for (int i = 0; i < buffer.Length; ++i)
-            this.address = buffer;
+            this.matrix.address = buffer;
             /*this.address = (double*)Marshal.AllocHGlobal(buffer.Length * sizeof(double));
              for (int i = 0; i < this.buffer.Length; i++)
              {
                  this.address[i] = this.buffer[i];
              }*/
             //this.address = buffer;
-            ElementsCopy(this.address, msource.address, this.rows * this.columns);
+            ElementsCopy(this.matrix.address, msource.matrix.address, this.matrix.rows * this.matrix.columns);
         }
         public void SetZero(int els)
         {
             for (int i = 0; i < els; ++i)
             {
-                this.address[i] = 0;
+                this.matrix.address[i] = 0;
             }
         }
 
@@ -104,21 +109,21 @@ namespace chrono
         }
 
         /// Copy constructor from all types of base matrices (only with same size)
-        public ChMatrixNM(ChMatrix msource)
+        public ChMatrixNM(ChMatrix msource): this()
         {
-           // Debug.Assert(msource.GetColumns() == preall_columns && msource.GetRows() == preall_rows);
-           // this.rows = preall_rows;
-           // this.columns = preall_columns;
-           // this.address = buffer;
-           /* this.address = (double*)Marshal.AllocHGlobal(buffer.Length * sizeof(double));
-            for (int i = 0; i < this.buffer.Length; i++)
-            {
-                this.address[i] = this.buffer[i];
-            }*/
+            // Debug.Assert(msource.GetColumns() == preall_columns && msource.GetRows() == preall_rows);
+            // this.rows = preall_rows;
+            // this.columns = preall_columns;
+            // this.address = buffer;
+            /* this.address = (double*)Marshal.AllocHGlobal(buffer.Length * sizeof(double));
+             for (int i = 0; i < this.buffer.Length; i++)
+             {
+                 this.address[i] = this.buffer[i];
+             }*/
             /*   for (int i = 0; i < buffer.Length; ++i)
                    this.address[i] = buffer[i];*/
             //  ElementsCopy(this.address, msource.GetAddress(), preall_rows * preall_columns);
-            ElementsCopy(this.address, msource.address, this.rows * this.columns);
+            ElementsCopy(this.matrix.address, msource.address, this.matrix.rows * this.matrix.columns);
         }
 
 
@@ -127,7 +132,7 @@ namespace chrono
         //
 
         /// Resize for this matrix is NOT SUPPORTED ! DO NOTHING!
-        public override void Resize(int nrows, int ncols) { /*Debug.Assert((nrows == this.rows) && (ncols == this.columns));*/ }
+        public void Resize(int nrows, int ncols) { /*Debug.Assert((nrows == this.rows) && (ncols == this.columns));*/ }
 
     }
 }

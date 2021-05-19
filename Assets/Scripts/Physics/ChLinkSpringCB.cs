@@ -80,14 +80,30 @@ namespace chrono
         {
             if (Application.isPlaying)
             {
-                Utils.drawSpring(radius, sPosition1, sPosition2, springResolution, springTurns);
+                switch (type)
+                {
+                    case Type.SPRING:
+                        Utils.drawSpring(radius, sPosition1, sPosition2, springResolution, springTurns);
+                        break;
+                    case Type.SHOCK:
+                        Debug.DrawLine(new Vector3((float)sPosition1.x, (float)sPosition1.y, (float)sPosition1.z), new Vector3((float)sPosition2.x, (float)sPosition2.y, (float)sPosition2.z), new Color(255, 0, 255));
+                        break;
+                }
             }
             else
             {
-                Gizmos.color = new Color(255, 255, 0);
-                Utils.drawSpring(radius, new ChVector(transform.position.x, transform.position.y, transform.position.z), new ChVector(position2.position.x, position2.position.y, position2.position.z), springResolution, springTurns);
-
-                Gizmos.DrawSphere(transform.position, 0.01f);
+                switch (type)
+                {
+                    case Type.SPRING:
+                        Gizmos.color = new Color(255, 255, 0);
+                        Utils.drawSpring(radius, new ChVector(transform.position.x, transform.position.y, transform.position.z), new ChVector(position2.position.x, position2.position.y, position2.position.z), springResolution, springTurns);
+                        Gizmos.DrawSphere(transform.position, 0.01f);
+                        break;
+                    case Type.SHOCK:
+                        Gizmos.color = new Color(255, 0, 255);
+                        Gizmos.DrawLine(transform.position, position2.position);
+                        break;
+                }
             }
         }
 
@@ -101,7 +117,7 @@ namespace chrono
 
         /// Class to be used as a functor interface for calculating the general spring-damper force.
         /// A derived class must implement the virtual operator().
-       /* public abstract class ForceFunctor : MonoBehaviour
+        public abstract class ForceFunctor : MonoBehaviour
         {
             /// Calculate and return the general spring-damper force at the specified configuration.
             public virtual double this[double time,          //< current time
@@ -111,7 +127,7 @@ namespace chrono
                                   ChLinkSpringCB link         //< back-pointer to associated link
                                   ]
             { get { return 0; } }            
-        }*/
+        }
 
 
         /// Specify the functor object for calculating the force.

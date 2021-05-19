@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+
 using BulletXNA.BulletCollision;
 using BulletXNA.LinearMath;
+using System.Linq;
 //using BulletSharp;
 //using BulletSharp.Math;
 //using BulletUnity;
@@ -12,6 +14,22 @@ namespace chrono
 {
     namespace collision
     {
+        public class Pair<T, U>
+        {
+            public Pair()
+            {
+            }
+
+            public Pair(T first, U second)
+            {
+                this.First = first;
+                this.Second = second;
+            }
+
+            public T First { get; set; }
+            public U Second { get; set; }
+        };
+
         ///  A wrapper to use the Bullet collision detection  library
         public class ChModelBullet : ChCollisionModel
         {
@@ -163,9 +181,9 @@ namespace chrono
             }
 
             public static void ChPosMatrToBullet(ChVector pos, ChMatrix33<double> rA, ref BulletXNA.LinearMath.IndexedMatrix mtransform) {
-                IndexedBasisMatrix basisA = new IndexedBasisMatrix((float)rA[0, 0], (float)rA[0, 1], (float)rA[0, 2], (float)rA[1, 0],
-                                                                    (float)rA[1, 1], (float)rA[1, 2], (float)rA[2, 0], (float)rA[2, 1],
-                                                                    (float)rA[2, 2]);
+                IndexedBasisMatrix basisA = new IndexedBasisMatrix((float)rA.nm.matrix[0, 0], (float)rA.nm.matrix[0, 1], (float)rA.nm.matrix[0, 2], (float)rA.nm.matrix[1, 0],
+                                                                    (float)rA.nm.matrix[1, 1], (float)rA.nm.matrix[1, 2], (float)rA.nm.matrix[2, 0], (float)rA.nm.matrix[2, 1],
+                                                                    (float)rA.nm.matrix[2, 2]);
 
              
 
@@ -235,6 +253,137 @@ namespace chrono
                 return true;
             }
 
+            public static IndexedVector3 ChVectToBullet(ChVector pos)
+            {
+                return new IndexedVector3((float)pos.x, (float)pos.y, (float)pos.z);
+            }
+
+            /// Add a triangle from  mesh.
+            /// For efficiency, points are stored as pointers. Thus, the user must
+            /// take care of memory management and of dangling pointers.
+            public virtual bool AddTriangleProxy(ChVector p1,                //< points to vertex1 coords
+                                        ChVector p2,                 //< points to vertex2 coords
+                                        ChVector p3,                 //< points to vertex3 coords
+                                        ChVector ep1,                //< points to neighbouring vertex at edge1 if any
+                                        ChVector ep2,                //< points to neighbouring vertex at edge1 if any
+                                        ChVector ep3,             //< points to neighbouring vertex at edge1 if any
+                                        bool mowns_vertex_1,         //< vertex is owned by this triangle (otherwise, owned by neighbour)
+                                        bool mowns_vertex_2,         //< vertex is owned by this triangle (otherwise, owned by neighbour)
+                                        bool mowns_vertex_3,         //< vertex is owned by this triangle (otherwise, owned by neighbour)
+                                        bool mowns_edge_1,           //< edge is owned by this triangle (otherwise, owned by neighbour)
+                                        bool mowns_edge_2,           //< edge is owned by this triangle (otherwise, owned by neighbour)
+                                        bool mowns_edge_3,           //< edge is owned by this triangle (otherwise, owned by neighbour)
+                                        double msphereswept_rad = 0  //< sphere swept triangle ('fat' triangle, improves robustness)
+    )
+            {
+                // adjust default inward 'safe' margin (always as radius)
+                this.SetSafeMargin(msphereswept_rad);
+
+
+                btCEtriangleShape mshape = new btCEtriangleShape(p1, p2, p3, ep1, ep2, ep3,
+                                                           mowns_vertex_1, mowns_vertex_2, mowns_vertex_3,
+                                                           mowns_edge_1, mowns_edge_2, mowns_edge_3, msphereswept_rad);
+
+                mshape.SetMargin((float)this.GetSuggestedFullMargin()); // this.GetSafeMargin());  // not this.GetSuggestedFullMargin() given the way that btCEtriangleShape works.
+
+                _injectShape(ChVector.VNULL, new ChMatrix33<double>(1), mshape);
+
+                return true;
+            }
+
+            /// Add a triangle mesh to this model, passing a triangle mesh.
+            /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
+            /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
+            public override bool AddTriangleMesh(                           //
+                  geometry.ChTriangleMeshConnected trimesh,  //< the triangle mesh
+                  bool is_static,                                     //< true if model doesn't move. May improve performance.
+                  bool is_convex,                                     //< if true, a convex hull is used. May improve robustness.
+                  ChVector pos,               //< displacement respect to COG
+                  ChMatrix33<double> rot,          //< the rotation of the mesh
+                  double sphereswept_thickness = 0.0                  //< outward sphere-swept layer (when supported)
+                  )
+            {
+
+
+                // iterate on triangles
+                for (int it = 0; it < trimesh.m_face_v_indices.Count; it++)
+                {
+
+                    this.AddTriangleProxy(trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].x],
+                                           trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].y],
+                                           trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].z],
+                            new ChVector(), new ChVector(), new ChVector(),
+                                false, false, false, false, false, false, sphereswept_thickness);
+                }
+                
+            
+                   /* TriangleMesh bulletMesh = new TriangleMesh();
+                    /// Store containing triangle indices for vertices
+                    for (int i = 0; i < mesh.triangles.Length; i+=3)
+                    {
+                        ChVector point1 = new ChVector(0, 0, 0);
+                        ChVector point2 = new ChVector(0, 0, 0);
+                        ChVector point3 = new ChVector(0, 0, 0);
+                        Vector3 p1 = mesh.vertices[mesh.triangles[i + 0]];
+                        Vector3 p2 = mesh.vertices[mesh.triangles[i + 1]];
+                        Vector3 p3 = mesh.vertices[mesh.triangles[i + 2]];
+
+                        point1.x = p1.x;
+                        point1.y = p1.y;
+                        point1.z = p1.z;
+                        point2.x = p2.x;
+                        point2.y = p2.y;
+                        point2.z = p2.z;
+                        point3.x = p3.x;
+                        point3.y = p3.y;
+                        point3.z = p3.z;
+
+                        // bulletMesh.m_weldingThreshold = ...
+                        bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
+                            ChVectToBullet(point3),
+                            true);  // try to remove duplicate vertices
+                    }
+
+                     TriangleMesh bulletMesh = new TriangleMesh();
+                     for (int i = 0; i < trimesh.triangles.Length; i++)
+                     {
+                         // bulletMesh.m_weldingThreshold = ...
+                         bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
+                             ChVectToBullet(point3),
+                             false);  // try to remove duplicate vertices
+                     }*/
+
+                    // CollisionShape pShape = (BvhTriangleMeshShape)new btBvhTriangleMeshShape_handlemesh(bulletMesh);
+                   // CollisionShape pShape = new TriangleMeshShape(bulletMesh);
+                    // pShape.setMargin((btScalar)this.GetSafeMargin());
+                    // ((btBvhTriangleMeshShape*)pShape).refitTree();
+                    // btCollisionShape* pShape = new btGImpactMeshShape_handlemesh(bulletMesh);
+                    // pShape.setMargin((btScalar) this.GetSafeMargin() );
+                    //((btGImpactMeshShape_handlemesh*)pShape).updateBound();
+                   // _injectShape(pos, rot, pShape);
+
+                    return true;
+                }
+            
+
+
+            // These classes inherits the Bullet triangle mesh, but adds just a single feature:
+            // when this shape is deleted, also the referenced triangle mesh interface is deleted.
+            // Hence, when a btBvhTriangleMeshShape_handlemesh is added to the list of shapes of this ChModelBullet,
+            // there's no need to remember to delete the mesh interface because it dies with the model, when shapes are deleted.
+            // This is just to avoid adding a pointer to a triangle interface in all collision models, when not needed.
+            public class btBvhTriangleMeshShape_handlemesh : BvhTriangleMeshShape
+            {
+                StridingMeshInterface minterface;
+
+
+                public btBvhTriangleMeshShape_handlemesh(StridingMeshInterface meshInterface)
+                : base(meshInterface, true, true)
+                {
+                    minterface = meshInterface;
+                }
+            };
+
             public override void SyncPosition()
             {
                 ChCoordsys mcsys = this.mcontactable.GetCsysForCollisionModel();
@@ -242,9 +391,9 @@ namespace chrono
                 bt_collision_object.GetWorldTransform()._origin = new IndexedVector3(
                     (float)mcsys.pos.x, (float)mcsys.pos.y, (float)mcsys.pos.z);                               
                 ChMatrix33<double> rA = new ChMatrix33<double>(mcsys.rot);             
-                IndexedBasisMatrix basisA = new IndexedBasisMatrix((float)rA[0, 0], (float)rA[0, 1], (float)rA[0, 2], (float)rA[1, 0],
-                                                                   (float)rA[1, 1], (float)rA[1, 2], (float)rA[2, 0], (float)rA[2, 1],
-                                                                   (float)rA[2, 2]);
+                IndexedBasisMatrix basisA = new IndexedBasisMatrix((float)rA.nm.matrix[0, 0], (float)rA.nm.matrix[0, 1], (float)rA.nm.matrix[0, 2], (float)rA.nm.matrix[1, 0],
+                                                                   (float)rA.nm.matrix[1, 1], (float)rA.nm.matrix[1, 2], (float)rA.nm.matrix[2, 0], (float)rA.nm.matrix[2, 1],
+                                                                   (float)rA.nm.matrix[2, 2]);
                 bt_collision_object.GetWorldTransform()._basis = basisA;
             }
 
@@ -303,7 +452,7 @@ namespace chrono
                 float ahz = (hz + this.GetEnvelope());
                 BBoxShape mshape = new BBoxShape();
 
-               // mshape.setMargin((btScalar)this->GetSuggestedFullMargin());
+               // mshape.setMargin((btScalar)this.GetSuggestedFullMargin());
 
                 _injectShape(pos, rot, mshape);
 
@@ -321,21 +470,7 @@ namespace chrono
 
             }*/
 
-            /// Add a triangle mesh to this model, passing a triangle mesh.
-            /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
-            /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
-          /* public override bool AddTriangleMesh(                           //
-                geometry.ChTriangleMesh trimesh,  //< the triangle mesh
-                bool is_static,                                     //< true if model doesn't move. May improve performance.
-                bool is_convex,                                     //< if true, a convex hull is used. May improve robustness.
-                ChVector pos,               //< displacement respect to COG
-                ChMatrix33 rot,          //< the rotation of the mesh
-                double sphereswept_thickness = 0.0                  //< outward sphere-swept layer (when supported)
-                )
-            {
-                ChModelBullet_AddTriangleMesh(m_ChCollisionModel, trimesh.m_ChTriangleMesh, is_static, is_convex, pos.m_ChVector, rot.m_ChMatrix, sphereswept_thickness);
-                return true;
-            }*/
+
 
         }
     }

@@ -159,25 +159,25 @@ namespace BulletXNA.BulletCollision
 
         ///By default addTriangle won't search for duplicate vertices, because the search is very slow for large triangle meshes.
         ///In general it is better to directly use btTriangleIndexVertexArray instead.
-#if XNA
 
-        public void AddTriangle(Microsoft.Xna.Framework.Vector3 vertex0, Microsoft.Xna.Framework.Vector3 vertex1, Microsoft.Xna.Framework.Vector3 vertex2)
+        // Alan
+       /* public void AddTriangle(IndexedVector3 vertex0, IndexedVector3 vertex1, IndexedVector3 vertex2, bool removeDuplicateVertices)
         {
-            AddTriangle(ref vertex0, ref vertex1, ref vertex2);
+            AddTriangle(ref vertex0, ref vertex1, ref vertex2, removeDuplicateVertices);
         }
 
-        public void AddTriangle(ref Microsoft.Xna.Framework.Vector3 vertex0, ref Microsoft.Xna.Framework.Vector3 vertex1, ref Microsoft.Xna.Framework.Vector3 vertex2)
+        public void AddTriangle(ref IndexedVector3 vertex0, ref IndexedVector3 vertex1, ref IndexedVector3 vertex2, bool removeDuplicateVertices)
         {
-            AddTriangle(ref vertex0, ref vertex1, ref vertex2, false);
-        }
-        public void AddTriangle(ref Microsoft.Xna.Framework.Vector3 vertex0, ref Microsoft.Xna.Framework.Vector3 vertex1, ref Microsoft.Xna.Framework.Vector3 vertex2, bool removeDuplicateVertices)
+            AddTriangle(ref vertex0, ref vertex1, ref vertex2, removeDuplicateVertices);
+        }*/
+        public void AddTriangle(IndexedVector3 vertex0, IndexedVector3 vertex1, IndexedVector3 vertex2, bool removeDuplicateVertices)
         {
             m_indexedMeshes[0].m_numTriangles++;
             AddIndex(FindOrAddVertex(ref vertex0, removeDuplicateVertices));
             AddIndex(FindOrAddVertex(ref vertex1, removeDuplicateVertices));
             AddIndex(FindOrAddVertex(ref vertex2, removeDuplicateVertices));
         }
-#endif
+
         public int GetNumTriangles()
         {
             if (m_use32bitIndices)

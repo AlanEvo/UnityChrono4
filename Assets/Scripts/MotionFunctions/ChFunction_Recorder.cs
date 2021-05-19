@@ -50,6 +50,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChFunction Clone() { return new ChFunction_Recorder(this); }
 
+
         public override FunctionType Get_Type() { return FunctionType.FUNCT_RECORDER; }
 
         private double Interpolate_y(double x, ChRecPoint p1, ChRecPoint p2)

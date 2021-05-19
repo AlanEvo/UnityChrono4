@@ -67,7 +67,7 @@ namespace BulletXNA.BulletCollision
                 //only perform raycast if filterMask matches
                 if (resultCallback.NeedsCollision(collisionObject.GetBroadphaseHandle()))
                 {
-                    //RigidcollisionObject* collisionObject = ctrl->GetRigidcollisionObject();
+                    //RigidcollisionObject* collisionObject = ctrl.GetRigidcollisionObject();
                     IndexedVector3 collisionObjectAabbMin;
                     IndexedVector3 collisionObjectAabbMax;
                     IndexedMatrix t = collisionObject.GetWorldTransform();
@@ -252,7 +252,7 @@ namespace BulletXNA.BulletCollision
         {
             Debug.Assert(false);
             //need to keep track of all ghost objects and call them here
-            //m_hashPairCache->removeOverlappingPairsContainingProxy(proxy0,dispatcher);
+            //m_hashPairCache.removeOverlappingPairsContainingProxy(proxy0,dispatcher);
         }
     }
 }

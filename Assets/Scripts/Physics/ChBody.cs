@@ -80,7 +80,19 @@ namespace chrono
 
         public double rot;
 
-       // [System.Serializable]
+        public bool showFrameGizmo = true;
+
+        ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
+
+        ChMatrix33<double> Jx1 = new ChMatrix33<double>(0);
+        ChMatrix33<double> Jr1 = new ChMatrix33<double>(0);
+        ChMatrix33<double> Ps1 = new ChMatrix33<double>(0);
+        ChMatrix33<double> Jtemp = new ChMatrix33<double>(0);
+
+        ChMatrix33<double> Jx2 = new ChMatrix33<double>(0);
+        ChMatrix33<double> Jr2 = new ChMatrix33<double>(0);
+
+        // [System.Serializable]
         public enum MaterialType
         {
             NSC,
@@ -93,7 +105,8 @@ namespace chrono
         {
             Cube,
             Sphere,
-            Cylinder
+            Cylinder,
+            Mesh
         }
 
         public CollisionType type = CollisionType.Cube;
@@ -118,6 +131,10 @@ namespace chrono
         public float sliding_friction;   /// Kinetic coefficient of friction        
         public float constant_adhesion;  /// Constant adhesion force, when constant adhesion model is used
         public float adhesionMultDMT;    /// Adhesion multiplier used in DMT model.
+        public float kn;  //< user-specified normal stiffness coefficient
+        public float kt;  //< user-specified tangential stiffness coefficient
+        public float gn;  //< user-specified normal damping coefficient
+        public float gt;  //< user-specified tangential damping coefficient
 
         public int Masta { get { return 0; } }
 
@@ -142,12 +159,19 @@ namespace chrono
                     break;
                 case MaterialType.SMC:
                     matsurface = gameObject.AddComponent<ChMaterialSurfaceSMC>();
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().static_friction = friction;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().sliding_friction = friction;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().restitution = restitution;
+                    // matsurface.GetComponent<ChMaterialSurfaceSMC>().rolling_friction = rolling_friction;
+                    // matsurface.GetComponent<ChMaterialSurfaceSMC>().spinning_friction = spinning_friction;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().young_modulus = young_modulus;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().poisson_ratio = poisson_ratio;
-                    matsurface.GetComponent<ChMaterialSurfaceSMC>().static_friction = static_friction;
-                    matsurface.GetComponent<ChMaterialSurfaceSMC>().sliding_friction = sliding_friction;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().constant_adhesion = constant_adhesion;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().adhesionMultDMT = adhesionMultDMT;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().kn = kn;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().kt = kt;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().gn = gn;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().gt = gt;
                     break;
             }
 
@@ -156,7 +180,7 @@ namespace chrono
             {
                 case CollisionType.Cube:
 
-                    var size = transform.localScale * 1.05f;
+                    var size = transform.localScale * 1f;
 
                     if (automaticMass)
                     {
@@ -176,6 +200,9 @@ namespace chrono
                         SetCollide(true);
                     }
 
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
                     SetInertiaXX(ToChrono(inertiaMoments));
                     SetInertiaXY(ToChrono(inertiaProducts));
 
@@ -194,7 +221,7 @@ namespace chrono
                     break;
                 case CollisionType.Sphere:
 
-                    var size2 = transform.localScale.y / 2.1;
+                    var size2 = transform.localScale.y / 1.9;
 
                     if (automaticMass)
                     {
@@ -214,6 +241,9 @@ namespace chrono
                         GetCollisionModel().BuildModel();
                         SetCollide(true);
                     }
+
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
 
                     SetInertiaXX(ToChrono(inertiaMoments));
                     SetInertiaXY(ToChrono(inertiaProducts));
@@ -235,9 +265,9 @@ namespace chrono
                 case CollisionType.Cylinder:
 
                     var height = 2 * transform.localScale.y;
-                    var radiusX = transform.localScale.x / 2;
-                    var radiusZ = transform.localScale.z / 2;
-                    radius = transform.localScale.x / 2;
+                    var radiusX = transform.localScale.x / 2.0;
+                    var radiusZ = transform.localScale.z / 2.0;
+                    radius = transform.localScale.x / 2.0;
 
                     if (automaticMass)
                     {
@@ -257,6 +287,9 @@ namespace chrono
                         SetCollide(true);
                     }
 
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
                     SetInertiaXX(ToChrono(inertiaMoments));
                     SetInertiaXY(ToChrono(inertiaProducts));
 
@@ -267,6 +300,39 @@ namespace chrono
 
                     BodyFrame.SetPos_dt(ToChrono(linearVelocity));
                     BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
+
+                    // ChSystem msystem3 = FindObjectOfType<ChSystem>();
+                    // msystem3.AddBody(this);
+                    ChSystem.system.AddBody(this);
+
+                    break;
+                case CollisionType.Mesh:
+
+                    Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
+                    double sweep_sphere_radius = 0.1;
+
+                    geometry.ChTriangleMeshConnected trimesh = new geometry.ChTriangleMeshConnected();
+                    trimesh.LoadWavefrontMesh(mesh);
+
+                    // Create the collision model
+                    GetCollisionModel().ClearModel();
+                    GetCollisionModel().AddTriangleMesh(trimesh, true, false, ChVector.VNULL, new ChMatrix33<double>(1),
+                                                                        sweep_sphere_radius);
+                    GetCollisionModel().BuildModel();
+
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
+                    SetInertiaXX(ToChrono(inertiaMoments));
+                    SetInertiaXY(ToChrono(inertiaProducts));
+
+                    SetBodyFixed(bodyfixed);
+
+                    BodyFrame.SetPos(new ChVector(transform.position.x, transform.position.y, transform.position.z));
+                    BodyFrame.SetRot(new ChQuaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z));
+
+                   // BodyFrame.SetPos_dt(ToChrono(linearVelocity));
+                   // BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
 
                     // ChSystem msystem3 = FindObjectOfType<ChSystem>();
                     // msystem3.AddBody(this);
@@ -444,49 +510,6 @@ namespace chrono
 
         public virtual void FixedUpdate()
         {
-
-            // Test = ChQuaternion.QNULL;
-            //var frame = this.GetFrame_REF_to_abs();
-            //transform.position = FromChrono(frame.GetPos());
-            // transform.rotation = FromChrono(frame.GetRot());
-            //transform.position = ExtractTranslationFromMatrix(uMat);
-            //transform.rotation = ExtractRotationFromMatrix(uMat);
-
-            Matrix4x4 uMat = new Matrix4x4();
-
-            ChMatrix33<double> chMat = GetFrame_REF_to_abs().GetA();
-
-            /* chMat.address = chMat.GetAddress();
-             chMat.rows = chMat.GetRows();
-             chMat.columns = chMat.GetColumns();*/
-
-            uMat[0] = (float)chMat.GetElementN(0);
-            uMat[1] = (float)chMat.GetElementN(3);
-            uMat[2] = (float)chMat.GetElementN(6);
-
-            uMat[4] = (float)chMat.GetElementN(1);
-            uMat[5] = (float)chMat.GetElementN(4);
-            uMat[6] = (float)chMat.GetElementN(7);
-
-            uMat[8] = (float)chMat.GetElementN(2);
-            uMat[9] = (float)chMat.GetElementN(5);
-            uMat[10] = (float)chMat.GetElementN(8);
-
-
-            uMat[12] = (float)GetFrame_REF_to_abs().GetPos().x;
-            uMat[13] = (float)GetFrame_REF_to_abs().GetPos().y;
-            uMat[14] = (float)GetFrame_REF_to_abs().GetPos().z;
-
-
-            // Clear the last column to 0 and set low-right corner to 1 as in
-            // Denavitt-Hartemberg matrices, transposed.
-            uMat[3] = uMat[7] = uMat[11] = 0.0f;
-            uMat[15] = 1.0f;
-
-           // transform.position = ExtractTranslationFromMatrix(uMat);
-            //rot = ExtractRotationFromMatrix(uMat).eulerAngles.y;
-            // transform.rotation = ExtractRotationFromMatrix(uMat);
-
              var frame = GetFrame_REF_to_abs();
              transform.position = Utils.FromChrono(frame.GetPos());
              transform.rotation = Utils.FromChrono(frame.GetRot());
@@ -770,14 +793,14 @@ namespace chrono
         // (override/implement interfaces for global state vectors, see ChPhysicsItem for comments.)
 
         public override void IntStateGather(int off_x,
-                                    ref ChState x,
-                                int off_v,
-                                ref ChStateDelta v,
-                                ref double T) {
+                                            ref ChState x,
+                                            int off_v,
+                                            ref ChStateDelta v,
+                                            ref double T) {
 
-            x.PasteCoordsys(this.BodyFrame.coord, off_x, 0);
-            v.PasteVector(this.BodyFrame.coord_dt.pos, off_v, 0);
-            v.PasteVector(this.BodyFrame.GetWvel_loc(), off_v + 3, 0);
+            x.matrix.PasteCoordsys(this.BodyFrame.coord, off_x, 0);
+            v.matrix.PasteVector(this.BodyFrame.coord_dt.pos, off_v, 0);
+            v.matrix.PasteVector(this.BodyFrame.GetWvel_loc(), off_v + 3, 0);
             T = this.GetChTime();
         }
 
@@ -787,20 +810,20 @@ namespace chrono
                                  ChStateDelta v,
                                  double T)
         {
-            this.BodyFrame.SetCoord(x.ClipCoordsys(off_x, 0));
-            this.BodyFrame.SetPos_dt(v.ClipVector(off_v, 0));
-            this.BodyFrame.SetWvel_loc(v.ClipVector(off_v + 3, 0));
+            this.BodyFrame.SetCoord(x.matrix.ClipCoordsys(off_x, 0));
+            this.BodyFrame.SetPos_dt(v.matrix.ClipVector(off_v, 0));
+            this.BodyFrame.SetWvel_loc(v.matrix.ClipVector(off_v + 3, 0));
             this.SetChTime(T);
             this.update();
         }
         public override void IntStateGatherAcceleration(int off_a, ref ChStateDelta a) {
-            a.PasteVector(this.BodyFrame.coord_dtdt.pos, off_a, 0);
-            a.PasteVector(this.BodyFrame.GetWacc_loc(), off_a + 3, 0);
+            a.matrix.PasteVector(this.BodyFrame.coord_dtdt.pos, off_a, 0);
+            a.matrix.PasteVector(this.BodyFrame.GetWacc_loc(), off_a + 3, 0);
         }
         public override void IntStateScatterAcceleration(int off_a, ChStateDelta a)
         {
-            this.BodyFrame.SetPos_dtdt(a.ClipVector(off_a, 0));
-            this.BodyFrame.SetWacc_loc(a.ClipVector(off_a + 3, 0));
+            this.BodyFrame.SetPos_dtdt(a.matrix.ClipVector(off_a, 0));
+            this.BodyFrame.SetWacc_loc(a.matrix.ClipVector(off_a + 3, 0));
         }
 
         public override void IntStateIncrement(int off_x,
@@ -810,44 +833,44 @@ namespace chrono
                                        ChStateDelta Dv)
         {
             // ADVANCE POSITION:
-            x_new[off_x] = x[off_x] + Dv[off_v];
-            x_new[off_x + 1] = x[off_x + 1] + Dv[off_v + 1];
-            x_new[off_x + 2] = x[off_x + 2] + Dv[off_v + 2];
+            x_new.matrix[off_x] = x.matrix[off_x] + Dv.matrix[off_v];
+            x_new.matrix[off_x + 1] = x.matrix[off_x + 1] + Dv.matrix[off_v + 1];
+            x_new.matrix[off_x + 2] = x.matrix[off_x + 2] + Dv.matrix[off_v + 2];
 
             // ADVANCE ROTATION: rot' = delta*rot  (use quaternion for delta rotation)
-            ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
-            ChQuaternion moldrot = x.ClipQuaternion((int)off_x + 3, 0);
-            ChVector newwel_abs = BodyFrame.Amatrix * Dv.ClipVector((int)off_v + 3, 0);
+            //ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
+            ChQuaternion moldrot = x.matrix.ClipQuaternion((int)off_x + 3, 0);
+            ChVector newwel_abs = BodyFrame.Amatrix * Dv.matrix.ClipVector((int)off_v + 3, 0);
             double mangle = newwel_abs.Length();
             newwel_abs.Normalize();
             mdeltarot.Q_from_AngAxis(mangle, newwel_abs);
             ChQuaternion mnewrot = mdeltarot * moldrot;  // quaternion product
-            x_new.PasteQuaternion(mnewrot, (int)off_x + 3, 0);
+            x_new.matrix.PasteQuaternion(mnewrot, (int)off_x + 3, 0);
             // Debug.Log("ang " + x_new[2]);
         }
 
         public override void IntLoadResidual_F(int off, ref ChVectorDynamic<double> R, double c) {
             // add applied forces to 'fb' vector
-            R.PasteSumVector(Xforce * c, (int)off, 0);
+            R.matrix.PasteSumVector(Xforce * c, (int)off, 0);
 
             // add applied torques to 'fb' vector, including gyroscopic torque
             if (this.GetNoGyroTorque())
-                R.PasteSumVector((Xtorque) * c, (int)off + 3, 0);
+                R.matrix.PasteSumVector((Xtorque) * c, (int)off + 3, 0);
             else
-                R.PasteSumVector((Xtorque - gyro) * c, (int)off + 3, 0);
+                R.matrix.PasteSumVector((Xtorque - gyro) * c, (int)off + 3, 0);
         }
 
         public override void IntLoadResidual_Mv(int off,
                                     ref ChVectorDynamic<double> R,
                                     ChVectorDynamic<double> w,
                                     double c) {
-            R[off + 0] += c * GetMass() * w[off + 0];  // w not working // Alan
-            R[off + 1] += c * GetMass() * w[off + 1];
-            R[off + 2] += c * GetMass() * w[off + 2];
+            R.matrix[off + 0] += c * GetMass() * w.matrix[off + 0];  // w not working // Alan
+            R.matrix[off + 1] += c * GetMass() * w.matrix[off + 1];
+            R.matrix[off + 2] += c * GetMass() * w.matrix[off + 2];
 
-            ChVector Iw = GetInertia() * w.ClipVector(off + 3, 0);
+            ChVector Iw = GetInertia() * w.matrix.ClipVector(off + 3, 0);
             Iw *= c;
-            R.PasteSumVector(Iw, off + 3, 0);
+            R.matrix.PasteSumVector(Iw, off + 3, 0);
         }
 
         public override void IntToDescriptor(int off_v,
@@ -858,8 +881,8 @@ namespace chrono
                                  ChVectorDynamic<double> Qc)
         {
 
-            this.BodyFrame.variables.Get_qb().PasteClippedMatrix(v, off_v, 0, 6, 1, 0, 0);  // for solver warm starting only
-            this.BodyFrame.variables.Get_fb().PasteClippedMatrix(R, off_v, 0, 6, 1, 0, 0);  // solver known term
+            this.BodyFrame.variables.Get_qb().matrix.PasteClippedMatrix(v.matrix, off_v, 0, 6, 1, 0, 0);  // for solver warm starting only
+            this.BodyFrame.variables.Get_fb().matrix.PasteClippedMatrix(R.matrix, off_v, 0, 6, 1, 0, 0);  // solver known term
         }
 
         public override void IntFromDescriptor(int off_v,  // offset in v
@@ -867,8 +890,7 @@ namespace chrono
                                int off_L,  // offset in L
                                ref ChVectorDynamic<double> L)
         {
-            v.PasteMatrix(this.BodyFrame.variables.Get_qb(), off_v, 0);
-            // Debug.Log("clappa " + v[1]);
+            v.matrix.PasteMatrix(this.BodyFrame.variables.Get_qb().matrix, off_v, 0);
         }
 
         //
@@ -880,20 +902,20 @@ namespace chrono
 
         /// Sets the 'fb' part of the encapsulated ChVariablesBodyOwnMass to zero.
         public override void VariablesFbReset() {
-            this.BodyFrame.variables.Get_fb().FillElem(0.0);
+            this.BodyFrame.variables.Get_fb().matrix.FillElem(0.0);
         }
 
         /// Adds the current forces applied to body (including gyroscopic torque) in
         /// encapsulated ChVariablesBody, in the 'fb' part: qf+=forces*factor
         public override void VariablesFbLoadForces(double factor = 1) {
             // add applied forces to 'fb' vector
-            this.BodyFrame.variables.Get_fb().PasteSumVector(Xforce * factor, 0, 0);
+            this.BodyFrame.variables.Get_fb().matrix.PasteSumVector(Xforce * factor, 0, 0);
 
             // add applied torques to 'fb' vector, including gyroscopic torque
             if (this.GetNoGyroTorque())
-                this.BodyFrame.variables.Get_fb().PasteSumVector((Xtorque) * factor, 3, 0);
+                this.BodyFrame.variables.Get_fb().matrix.PasteSumVector((Xtorque) * factor, 3, 0);
             else
-                this.BodyFrame.variables.Get_fb().PasteSumVector((Xtorque - gyro) * factor, 3, 0);
+                this.BodyFrame.variables.Get_fb().matrix.PasteSumVector((Xtorque - gyro) * factor, 3, 0);
         }
 
         /// Initialize the 'qb' part of the ChVariablesBody with the
@@ -901,15 +923,15 @@ namespace chrono
         /// function seems unnecessary, unless used before VariablesFbIncrementMq()
         public override void VariablesQbLoadSpeed() {
             // set current speed in 'qb', it can be used by the solver when working in incremental mode
-            this.BodyFrame.variables.Get_qb().PasteVector(BodyFrame.GetCoord_dt().pos, 0, 0);
-            this.BodyFrame.variables.Get_qb().PasteVector(BodyFrame.GetWvel_loc(), 3, 0);
+            this.BodyFrame.variables.Get_qb().matrix.PasteVector(BodyFrame.GetCoord_dt().pos, 0, 0);
+            this.BodyFrame.variables.Get_qb().matrix.PasteVector(BodyFrame.GetWvel_loc(), 3, 0);
         }
 
         /// Adds M*q (masses multiplied current 'qb') to Fb, ex. if qb is initialized
         /// with v_old using VariablesQbLoadSpeed, this method can be used in
         /// timestepping schemes that do: M*v_new = M*v_old + forces*dt
         public override void VariablesFbIncrementMq() {
-            this.BodyFrame.variables.Compute_inc_Mb_v(ref this.BodyFrame.variables.Get_fb(), this.BodyFrame.variables.Get_qb());
+            this.BodyFrame.variables.Compute_inc_Mb_v(ref this.BodyFrame.variables.Get_fb().matrix, this.BodyFrame.variables.Get_qb().matrix);
         }
 
         /// Fetches the body speed (both linear and angular) from the
@@ -922,8 +944,8 @@ namespace chrono
             ChCoordsys old_coord_dt = this.BodyFrame.GetCoord_dt();
 
             // from 'qb' vector, sets body speed, and updates auxiliary data
-            this.BodyFrame.SetPos_dt(this.BodyFrame.variables.Get_qb().ClipVector(0, 0));
-            this.BodyFrame.SetWvel_loc(this.BodyFrame.variables.Get_qb().ClipVector(3, 0));
+            this.BodyFrame.SetPos_dt(this.BodyFrame.variables.Get_qb().matrix.ClipVector(0, 0));
+            this.BodyFrame.SetWvel_loc(this.BodyFrame.variables.Get_qb().matrix.ClipVector(3, 0));
 
             // apply limits (if in speed clamping mode) to speeds.
             ClampSpeed();
@@ -953,8 +975,8 @@ namespace chrono
             // Updates position with incremental action of speed contained in the
             // 'qb' vector:  pos' = pos + dt * speed   , like in an Eulero step.
 
-            ChVector newspeed = BodyFrame.variables.Get_qb().ClipVector(0, 0);
-            ChVector newwel = BodyFrame.variables.Get_qb().ClipVector(3, 0);
+            ChVector newspeed = BodyFrame.variables.Get_qb().matrix.ClipVector(0, 0);
+            ChVector newwel = BodyFrame.variables.Get_qb().matrix.ClipVector(3, 0);
 
             // ADVANCE POSITION: pos' = pos + dt * vel
             this.BodyFrame.SetPos(this.BodyFrame.GetPos() + newspeed * dt_step);
@@ -1053,7 +1075,7 @@ namespace chrono
         /// Get the rigid body coordinate system that is used for
         /// defining the collision shapes and the ChMarker objects.
         /// For the base ChBody, this is always the same reference of the COG.
-        public virtual ChFrameMoving<double> GetFrame_REF_to_abs() { return BodyFrame; }
+        public virtual ChFrame<double> GetFrame_REF_to_abs() { return BodyFrame; }
 
         /// Get the master coordinate system for the assets (this will return the
         /// main coordinate system of the rigid body)
@@ -1259,9 +1281,9 @@ namespace chrono
         /// iner = [  int{x^2+z^2}dm   int{x^2+z^2}   int{x^2+y^2}dm ]
         /// </pre>
         public void SetInertiaXX(ChVector iner) {
-            BodyFrame.variables.GetBodyInertia().SetElement(0, 0, iner.x);
-            BodyFrame.variables.GetBodyInertia().SetElement(1, 1, iner.y);
-            BodyFrame.variables.GetBodyInertia().SetElement(2, 2, iner.z);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(0, 0, iner.x);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(1, 1, iner.y);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(2, 2, iner.z);
             BodyFrame.variables.GetBodyInertia().FastInvert(BodyFrame.variables.GetBodyInvInertia());
         }
         /// Get the diagonal part of the inertia tensor (Ixx, Iyy, Izz values).
@@ -1271,9 +1293,9 @@ namespace chrono
         /// </pre>   
         public ChVector GetInertiaXX() {
             ChVector iner = new ChVector(0, 0, 0);
-            iner.x = BodyFrame.variables.GetBodyInertia().GetElement(0, 0);
-            iner.y = BodyFrame.variables.GetBodyInertia().GetElement(1, 1);
-            iner.z = BodyFrame.variables.GetBodyInertia().GetElement(2, 2);
+            iner.x = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(0, 0);
+            iner.y = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(1, 1);
+            iner.z = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(2, 2);
             return iner;
         }
         /// Set the off-diagonal part of the inertia tensor (Ixy, Ixz, Iyz values).
@@ -1285,12 +1307,12 @@ namespace chrono
         /// iner = [ -int{xy}dm   -int{xz}dm   -int{yz}dm ]
         /// </pre>
         public void SetInertiaXY(ChVector iner) {
-            BodyFrame.variables.GetBodyInertia().SetElement(0, 1, iner.x);
-            BodyFrame.variables.GetBodyInertia().SetElement(0, 2, iner.y);
-            BodyFrame.variables.GetBodyInertia().SetElement(1, 2, iner.z);
-            BodyFrame.variables.GetBodyInertia().SetElement(1, 0, iner.x);
-            BodyFrame.variables.GetBodyInertia().SetElement(2, 0, iner.y);
-            BodyFrame.variables.GetBodyInertia().SetElement(2, 1, iner.z);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(0, 1, iner.x);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(0, 2, iner.y);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(1, 2, iner.z);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(1, 0, iner.x);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(2, 0, iner.y);
+            BodyFrame.variables.GetBodyInertia().nm.matrix.SetElement(2, 1, iner.z);
             BodyFrame.variables.GetBodyInertia().FastInvert(BodyFrame.variables.GetBodyInvInertia());
         }
         /// Get the extra-diagonal part of the inertia tensor (Ixy, Ixz, Iyz values)
@@ -1302,9 +1324,9 @@ namespace chrono
         /// </pre>  
         public ChVector GetInertiaXY() {
             ChVector iner = new ChVector(0, 0, 0);
-            iner.x = BodyFrame.variables.GetBodyInertia().GetElement(0, 1);
-            iner.y = BodyFrame.variables.GetBodyInertia().GetElement(0, 2);
-            iner.z = BodyFrame.variables.GetBodyInertia().GetElement(1, 2);
+            iner.x = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(0, 1);
+            iner.y = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(0, 2);
+            iner.z = BodyFrame.variables.GetBodyInertia().nm.matrix.GetElement(1, 2);
             return iner;
         }
 
@@ -1354,16 +1376,16 @@ namespace chrono
 
         /// Computes the 4x4 inertia tensor in quaternion space, if needed.
         public void ComputeQInertia(ChMatrixNM<IntInterface.Four, IntInterface.Four> mQInertia) {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> res = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Four, IntInterface.Three> GlT = new ChMatrixNM<IntInterface.Four, IntInterface.Three>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> res = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+            ChMatrixNM<IntInterface.Four, IntInterface.Three> GlT = new ChMatrixNM<IntInterface.Four, IntInterface.Three>(0);
 
             //ChFrame<double> gl = new ChFrame<double>();
             ChFrame<double>.SetMatrix_Gl(ref Gl, BodyFrame.coord.rot);
-            GlT.CopyFromMatrixT(Gl);
+            GlT.matrix.CopyFromMatrixT(Gl.matrix);
 
-            res.MatrMultiply(this.GetInertia(), Gl);
-            mQInertia.MatrMultiply(GlT, res);  // [Iq]=[G'][Ix][G]
+            res.matrix.MatrMultiply(this.GetInertia().nm.matrix, Gl.matrix);
+            mQInertia.matrix.MatrMultiply(GlT.matrix, res.matrix);  // [Iq]=[G'][Ix][G]
         }
 
         /// Computes the gyroscopic torque. In fact, in sake of highest
@@ -1386,14 +1408,14 @@ namespace chrono
             ChVector mabsforce = ChVector.VNULL;
             ChVector mabstorque = ChVector.VNULL;
             BodyFrame.To_abs_forcetorque(force, appl_point, local, ref mabsforce, ref mabstorque);
-            mQf.PasteSumVector(mabsforce, 0, 0);
-            mQf.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
+            mQf.matrix.PasteSumVector(mabsforce, 0, 0);
+            mQf.matrix.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
         }
 
         public void Add_as_lagrangian_torque(ChVector torque, bool local, ChMatrixNM<IntInterface.Seven, IntInterface.One> mQf) {
             ChVector mabstorque = new ChVector(0, 0, 0);
             BodyFrame.To_abs_torque(torque, local, ref mabstorque);
-            mQf.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
+            mQf.matrix.PasteSumQuaternion(new ChFrame<double>().GlT_x_Vect(BodyFrame.coord.rot, Dir_World2Body(mabstorque)), 3, 0);
         }
 
         //
@@ -1407,15 +1429,15 @@ namespace chrono
         /// add ChForce() objects. If local=true, force,appl.point or torque are considered
         /// expressed in body coordinates, otherwise are considered in absolute coordinates.
         public void Accumulate_force(ChVector force, ChVector appl_point, bool local) {
-            ChVector mabsforce = ChVector.VNULL;
-            ChVector mabstorque = ChVector.VNULL;
+            ChVector mabsforce = new ChVector();
+            ChVector mabstorque = new ChVector();
             BodyFrame.To_abs_forcetorque(force, appl_point, local, ref mabsforce, ref mabstorque);
 
             Force_acc += mabsforce;
             Torque_acc += mabstorque;
         }
         public void Accumulate_torque(ChVector torque, bool local) {
-            ChVector mabstorque = ChVector.VNULL;
+            ChVector mabstorque = new ChVector();
             BodyFrame.To_abs_torque(torque, local, ref mabstorque);
             Torque_acc += mabstorque;
         }
@@ -1565,12 +1587,12 @@ namespace chrono
         public int ContactableGet_ndof_w() { return 6; }
 
         /// Get all the DOFs packed in a single vector (position part)
-        public void ContactableGetStateBlock_x(ref ChState x) { x.PasteCoordsys(this.BodyFrame.GetCoord(), 0, 0); }
+        public void ContactableGetStateBlock_x(ref ChState x) { x.matrix.PasteCoordsys(this.BodyFrame.GetCoord(), 0, 0); }
 
         /// Get all the DOFs packed in a single vector (speed part)
         public void ContactableGetStateBlock_w(ref ChStateDelta w) {
-            w.PasteVector(this.BodyFrame.GetPos_dt(), 0, 0);
-            w.PasteVector(this.BodyFrame.GetWvel_loc(), 3, 0);
+            w.matrix.PasteVector(this.BodyFrame.GetPos_dt(), 0, 0);
+            w.matrix.PasteVector(this.BodyFrame.GetWvel_loc(), 3, 0);
         }
 
         /// Increment the provided state of this object by the given state-delta increment.
@@ -1596,14 +1618,14 @@ namespace chrono
 
         /// Express the local point in absolute frame, for the given state position.
         ChVector ChContactable.GetContactPoint(ChVector loc_point, ChState state_x) {
-            ChCoordsys csys = state_x.ClipCoordsys(0, 0);
+            ChCoordsys csys = state_x.matrix.ClipCoordsys(0, 0);
             return csys.TransformPointLocalToParent(loc_point);
         }
 
         /// Express the local point in absolute frame, for the given state position.
         public ChVector GetContactPoint(ChVector loc_point, ChState state_x)
         {
-            ChCoordsys csys = state_x.ClipCoordsys(0, 0);
+            ChCoordsys csys = state_x.matrix.ClipCoordsys(0, 0);
             return csys.TransformPointLocalToParent(loc_point);
         }
 
@@ -1613,9 +1635,9 @@ namespace chrono
         public ChVector GetContactPointSpeed(ChVector loc_point,
                                                     ChState state_x,
                                                     ChStateDelta state_w) {
-            ChCoordsys csys = state_x.ClipCoordsys(0, 0);
-            ChVector abs_vel = state_w.ClipVector(0, 0);
-            ChVector loc_omg = state_w.ClipVector(3, 0);
+            ChCoordsys csys = state_x.matrix.ClipCoordsys(0, 0);
+            ChVector abs_vel = state_w.matrix.ClipVector(0, 0);
+            ChVector loc_omg = state_w.matrix.ClipVector(3, 0);
             ChVector abs_omg = csys.TransformDirectionLocalToParent(loc_omg);
 
             return abs_vel + ChVector.Vcross(abs_omg, loc_point);
@@ -1641,8 +1663,8 @@ namespace chrono
             ChVector m_p1_loc = this.Point_World2Body(abs_point);
             ChVector force1_loc = this.Dir_World2Body(F);
             ChVector torque1_loc = ChVector.Vcross(m_p1_loc, force1_loc);
-            R.PasteSumVector(F, (int)this.GetOffset_w() + 0, 0);
-            R.PasteSumVector(torque1_loc, (int)this.GetOffset_w() + 3, 0);
+            R.matrix.PasteSumVector(F, (int)this.GetOffset_w() + 0, 0);
+            R.matrix.PasteSumVector(torque1_loc, (int)this.GetOffset_w() + 3, 0);
         }
 
         /// Apply the given force at the given point and load the generalized force array.
@@ -1655,12 +1677,12 @@ namespace chrono
                                        ref ChVectorDynamic<double> Q,
                                        int offset)
         {
-            ChCoordsys csys = state_x.ClipCoordsys(0, 0);
+            ChCoordsys csys = state_x.matrix.ClipCoordsys(0, 0);
             ChVector point_loc = csys.TransformPointParentToLocal(point);
             ChVector force_loc = csys.TransformDirectionParentToLocal(F);
             ChVector torque_loc = ChVector.Vcross(point_loc, force_loc);
-            Q.PasteVector(F, offset + 0, 0);
-            Q.PasteVector(torque_loc, offset + 3, 0);
+            Q.matrix.PasteVector(F, offset + 0, 0);
+            Q.matrix.PasteVector(torque_loc, offset + 3, 0);
         }
 
 
@@ -1680,27 +1702,27 @@ namespace chrono
                                                bool second)
         {
             ChVector m_p1_loc = this.Point_World2Body(abs_point);
-            ChMatrix33<double> Jx1 = new ChMatrix33<double>();
+           /* ChMatrix33<double> Jx1 = new ChMatrix33<double>();
             ChMatrix33<double> Jr1 = new ChMatrix33<double>();
             ChMatrix33<double> Ps1 = new ChMatrix33<double>();
-            ChMatrix33<double> Jtemp = new ChMatrix33<double>();
+            ChMatrix33<double> Jtemp = new ChMatrix33<double>();*/
             Ps1.Set_X_matrix(m_p1_loc);
 
-            Jx1.CopyFromMatrixT(contact_plane);
+            Jx1.nm.matrix.CopyFromMatrixT(contact_plane.nm.matrix);
             if (!second)
-                Jx1.MatrNeg();
+                Jx1.nm.matrix.MatrNeg();
 
-            Jtemp.MatrMultiply(this.BodyFrame.GetA(), Ps1);
-            Jr1.MatrTMultiply(contact_plane, Jtemp);
+            Jtemp.nm.matrix.MatrMultiply(this.BodyFrame.GetA().nm.matrix, Ps1.nm.matrix);
+            Jr1.nm.matrix.MatrTMultiply(contact_plane.nm.matrix, Jtemp.nm.matrix);
             if (second)
-                Jr1.MatrNeg();
+                Jr1.nm.matrix.MatrNeg();
 
-            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jx1, 0, 0, 1, 3, 0, 0);
-            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jx1, 1, 0, 1, 3, 0, 0);
-            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jx1, 2, 0, 1, 3, 0, 0);
-            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jr1, 0, 0, 1, 3, 0, 3);
-            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jr1, 1, 0, 1, 3, 0, 3);
-            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jr1, 2, 0, 1, 3, 0, 3);
+            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jx1.nm.matrix, 0, 0, 1, 3, 0, 0);
+            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jx1.nm.matrix, 1, 0, 1, 3, 0, 0);
+            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jx1.nm.matrix, 2, 0, 1, 3, 0, 0);
+            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jr1.nm.matrix, 0, 0, 1, 3, 0, 3);
+            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jr1.nm.matrix, 1, 0, 1, 3, 0, 3);
+            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jr1.nm.matrix, 2, 0, 1, 3, 0, 3);
         }
 
         /// Compute the jacobian(s) part(s) for this contactable item, for rolling about N,u,v.
@@ -1711,19 +1733,19 @@ namespace chrono
                                                         ref IntInterface.ChVariableTupleCarrier_1vars.type_constraint_tuple jacobian_tuple_U,
                                                         ref IntInterface.ChVariableTupleCarrier_1vars.type_constraint_tuple jacobian_tuple_V,
                                                         bool second) {
-            ChMatrix33<double> Jx1 = new ChMatrix33<double>();
-            ChMatrix33<double> Jr1 = new ChMatrix33<double>();
+           /* ChMatrix33<double> Jx1 = new ChMatrix33<double>();
+            ChMatrix33<double> Jr1 = new ChMatrix33<double>();*/
 
-            Jr1.MatrTMultiply(contact_plane, this.BodyFrame.GetA());
+            Jr2.nm.matrix.MatrTMultiply(contact_plane.nm.matrix, this.BodyFrame.GetA().nm.matrix);
             if (!second)
-                Jr1.MatrNeg();
+                Jr2.nm.matrix.MatrNeg();
 
-            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jx1, 0, 0, 1, 3, 0, 0);
-            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jx1, 1, 0, 1, 3, 0, 0);
-            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jx1, 2, 0, 1, 3, 0, 0);
-            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jr1, 0, 0, 1, 3, 0, 3);
-            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jr1, 1, 0, 1, 3, 0, 3);
-            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jr1, 2, 0, 1, 3, 0, 3);
+            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jx2.nm.matrix, 0, 0, 1, 3, 0, 0);
+            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jx2.nm.matrix, 1, 0, 1, 3, 0, 0);
+            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jx2.nm.matrix, 2, 0, 1, 3, 0, 0);
+            jacobian_tuple_N.Get_Cq().PasteClippedMatrix(Jr2.nm.matrix, 0, 0, 1, 3, 0, 3);
+            jacobian_tuple_U.Get_Cq().PasteClippedMatrix(Jr2.nm.matrix, 1, 0, 1, 3, 0, 3);
+            jacobian_tuple_V.Get_Cq().PasteClippedMatrix(Jr2.nm.matrix, 2, 0, 1, 3, 0, 3);
         }
 
         /// Used by some SMC code
@@ -1744,13 +1766,13 @@ namespace chrono
 
         /// Gets all the DOFs packed in a single vector (position part)
         public void LoadableGetStateBlock_x(int block_offset, ChState mD) {
-            mD.PasteCoordsys(this.BodyFrame.GetCoord(), block_offset, 0);
+            mD.matrix.PasteCoordsys(this.BodyFrame.GetCoord(), block_offset, 0);
         }
 
         /// Gets all the DOFs packed in a single vector (speed part)
         public void LoadableGetStateBlock_w(int block_offset, ChStateDelta mD) {
-            mD.PasteVector(this.BodyFrame.GetPos_dt(), block_offset, 0);
-            mD.PasteVector(this.BodyFrame.GetWvel_loc(), block_offset + 3, 0);
+            mD.matrix.PasteVector(this.BodyFrame.GetPos_dt(), block_offset, 0);
+            mD.matrix.PasteVector(this.BodyFrame.GetWvel_loc(), block_offset + 3, 0);
         }
 
         /// Increment all DOFs using a delta.
@@ -1792,21 +1814,21 @@ namespace chrono
                 ChVectorDynamic<double> state_w   /// if != 0, update state (speed part) to this, then evaluate Q
         ) {
             ChVector abs_pos = new ChVector(U, V, W);
-            ChVector absF = F.ClipVector(0, 0);
-            ChVector absT = F.ClipVector(3, 0);
+            ChVector absF = F.matrix.ClipVector(0, 0);
+            ChVector absT = F.matrix.ClipVector(3, 0);
             ChVector body_absF = ChVector.VNULL;
             ChVector body_locT = ChVector.VNULL;
             ChCoordsys bodycoord = ChCoordsys.CSYSNULL;
             if (state_x != null)
-                bodycoord = state_x.ClipCoordsys(0, 0);  // the numerical jacobian algo might change state_x
+                bodycoord = state_x.matrix.ClipCoordsys(0, 0);  // the numerical jacobian algo might change state_x
             else
                 bodycoord = this.BodyFrame.coord;
             // compute Q components F,T, given current state of body 'bodycoord'. Note T in Q is in local csys, F is an abs
             // csys
             body_absF = absF;
             body_locT = bodycoord.rot.RotateBack(absT + ((abs_pos - bodycoord.pos) % absF));
-            Qi.PasteVector(body_absF, 0, 0);
-            Qi.PasteVector(body_locT, 3, 0);
+            Qi.matrix.PasteVector(body_absF, 0, 0);
+            Qi.matrix.PasteVector(body_locT, 3, 0);
             detJ = 1;  // not needed because not used in quadrature.
         }
 

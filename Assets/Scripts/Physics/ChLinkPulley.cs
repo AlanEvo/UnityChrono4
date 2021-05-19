@@ -236,8 +236,8 @@ namespace chrono
             belt_low2 = Get_shaft_pos1() + d21_w + Rl_w * r2;
 
             // marker alignment
-            ChMatrix33<double> maU = new ChMatrix33<double>();
-            ChMatrix33<double> maL = new ChMatrix33<double>();
+            ChMatrix33<double> maU = new ChMatrix33<double>(0);
+            ChMatrix33<double> maL = new ChMatrix33<double>(0);
 
             ChVector Dxu = ChVector.Vnorm(belt_up2 - belt_up1);
             ChVector Dyu = Ru_w;

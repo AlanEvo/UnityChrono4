@@ -376,8 +376,8 @@ namespace chrono
                ndof_w += oB.ContactableGet_ndof_w();
 
                m_Jac.m_KRM.SetVariables(vars);
-               m_Jac.m_K.Reset(ndof_w, ndof_w);
-               m_Jac.m_R.Reset(ndof_w, ndof_w);
+               m_Jac.m_K.matrix.Reset(ndof_w, ndof_w);
+               m_Jac.m_R.matrix.Reset(ndof_w, ndof_w);
                Debug.Assert(m_Jac.m_KRM.Get_K().GetColumns() == ndof_w);
         }
 
@@ -429,40 +429,40 @@ namespace chrono
             // Jacobian w.r.t. variables of objA
             for (int i = 0; i < ndofA_w; i++)
             {
-                prtrbA[i] += perturbation;
+                prtrbA.matrix[i] += perturbation;
                 oA.ContactableIncrementState(stateA_x, prtrbA, ref stateA_x1);
                 CalculateQ(stateA_x1, stateA_w, stateB_x, stateB_w, mat, ref Q1);
-                prtrbA[i] -= perturbation;
+                prtrbA.matrix[i] -= perturbation;
 
-                Jcolumn = (Q1 - Q0) * (-1 / perturbation);  // note sign change
+                Jcolumn = (Q1 - Q0.matrix) * (-1 / perturbation);  // note sign change
 
-                m_Jac.m_K.PasteMatrix(Jcolumn, 0, i);
+                m_Jac.m_K.matrix.PasteMatrix(Jcolumn.matrix, 0, i);
 
-                stateA_w[i] += perturbation;
+                stateA_w.matrix[i] += perturbation;
                 CalculateQ(stateA_x, stateA_w, stateB_x, stateB_w, mat, ref Q1);
-                stateA_w[i] -= perturbation;
+                stateA_w.matrix[i] -= perturbation;
 
-                Jcolumn = (Q1 - Q0) * (-1 / perturbation);  // note sign change
-                m_Jac.m_R.PasteMatrix(Jcolumn, 0, i);
+                Jcolumn = (Q1 - Q0.matrix) * (-1 / perturbation);  // note sign change
+                m_Jac.m_R.matrix.PasteMatrix(Jcolumn.matrix, 0, i);
             }
 
             // Jacobian w.r.t. variables of objB
             for (int i = 0; i < ndofB_w; i++)
             {
-                prtrbB[i] += perturbation;
+                prtrbB.matrix[i] += perturbation;
                 oB.ContactableIncrementState(stateB_x, prtrbB, ref stateB_x1);
                 CalculateQ(stateA_x, stateA_w, stateB_x1, stateB_w, mat, ref Q1);
-                prtrbB[i] -= perturbation;
+                prtrbB.matrix[i] -= perturbation;
 
-                Jcolumn = (Q1 - Q0) * (-1 / perturbation);  // note sign change
-                m_Jac.m_K.PasteMatrix(Jcolumn, 0, ndofA_w + i);
+                Jcolumn = (Q1 - Q0.matrix) * (-1 / perturbation);  // note sign change
+                m_Jac.m_K.matrix.PasteMatrix(Jcolumn.matrix, 0, ndofA_w + i);
 
-                stateB_w[i] += perturbation;
+                stateB_w.matrix[i] += perturbation;
                 CalculateQ(stateA_x, stateA_w, stateB_x, stateB_w, mat, ref Q1);
-                stateB_w[i] -= perturbation;
+                stateB_w.matrix[i] -= perturbation;
 
-                Jcolumn = (Q1 - Q0) * (-1 / perturbation);  // note sign change
-                m_Jac.m_R.PasteMatrix(Jcolumn, 0, ndofA_w + i);
+                Jcolumn = (Q1 - Q0.matrix) * (-1 / perturbation);  // note sign change
+                m_Jac.m_R.matrix.PasteMatrix(Jcolumn.matrix, 0, ndofA_w + i);
             }
         }
 
@@ -498,8 +498,8 @@ namespace chrono
             {
                 m_Jac.m_KRM.Get_K().FillElem(0);
 
-                m_Jac.m_KRM.Get_K().MatrInc(m_Jac.m_K * Kfactor);
-                m_Jac.m_KRM.Get_K().MatrInc(m_Jac.m_R * Rfactor);
+                m_Jac.m_KRM.Get_K().MatrInc(m_Jac.m_K.matrix * Kfactor);
+                m_Jac.m_KRM.Get_K().MatrInc(m_Jac.m_R.matrix * Rfactor);
             }
         }
     }

@@ -378,7 +378,7 @@ namespace BulletXNA.BulletCollision
             m_curNodeIndex++;
 
 
-            //internalNode->m_escapeIndex;
+            //internalNode.m_escapeIndex;
 
             int leftChildNodexIndex = m_curNodeIndex;
 
@@ -564,7 +564,7 @@ namespace BulletXNA.BulletCollision
             IndexedVector3 rayDirection = (rayTarget - raySource);
             rayDirection.Normalize();
             lambda_max = IndexedVector3.Dot(rayDirection, rayTarget - raySource);
-            ///what about division by zero? --> just set rayDirection[i] to 1.0
+            ///what about division by zero? -. just set rayDirection[i] to 1.0
             rayDirection.X = MathUtil.FuzzyZero(rayDirection.X) ? MathUtil.BT_LARGE_FLOAT : 1f / rayDirection.X;
             rayDirection.Y = MathUtil.FuzzyZero(rayDirection.Y) ? MathUtil.BT_LARGE_FLOAT : 1f / rayDirection.Y;
             rayDirection.Z = MathUtil.FuzzyZero(rayDirection.Z) ? MathUtil.BT_LARGE_FLOAT : 1f / rayDirection.Z;
@@ -793,7 +793,7 @@ namespace BulletXNA.BulletCollision
             IndexedVector3 rayDir = (rayTarget - raySource);
             rayDir.Normalize();
             lambda_max = IndexedVector3.Dot(rayDir, rayTarget - raySource);
-            ///what about division by zero? --> just set rayDirection[i] to 1.0
+            ///what about division by zero? -. just set rayDirection[i] to 1.0
             IndexedVector3 rayDirectionInverse = new IndexedVector3(
                 MathUtil.FuzzyZero(rayDir.X) ? MathUtil.BT_LARGE_FLOAT : 1.0f / rayDir.X,
                 MathUtil.FuzzyZero(rayDir.Y) ? MathUtil.BT_LARGE_FLOAT : 1.0f / rayDir.Y,

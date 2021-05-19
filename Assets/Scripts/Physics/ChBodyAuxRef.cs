@@ -19,10 +19,9 @@ namespace chrono
     /// Additional information can be found in the @ref rigid_bodies manual page.
     public class ChBodyAuxRef : ChBody
     {
-        private ChFrameMoving<double> auxref_to_cog; //< auxiliary REF location, relative to COG
-        private ChFrameMoving<double> auxref_to_abs; //< auxiliary REF location, relative to abs coords (needs Update() )
-
-        public bool showFrameGizmo;
+        private ChFrame<double> auxref_to_cog; //< auxiliary REF location, relative to COG
+        private ChFrame<double> auxref_to_abs; //< auxiliary REF location, relative to abs coords (needs Update() )
+        
 
         public Vector3 COM;
 
@@ -69,12 +68,19 @@ namespace chrono
                     break;
                 case MaterialType.SMC:
                     matsurface = gameObject.AddComponent<ChMaterialSurfaceSMC>();
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().static_friction = friction;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().sliding_friction = friction;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().restitution = restitution;
+                    // matsurface.GetComponent<ChMaterialSurfaceSMC>().rolling_friction = rolling_friction;
+                    // matsurface.GetComponent<ChMaterialSurfaceSMC>().spinning_friction = spinning_friction;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().young_modulus = young_modulus;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().poisson_ratio = poisson_ratio;
-                    matsurface.GetComponent<ChMaterialSurfaceSMC>().sliding_friction = static_friction;
-                    matsurface.GetComponent<ChMaterialSurfaceSMC>().sliding_friction = sliding_friction;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().constant_adhesion = constant_adhesion;
                     matsurface.GetComponent<ChMaterialSurfaceSMC>().adhesionMultDMT = adhesionMultDMT;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().kn = kn;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().kt = kt;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().gn = gn;
+                    matsurface.GetComponent<ChMaterialSurfaceSMC>().gt = gt;
                     break;
             }
 
@@ -83,7 +89,7 @@ namespace chrono
             {
                 case CollisionType.Cube:
 
-                    var size = transform.localScale;
+                    var size = transform.localScale * 1f;
 
                     if (automaticMass)
                     {                        
@@ -95,7 +101,6 @@ namespace chrono
                         inertiaMoments.z = (float)((1.0 / 12.0) * mass * (Math.Pow(size.x, 2) + Math.Pow(size.y, 2)));
                     }
 
-
                     if (collide)
                     {
                         GetCollisionModel().ClearModel();
@@ -104,27 +109,30 @@ namespace chrono
                         SetCollide(true);
                     }
 
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
                     SetFrame_COG_to_REF(new ChFrame<double>(Utils.ToChrono(COM), new ChQuaternion(1, 0, 0, 0)));
                     SetInertiaXX(ToChrono(inertiaMoments));
                     SetInertiaXY(ToChrono(inertiaProducts));
 
-                    BodyFrame.SetPos(new ChVector(transform.position.x, transform.position.y, transform.position.z));
-                    BodyFrame.SetRot(new ChQuaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z));
+                    SetBodyFixed(bodyfixed);
+
+                    SetFrame_REF_to_abs(new ChFrame<double>(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation)));
 
                     BodyFrame.SetPos_dt(ToChrono(linearVelocity));
                     BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
 
-                    ChSystem msystem = FindObjectOfType<ChSystem>();
-                    msystem.AddBody(this);
+                    ChSystem.system.AddBody(this);
 
                     break;
                 case CollisionType.Sphere:
 
-                    var size2 = transform.localScale.y / 2;
+                    var size2 = transform.localScale.y / 1.9;
 
                     if (automaticMass)
                     {
-                        mass = density * ((4.0 / 3.0) * Math.PI * Math.Pow(size2, 3));
+                        mass = density * ((4.0 / 3.0) * ChMaths.CH_C_PI * Math.Pow(size2, 3));
                         double inertia = (2.0 / 5.0) * mass * Math.Pow(size2, 2);
                         this.SetDensity((float)density);
                         this.SetMass(mass);
@@ -141,13 +149,8 @@ namespace chrono
                         SetCollide(true);
                     }
 
-                    if (collide)
-                    {
-                        GetCollisionModel().ClearModel();
-                        GetCollisionModel().AddSphere(size2, new ChVector(0, 0, 0));  // radius, radius, height on y
-                        GetCollisionModel().BuildModel();
-                        SetCollide(true);
-                    }
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
 
                     SetFrame_COG_to_REF(new ChFrame<double>(Utils.ToChrono(COM), new ChQuaternion(1, 0, 0, 0)));
                     SetInertiaXX(ToChrono(inertiaMoments));
@@ -155,14 +158,54 @@ namespace chrono
 
                     SetBodyFixed(bodyfixed);
 
-                    ChFrame<double> frame = new ChFrameMoving<double>(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation));
-                    SetFrame_REF_to_abs(frame);
+                    SetFrame_REF_to_abs(new ChFrame<double>(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation)));
 
-                    //BodyFrame.SetPos(new ChVector(transform.position.x, transform.position.y, transform.position.z));
-                   // BodyFrame.SetRot(new ChQuaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z));
+                    BodyFrame.SetPos_dt(ToChrono(linearVelocity));
+                    BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
 
-                    ChSystem msystem2 = FindObjectOfType<ChSystem>();
-                    msystem2.AddBody(this);
+                    ChSystem.system.AddBody(this);
+
+                    break;
+                case CollisionType.Cylinder:
+
+                    var height = 2 * transform.localScale.y;
+                    var radiusX = transform.localScale.x / 2.0;
+                    var radiusZ = transform.localScale.z / 2.0;
+                    radius = transform.localScale.x / 2.0;
+
+                    if (automaticMass)
+                    {
+                        mass = density * (ChMaths.CH_C_PI * Math.Pow(radiusX, 2) * height);
+                        this.SetDensity((float)density);
+                        this.SetMass(mass);
+                        inertiaMoments.x = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
+                        inertiaMoments.y = (float)(0.5 * mass * Math.Pow(radiusX, 2));
+                        inertiaMoments.z = (float)((1.0 / 12.0) * mass * (3 * Math.Pow(radiusX, 2) + Math.Pow(height, 2)));
+                    }
+
+                    if (collide)
+                    {
+                        GetCollisionModel().ClearModel();
+                        GetCollisionModel().AddCylinder(radiusX, radiusZ, height * 0.5f, new ChVector(0, 0, 0), new ChMatrix33<double>(1));  // radius, radius, height on y
+                        GetCollisionModel().BuildModel();
+                        SetCollide(true);
+                    }
+
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
+                    SetFrame_COG_to_REF(new ChFrame<double>(Utils.ToChrono(COM), new ChQuaternion(1, 0, 0, 0)));
+                    SetInertiaXX(ToChrono(inertiaMoments));
+                    SetInertiaXY(ToChrono(inertiaProducts));
+
+                    SetBodyFixed(bodyfixed);
+
+                    SetFrame_REF_to_abs(new ChFrame<double>(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation)));
+
+                    BodyFrame.SetPos_dt(ToChrono(linearVelocity));
+                    BodyFrame.SetWvel_loc(ToChrono(angularVelocity));
+
+                    ChSystem.system.AddBody(this);
 
                     break;
             }
@@ -175,11 +218,9 @@ namespace chrono
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-           /* var frame = GetFrame_REF_to_abs();
-            transform.position = Utils.FromChrono(frame.GetPos());
-            transform.rotation = Utils.FromChrono(frame.GetRot());*/
         }
-        void OnDrawGizmos()
+
+        public void OnDrawGizmos()
         {
             Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, new Vector3(1, 1, 1));
 
@@ -197,27 +238,29 @@ namespace chrono
         {
             // PROBLEM  need to find out why the GetInverse isn't working, I think it has something to do
             // with it not being const like the c++ version?  So the coord is being changed along the way?
-            mfra.TransformLocalToParent(this.auxref_to_cog/*.GetInverse()*/, this.BodyFrame);
+            mfra.TransformLocalToParent(this.auxref_to_cog.GetInverse(), this.BodyFrame);
             // or, also, using overloaded operators for frames:
             //   *this = this->auxref_to_cog.GetInverse() >> mfra;
 
-            auxref_to_abs = (ChFrameMoving<double>)mfra;
+            auxref_to_abs = mfra;
         }
 
         /// Get the auxiliary reference frame with respect to the absolute frame.
         /// Note that, in general, this is different from GetFrame_COG_to_abs().
-        public override ChFrameMoving<double> GetFrame_REF_to_abs() { return auxref_to_abs; }
+        public override ChFrame<double> GetFrame_REF_to_abs() { return auxref_to_abs; }
 
         /// Set the COG frame with respect to the auxiliary reference frame.
         /// Note that this also moves the body absolute COG (the REF is fixed).
         /// The position of contained ChMarker objects, if any, is not changed with respect
         /// to the reference.
         public void SetFrame_COG_to_REF(ChFrame<double> mloc) {
-            ChFrameMoving<double> old_cog_to_abs = this.BodyFrame;
+            // Problem here, old_cog_to_abs should get changed by this.
+            ChFrameMoving<double> old_cog_to_abs = ChFrameMoving<double>.FMNULL;// new ChFrameMoving<double>();//= this.BodyFrame;  
 
-            ChFrameMoving<double> tmpref_to_abs = new ChFrameMoving<double>();
+            ChFrameMoving<double> tmpref_to_abs = ChFrameMoving<double>.FMNULL;//new ChFrameMoving<double>();
             this.BodyFrame.TransformLocalToParent(this.auxref_to_cog, tmpref_to_abs);
-            tmpref_to_abs.TransformLocalToParent(new ChFrameMoving<double>(mloc), this.BodyFrame);
+            tmpref_to_abs.TransformLocalToParent(new ChFrameMoving<double>(mloc), this.BodyFrame); // Gets changed here.
+
             // or, also, using overloaded operators for frames:
             //   tmpref_to_abs = auxref_to_cog >> *this;
             //   *this         = ChFrameMoving<>(mloc) >> tmpref_to_abs;
@@ -225,13 +268,12 @@ namespace chrono
             ChFrameMoving<double> new_cog_to_abs = this.BodyFrame;
 
             auxref_to_cog = mloc.GetInverse();
-
             this.BodyFrame.TransformLocalToParent(this.auxref_to_cog, this.auxref_to_abs);
             // or, also, using overloaded operators for frames:
             //   *this->auxref_to_abs = this->auxref_to_cog.GetInverse() >> this;
 
             // Restore marker/forces positions, keeping unchanged respect to aux ref.
-            ChFrameMoving<double> cog_oldnew = ChFrameMoving<double>.BitShiftRight(old_cog_to_abs, new_cog_to_abs.GetInverse()); // Might not work?
+            ChFrameMoving<double> cog_oldnew = old_cog_to_abs.BitShiftRight( new_cog_to_abs.GetInverse()); // This is not return correct due to old_cog_to_abs changing by this.BodyFrame!
 
             for (int i = 0; i < marklist.Count; i++)
             {
@@ -269,7 +311,7 @@ namespace chrono
             base.update(update_assets);
 
             // update own data
-            this.BodyFrame.TransformLocalToParent(this.auxref_to_cog, ref this.auxref_to_abs);
+            this.BodyFrame.TransformLocalToParent(this.auxref_to_cog, this.auxref_to_abs);
         }
 
     }

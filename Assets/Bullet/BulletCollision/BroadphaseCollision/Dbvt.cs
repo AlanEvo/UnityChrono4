@@ -787,7 +787,7 @@ namespace BulletXNA.BulletCollision
                     {
                         if ((splitcount[i][0] > 0) && (splitcount[i][1] > 0))
                         {
-                            int midp = (int)Math.Abs((splitcount[i][0] - splitcount[i][1]));
+                            int midp = (int)Mathfx.Abs((splitcount[i][0] - splitcount[i][1]));
                             if (midp < bestmidp)
                             {
                                 bestaxis = i;

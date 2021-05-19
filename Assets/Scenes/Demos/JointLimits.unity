@@ -206,7 +206,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 371161c6d7308794698c4c3c175663fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  step: 0.02
 --- !u!4 &1193239083
 Transform:
   m_ObjectHideFlags: 0
@@ -247,19 +246,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1370988592}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0518c9b9912892e4995d836274fdee1e, type: 3}
+  m_Script: {fileID: 11500000, guid: 088c2a8680f27b24d80455c85dac48ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   density: 1000
-  automaticMass: 1
+  automaticMass: 0
   bodyfixed: 1
   collide: 0
-  mass: 1
+  mass: 1000
   inertiaMoments: {x: 0, y: 0, z: 0}
   inertiaProducts: {x: 0, y: 0, z: 0}
   linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
   radius: 0
+  rot: 0
+  showFrameGizmo: 1
   materialType: 0
   type: 0
   friction: 0
@@ -278,6 +279,7 @@ MonoBehaviour:
   sliding_friction: 0
   constant_adhesion: 0
   adhesionMultDMT: 0
+  COM: {x: 0, y: 0.67, z: 0}
 --- !u!4 &1370988594
 Transform:
   m_ObjectHideFlags: 0
@@ -286,8 +288,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1370988592}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.598, y: 0, z: 0}
+  m_LocalScale: {x: 2.49, y: 2.01, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -414,6 +416,8 @@ MonoBehaviour:
   linearVelocity: {x: 0, y: 0, z: 0}
   angularVelocity: {x: 0, y: 0, z: 0}
   radius: 0
+  rot: 0
+  showFrameGizmo: 1
   materialType: 0
   type: 2
   friction: 0.4
@@ -710,7 +714,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2095931404}
   m_LocalRotation: {x: 0.0077528236, y: 0.99024826, z: -0.12946115, w: 0.050874725}
-  m_LocalPosition: {x: -2, y: 1.5, z: 5}
+  m_LocalPosition: {x: -2.197, y: 2.014, z: 6.921}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

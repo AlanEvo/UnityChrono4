@@ -53,12 +53,12 @@ namespace chrono
             void FixedUpdate()
             {
 
-              /*  float maxAngle = Mathf.Abs(Mathf.Lerp(lowSpeedAngle, highSpeedAngle, (float)m_chassis.GetPos_dt().Length() / crossoverSpeed));
-                targetAngle = maxAngle * Input.GetAxis("Horizontal");
+                float maxAngle = Mathf.Abs(Mathf.Lerp(lowSpeedAngle, highSpeedAngle, (float)m_chassis.BodyFrame.GetPos_dt().Length() / crossoverSpeed));
+                targetAngle = maxAngle * -Input.GetAxis("Horizontal");
                 angle = Mathf.MoveTowards(angle, targetAngle, degreesPerSecondLimit * Time.fixedDeltaTime);            
 
                 ChFunction_Const fun = (m_actuator.Get_dist_funct() as ChFunction_Const);
-                fun.Set_yconst(angle);*/
+                fun.Set_yconst(angle);
             }
         }
     }

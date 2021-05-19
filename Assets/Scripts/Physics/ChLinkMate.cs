@@ -53,7 +53,7 @@ namespace chrono
 
         protected ChLinkMask mask;
 
-        protected ChMatrix C;  ///< residuals
+        protected ChMatrixDynamic<double> C;  ///< residuals
 
 
         public ChLinkMateGeneric(bool mc_x = true,
@@ -70,7 +70,7 @@ namespace chrono
             c_ry = mc_ry;
             c_rz = mc_rz;
 
-            C = null;
+           // C = null;
 
             mask = new ChLinkMask();
 
@@ -262,105 +262,105 @@ namespace chrono
                 // Now 'aframe' contains the position/rotation of frame 1 respect to frame 2, in frame 2 coords. 
                 //***TODO*** check if it is faster to do   aframe2.TransformParentToLocal(aframe, bframe); instead of two transforms above
 
-                ChMatrix33<double> Jx1 = new ChMatrix33<double>();
-                ChMatrix33<double> Jx2 = new ChMatrix33<double>();
-                ChMatrix33<double> Jr1 = new ChMatrix33<double>();
-                ChMatrix33<double> Jr2 = new ChMatrix33<double>();
-                ChMatrix33<double> Jw1 = new ChMatrix33<double>();
-                ChMatrix33<double> Jw2 = new ChMatrix33<double>();
-                ChMatrix33<double> mtempM = new ChMatrix33<double>();
-                ChMatrix33<double> mtempQ = new ChMatrix33<double>();
+                ChMatrix33<double> Jx1 = new ChMatrix33<double>(0);
+                ChMatrix33<double> Jx2 = new ChMatrix33<double>(0);
+                ChMatrix33<double> Jr1 = new ChMatrix33<double>(0);
+                ChMatrix33<double> Jr2 = new ChMatrix33<double>(0);
+                ChMatrix33<double> Jw1 = new ChMatrix33<double>(0);
+                ChMatrix33<double> Jw2 = new ChMatrix33<double>(0);
+                ChMatrix33<double> mtempM = new ChMatrix33<double>(0);
+                ChMatrix33<double> mtempQ = new ChMatrix33<double>(0);
 
-                ChMatrix33<double> abs_plane = new ChMatrix33<double>();
-                abs_plane.MatrMultiply(Body2.GetA(), frame2.GetA());
+                ChMatrix33<double> abs_plane = new ChMatrix33<double>(0);
+                abs_plane.nm.matrix.MatrMultiply(Body2.GetA().nm.matrix, frame2.GetA().nm.matrix);
 
-                Jx1.CopyFromMatrixT(abs_plane);
-                Jx2.CopyFromMatrixT(abs_plane);
-                Jx2.MatrNeg();
+                Jx1.nm.matrix.CopyFromMatrixT(abs_plane.nm.matrix);
+                Jx2.nm.matrix.CopyFromMatrixT(abs_plane.nm.matrix);
+                Jx2.nm.matrix.MatrNeg();
 
-                Jw1.MatrTMultiply(abs_plane, Body1.GetA());
-                Jw2.MatrTMultiply(abs_plane, Body2.GetA());
+                Jw1.nm.matrix.MatrTMultiply(abs_plane.nm.matrix, Body1.GetA().nm.matrix);
+                Jw2.nm.matrix.MatrTMultiply(abs_plane.nm.matrix, Body2.GetA().nm.matrix);
 
                 mtempM.Set_X_matrix(frame1.GetPos());
-                Jr1.MatrMultiply(Jw1, mtempM);
-                Jr1.MatrNeg();
+                Jr1.nm.matrix.MatrMultiply(Jw1.nm.matrix, mtempM.nm.matrix);
+                Jr1.nm.matrix.MatrNeg();
 
                 mtempM.Set_X_matrix(frame2.GetPos());
-                Jr2.MatrMultiply(Jw2, mtempM);
+                Jr2.nm.matrix.MatrMultiply(Jw2.nm.matrix, mtempM.nm.matrix);
 
                 ChVector p2p1_base2 = (Body2.GetA()).MatrT_x_Vect(ChVector.Vsub(p1_abs, p2_abs));
                 mtempM.Set_X_matrix(p2p1_base2);
-                mtempQ.MatrTMultiply(frame2.GetA(), mtempM);
-                Jr2.MatrInc(mtempQ);
+                mtempQ.nm.matrix.MatrTMultiply(frame2.GetA().nm.matrix, mtempM.nm.matrix);
+                Jr2.nm.matrix.MatrInc(mtempQ.nm.matrix);
 
-                Jw2.MatrNeg();
+                Jw2.nm.matrix.MatrNeg();
 
                 // Premultiply by Jw1 and Jw2 by  0.5*[Fp(q_resid)]' to get residual as imaginary part of a quaternion.
                 // For small misalignment this effect is almost insignificant cause [Fp(q_resid)]=[I],
                 // but otherwise it is needed (if you want to use the stabilization term - if not, you can live without).
                 mtempM.Set_X_matrix((aframe.GetRot().GetVector()) * 0.5);
-                mtempM[0, 0] = 0.5 * aframe.GetRot().e0;
-                mtempM[1, 1] = 0.5 * aframe.GetRot().e0;
-                mtempM[2, 2] = 0.5 * aframe.GetRot().e0;
-                mtempQ.MatrTMultiply(mtempM, Jw1);
+                mtempM.nm.matrix[0, 0] = 0.5 * aframe.GetRot().e0;
+                mtempM.nm.matrix[1, 1] = 0.5 * aframe.GetRot().e0;
+                mtempM.nm.matrix[2, 2] = 0.5 * aframe.GetRot().e0;
+                mtempQ.nm.matrix.MatrTMultiply(mtempM.nm.matrix, Jw1.nm.matrix);
                 Jw1 = mtempQ;
-                mtempQ.MatrTMultiply(mtempM, Jw2);
+                mtempQ.nm.matrix.MatrTMultiply(mtempM.nm.matrix, Jw2.nm.matrix);
                 Jw2 = mtempQ;
 
                 int nc = 0;
 
                 if (c_x)
                 {
-                    this.C.ElementN(nc) = aframe.GetPos().x;
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1, 0, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1, 0, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2, 0, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2, 0, 0, 1, 3, 0, 3);
+                    this.C.matrix.ElementN(nc) = aframe.GetPos().x;
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1.nm.matrix, 0, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1.nm.matrix, 0, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2.nm.matrix, 0, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2.nm.matrix, 0, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_y)
                 {
-                    this.C.ElementN(nc) = aframe.GetPos().y;
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1, 1, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1, 1, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2, 1, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2, 1, 0, 1, 3, 0, 3);
+                    this.C.matrix.ElementN(nc) = aframe.GetPos().y;
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1.nm.matrix, 1, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1.nm.matrix, 1, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2.nm.matrix, 1, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2.nm.matrix, 1, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_z)
                 {
-                    this.C.ElementN(nc) = aframe.GetPos().z;
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1, 2, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1, 2, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2, 2, 0, 1, 3, 0, 0);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2, 2, 0, 1, 3, 0, 3);
+                    this.C.matrix.ElementN(nc) = aframe.GetPos().z;
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jx1.nm.matrix, 2, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jr1.nm.matrix, 2, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jx2.nm.matrix, 2, 0, 1, 3, 0, 0);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jr2.nm.matrix, 2, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_rx)
                 {
-                    this.C.ElementN(nc) = aframe.GetRot().e1;
+                    this.C.matrix.ElementN(nc) = aframe.GetRot().e1;
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 0, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 0, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 0, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 0, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_ry)
                 {
-                    this.C.ElementN(nc) = aframe.GetRot().e2;                    
+                    this.C.matrix.ElementN(nc) = aframe.GetRot().e2;                    
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 1, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 1, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 1, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 1, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_rz)
                 {
-                    this.C.ElementN(nc) = aframe.GetRot().e3;
+                    this.C.matrix.ElementN(nc) = aframe.GetRot().e3;
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 2, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 2, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 2, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 2, 0, 1, 3, 0, 3);
                     nc++;
                 }
 
@@ -413,37 +413,37 @@ namespace chrono
             if (c_x)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -react_force.x;
+                    L.matrix[off_L + nc] = -react_force.x;
                 nc++;
             }
             if (c_y)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -react_force.y;
+                    L.matrix[off_L + nc] = -react_force.y;
                 nc++;
             }
             if (c_z)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -react_force.z;
+                    L.matrix[off_L + nc] = -react_force.z;
                 nc++;
             }
             if (c_rx)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -2.0 * react_torque.x;
+                    L.matrix[off_L + nc] = -2.0 * react_torque.x;
                 nc++;
             }
             if (c_ry)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -2.0 * react_torque.y;
+                    L.matrix[off_L + nc] = -2.0 * react_torque.y;
                 nc++;
             }
             if (c_rz)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    L[off_L + nc] = -2.0 * react_torque.z;
+                    L.matrix[off_L + nc] = -2.0 * react_torque.z;
                 nc++;
             }
         }
@@ -459,37 +459,37 @@ namespace chrono
             if (c_x)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_force.x = -L[off_L + nc];
+                    react_force.x = -L.matrix[off_L + nc];
                 nc++;
             }
             if (c_y)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_force.y = -L[off_L + nc];
+                    react_force.y = -L.matrix[off_L + nc];
                 nc++;
             }
             if (c_z)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_force.z = -L[off_L + nc];
+                    react_force.z = -L.matrix[off_L + nc];
                 nc++;
             }
             if (c_rx)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_torque.x = -0.5 * L[off_L + nc];
+                    react_torque.x = -0.5 * L.matrix[off_L + nc];
                 nc++;
             }
             if (c_ry)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_torque.y = -0.5 * L[off_L + nc];
+                    react_torque.y = -0.5 * L.matrix[off_L + nc];
                 nc++;
             }
             if (c_rz)
             {
                 if (mask.Constr_N(nc).IsActive())
-                    react_torque.z = -0.5 * L[off_L + nc];
+                    react_torque.z = -0.5 * L.matrix[off_L + nc];
                 nc++;
             }
         }
@@ -503,7 +503,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).MultiplyTandAdd(R, L[off_L + cnt] * c);
+                    mask.Constr_N(i).MultiplyTandAdd(R.matrix, L.matrix[off_L + cnt] * c);
                     cnt++;
                 }
             }
@@ -522,12 +522,12 @@ namespace chrono
                     if (do_clamp)
                     {
                         if (mask.Constr_N(i).IsUnilateral())
-                            Qc[off_L + cnt] += ChMaths.ChMax(c * C.ElementN(cnt), -recovery_clamp);
+                            Qc.matrix[off_L + cnt] += ChMaths.ChMax(c * C.matrix.ElementN(cnt), -recovery_clamp);
                         else
-                            Qc[off_L + cnt] += ChMaths.ChMin(ChMaths.ChMax(c * C.ElementN(cnt), -recovery_clamp), recovery_clamp);
+                            Qc.matrix[off_L + cnt] += ChMaths.ChMin(ChMaths.ChMax(c * C.matrix.ElementN(cnt), -recovery_clamp), recovery_clamp);
                     }
                     else
-                        Qc[off_L + cnt] += c * C.ElementN(cnt);
+                        Qc.matrix[off_L + cnt] += c * C.matrix.ElementN(cnt);
                     cnt++;
                 }
             }
@@ -548,8 +548,8 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).Set_l_i(L[off_L + cnt]);
-                    mask.Constr_N(i).Set_b_i(Qc[off_L + cnt]);
+                    mask.Constr_N(i).Set_l_i(L.matrix[off_L + cnt]);
+                    mask.Constr_N(i).Set_b_i(Qc.matrix[off_L + cnt]);
                     cnt++;
                 }
             }
@@ -564,7 +564,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    L[off_L + cnt] = mask.Constr_N(i).Get_l_i();
+                    L.matrix[off_L + cnt] = mask.Constr_N(i).Get_l_i();
                     cnt++;
                 }
             }
@@ -620,13 +620,13 @@ namespace chrono
                     {
                         if (mask.Constr_N(i).IsUnilateral())
                             mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() +
-                                                     ChMaths.ChMax(factor * C.ElementN(cnt), -recovery_clamp));
+                                                     ChMaths.ChMax(factor * C.matrix.ElementN(cnt), -recovery_clamp));
                         else
                             mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() +
-                                                      ChMaths.ChMin(ChMaths.ChMax(factor * C.ElementN(cnt), -recovery_clamp), recovery_clamp));
+                                                      ChMaths.ChMin(ChMaths.ChMax(factor * C.matrix.ElementN(cnt), -recovery_clamp), recovery_clamp));
                     }
                     else
-                        mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * C.ElementN(cnt));
+                        mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * C.matrix.ElementN(cnt));
 
                     cnt++;
                 }
@@ -708,8 +708,8 @@ namespace chrono
 
             mask.ResetNconstr(nc);
 
-            if (C != null)
-                C = null;
+          //  if (C != null)
+          //      C = null;
             C = new ChMatrixDynamic<double>(nc, 1);
 
             ChangedLinkMask();

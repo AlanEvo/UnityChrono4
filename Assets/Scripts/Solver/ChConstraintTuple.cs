@@ -21,9 +21,12 @@ namespace chrono
 		protected ChVariables variables;                                                            //< The constrained object
 	    //protected ChMatrixNM<double, IntInterface.One, IntInterface.ChVariableTupleCarrier_1vars<T>.nvars1> Cq = new ChMatrixNM<double, IntInterface.One, IntInterface.ChVariableTupleCarrier_1vars<T>.nvars1>();  //< The [Cq] jacobian of the constraint
 		//protected ChMatrixNM<double, IntInterface.ChVariableTupleCarrier_1vars<T>.nvars1, IntInterface.One> Eq = new ChMatrixNM<double, IntInterface.ChVariableTupleCarrier_1vars<T>.nvars1, IntInterface.One>();  //< The [Eq] product [Eq]=[invM]*[Cq]'
-		protected ChMatrixNM<IntInterface.One, IntInterface.Six> Cq = new ChMatrixNM<IntInterface.One, IntInterface.Six>();  //< The [Cq] jacobian of the constraint
-		protected ChMatrixNM<IntInterface.Six, IntInterface.One> Eq = new ChMatrixNM<IntInterface.Six, IntInterface.One>();  //< The [Eq] product [Eq]=[invM]*[Cq]'
+		protected ChMatrixNM<IntInterface.One, IntInterface.Six> Cq = new ChMatrixNM<IntInterface.One, IntInterface.Six>(0);  //< The [Cq] jacobian of the constraint
+		protected ChMatrixNM<IntInterface.Six, IntInterface.One> Eq = new ChMatrixNM<IntInterface.Six, IntInterface.One>(0);  //< The [Eq] product [Eq]=[invM]*[Cq]'
 
+		//TEST
+		ChMatrixNM<IntInterface.Six, IntInterface.One> mtemp1 = new ChMatrixNM<IntInterface.Six, IntInterface.One>(0);
+		ChMatrixNM<IntInterface.One, IntInterface.One> res = new ChMatrixNM<IntInterface.One, IntInterface.One>(0);
 
 		/// Default constructor
 		public ChConstraintTuple_1vars()  
@@ -48,9 +51,9 @@ namespace chrono
 			return this;
 		}*/
 
-		public ChMatrix Get_Cq() { return Cq; }
+		public ChMatrix Get_Cq() { return Cq.matrix; }
 
-		public ChMatrix Get_Eq() { return Eq; }
+		public ChMatrix Get_Eq() { return Eq.matrix; }
 
 		public ChVariables GetVariables() { return variables; }
 
@@ -70,17 +73,17 @@ namespace chrono
 			//   the matrices [Eq]=[invM]*[Cq]' and [Eq]
 			if (variables.IsActive())
 			{
-				ChMatrixNM<IntInterface.Six, IntInterface.One> mtemp1 = new ChMatrixNM<IntInterface.Six, IntInterface.One>();
-				mtemp1.CopyFromMatrixT(Cq);
-				variables.Compute_invMb_v(Eq, mtemp1);
+				//ChMatrixNM<IntInterface.Six, IntInterface.One> mtemp1 = new ChMatrixNM<IntInterface.Six, IntInterface.One>(0);
+				mtemp1.matrix.CopyFromMatrixT(Cq.matrix);
+				variables.Compute_invMb_v(Eq.matrix, mtemp1.matrix);
 			}
 
 			// 2- Compute g_i = [Cq_i]*[invM_i]*[Cq_i]' + cfm_i
-			ChMatrixNM<IntInterface.One, IntInterface.One> res = new ChMatrixNM<IntInterface.One, IntInterface.One>();
+			//ChMatrixNM<IntInterface.One, IntInterface.One> res = new ChMatrixNM<IntInterface.One, IntInterface.One>(0);
 			if (variables.IsActive())
 			{
-				res.MatrMultiply(Cq, Eq);
-				g_i += res[0, 0];
+				res.matrix.MatrMultiply(Cq.matrix, Eq.matrix);
+				g_i += res.matrix[0, 0];
 			}
 		}
 
@@ -90,7 +93,7 @@ namespace chrono
 
 			if (variables.IsActive())
 				for (int i = 0; i < 6; i++)
-					ret += Cq.ElementN(i) * variables.Get_qb().ElementN(i);
+					ret += Cq.matrix.ElementN(i) * variables.Get_qb().matrix.ElementN(i);
 
 			return ret;
 		}
@@ -98,7 +101,7 @@ namespace chrono
 		public void Increment_q(double deltal) {
 			if (variables.IsActive())
 				for (int i = 0; i < 6; i++)
-					variables.Get_qb()[i] += Eq.ElementN(i) * deltal;
+					variables.Get_qb().matrix[i] += Eq.matrix.ElementN(i) * deltal;
 				
 		}
 
@@ -107,7 +110,7 @@ namespace chrono
 
 			if (variables.IsActive())
 				for (int i = 0; i < 6; i++)
-					result += vect[off + i] * Cq.ElementN(i);
+					result += vect[off + i] * Cq.matrix.ElementN(i);
 		}
 
 		public void MultiplyTandAdd(ChMatrix result, double l)
@@ -116,20 +119,20 @@ namespace chrono
 
 			if (variables.IsActive())
 				for (int i = 0; i < 6; i++)
-					result[off + i] += Cq.ElementN(i) * l;
+					result[off + i] += Cq.matrix.ElementN(i) * l;
 			
 		}
 
 		public void Build_Cq(ref ChSparseMatrix storage, int insrow)
 		{
 			if (variables.IsActive())
-				storage.PasteMatrix(Cq, insrow, variables.GetOffset());
+				storage.PasteMatrix(Cq.matrix, insrow, variables.GetOffset());
 		}
 
 		public void Build_CqT(ref ChSparseMatrix storage, int inscol)
 		{
 			if (variables.IsActive())
-				storage.PasteTranspMatrix(Cq, variables.GetOffset(), inscol);
+				storage.PasteTranspMatrix(Cq.matrix, variables.GetOffset(), inscol);
 		}
 
 

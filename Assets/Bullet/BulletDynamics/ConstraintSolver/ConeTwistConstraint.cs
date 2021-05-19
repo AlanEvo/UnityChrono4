@@ -551,7 +551,7 @@ namespace BulletXNA.BulletDynamics
 					{
 						m_solveSwingLimit = true;
 
-						// compute limit ratio: 0->1, where
+						// compute limit ratio: 0.1, where
 						// 0 == beginning of soft limit
 						// 1 == hard/real limit
 						m_swingLimitRatio = 1f;
@@ -828,7 +828,7 @@ namespace BulletXNA.BulletDynamics
 
 		public IndexedVector3 GetPointForAngle(float fAngleInRadians, float fLength)
 		{
-			// compute x/y in ellipse using cone angle (0 -> 2*PI along surface of cone)
+			// compute x/y in ellipse using cone angle (0 . 2*PI along surface of cone)
 			float xEllipse = (float)Math.Cos(fAngleInRadians);
 			float yEllipse = (float)Math.Sin(fAngleInRadians);
 

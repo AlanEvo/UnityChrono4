@@ -49,7 +49,7 @@ namespace chrono
                     RemoveCollisionModelsFromSystem();
             }
             system = m_system;  // set here
-            bool nurse = GetCollide();
+
             if (system)
             {
                 if (GetCollide()) { }
@@ -203,9 +203,9 @@ namespace chrono
                                    ChStateDelta Dv     //< state vector, increment
     )
     {
-       /* for (int i = 0; i < GetDOF(); ++i){
-                x_new[off_x + i] = x[off_x + i] + Dv[off_v + i];
-        }*/
+        for (int i = 0; i < GetDOF(); ++i){
+                x_new.matrix[off_x + i] = x.matrix[off_x + i] + Dv.matrix[off_v + i];
+        }
     }
 
         /// Takes the F force term, scale and adds to R at given offset:

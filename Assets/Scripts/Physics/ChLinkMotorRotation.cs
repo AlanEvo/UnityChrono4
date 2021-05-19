@@ -115,14 +115,14 @@ namespace chrono
             base.update(mytime, update_assets);
 
             // compute aux data for future reference (istantaneous pos speed accel)
-           /* ChFrameMoving<double> aframe1 = ChFrameMoving<double>.BitShiftRight((ChFrameMoving<double>)this.frame1, (this.Body1));
+            ChFrameMoving<double> aframe1 = ChFrameMoving<double>.BitShiftRight((ChFrameMoving<double>)this.frame1, (this.Body1));
             ChFrameMoving<double> aframe2 = ChFrameMoving<double>.BitShiftRight((ChFrameMoving<double>)this.frame2, (this.Body2));
             ChFrameMoving<double> aframe12 = new ChFrameMoving<double>();
-            aframe2.TransformParentToLocal(aframe1, aframe12);*/
+            aframe2.TransformParentToLocal(aframe1, aframe12);
 
 
             // multi-turn rotation code
-           /* double last_totrot = this.mrot;
+            double last_totrot = this.mrot;
             double last_rot = (double)decimal.Remainder(Convert.ToDecimal(last_totrot), Convert.ToDecimal(ChMaths.CH_C_2PI));
             double last_turns = last_totrot - last_rot;
             double new_rot = (double)decimal.Remainder(Convert.ToDecimal(aframe12.GetRot().Q_to_Rotv().z), Convert.ToDecimal(ChMaths.CH_C_2PI));
@@ -133,7 +133,7 @@ namespace chrono
                 this.mrot = last_turns + new_rot - ChMaths.CH_C_2PI;
 
             this.mrot_dt = aframe12.GetWvel_loc().z;
-            this.mrot_dtdt = aframe12.GetWacc_loc().z;*/
+            this.mrot_dtdt = aframe12.GetWacc_loc().z;
         }
 
         // aux data for optimization

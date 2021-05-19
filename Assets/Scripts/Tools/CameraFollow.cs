@@ -110,7 +110,7 @@ namespace chrono
 
                 if (!firstFrame)
                 {
-                    targetForward = Vector3.SmoothDamp(prevTargetForward, target.forward, ref targetForwardVelocity, smoothing);
+                    targetForward = Vector3.SmoothDamp(prevTargetForward, target.right, ref targetForwardVelocity, smoothing);
                 }
                 else
                 {
@@ -130,7 +130,7 @@ namespace chrono
                     desiredPosition = hit.point + Vector3.up * 0.8f;
                 }
 
-                transform.position = desiredPosition;
+               // transform.position = desiredPosition;
                 transform.LookAt(target.position + Vector3.up * targetUpOffset + target.forward * targetForwardOffset);
                 transform.rotation = UnityEngine.Quaternion.AngleAxis(-angle * angleFollowStrength, Vector3.forward) * transform.rotation;
             //}

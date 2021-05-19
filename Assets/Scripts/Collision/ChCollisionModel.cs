@@ -135,14 +135,14 @@ namespace chrono
             /// Add a triangle mesh to this model, passing a triangle mesh.
             /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
             /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
-           /* public abstract bool AddTriangleMesh(                           //
-                geometry.ChTriangleMesh trimesh,  //< the triangle mesh
+            public abstract bool AddTriangleMesh(                           //
+                geometry.ChTriangleMeshConnected trimesh,  //< the triangle mesh
                 bool is_static,                                     //< true if model doesn't move. May improve performance.
                 bool is_convex,                                     //< if true, a convex hull is used. May improve robustness.
-                ChVector<double> pos,               //< displacement respect to COG
+                ChVector pos,               //< displacement respect to COG
                 ChMatrix33<double> rot,          //< the rotation of the mesh
                 double sphereswept_thickness                  //< outward sphere-swept layer (when supported)
-                );*/
+                );
 
             /// Sets the position and orientation of the collision
             /// model as the rigid body current position.

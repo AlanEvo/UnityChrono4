@@ -162,7 +162,7 @@ namespace chrono
         public double GetForceMod() { return force.Length(); }
 
         /// Gets force-torque applied to rigid body, as lagrangian generalized force (7x1 matrix).
-        public ChMatrix GetQf() { return Qf; }
+        public ChMatrix GetQf() { return Qf.matrix; }
         /// Gets force-torque applied to rigid body, as force vector (in absol.coords)
         /// and torque vector (in body coords).
         public void GetBodyForceTorque(ref ChVector body_force, ref ChVector body_torque) { }

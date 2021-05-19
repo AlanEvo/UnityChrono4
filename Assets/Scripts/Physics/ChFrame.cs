@@ -27,7 +27,7 @@ namespace chrono
         public ChCoordsys coord = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));  //< Rotation and position, as vector+quaternion
 
         // Auxiliary, for faster transformation of many coordinates      
-        public ChMatrix33<Real> Amatrix = new ChMatrix33<Real>();  //< 3x3 orthogonal rotation matrix
+        public ChMatrix33<Real> Amatrix = new ChMatrix33<Real>(0);  //< 3x3 orthogonal rotation matrix
 
         public static ChFrame<Real> FNULL = new ChFrame<Real>();
 
@@ -93,10 +93,17 @@ namespace chrono
         /// That is: c=A*b ; b=A/c;
         public static ChVector operator /(ChFrame<Real> frame, ChVector V) { return frame.TransformParentToLocal(V); }
 
-        public static ChFrame<double> BitShiftRight(ChFrame<double> Fa, ChFrame<double> Fb)
+        public static ChFrame<Real> BitShiftRight(ChFrame<Real> Fa, ChFrame<Real> Fb)
         {
-            ChFrame<double> res = new ChFrame<double>();
+            ChFrame<Real> res = new ChFrame<Real>();
             Fb.TransformLocalToParent(Fa, res);
+            return res;
+        }
+
+        public ChFrame<Real> BitShiftRight(ChFrame<Real> Fb)
+        {
+            ChFrame<Real> res = new ChFrame<Real>();
+            Fb.TransformLocalToParent(this, res);
             return res;
         }
 
@@ -106,7 +113,7 @@ namespace chrono
         public virtual void Invert()
         {
             coord.rot.Conjugate();
-            Amatrix.MatrTranspose();
+            Amatrix.nm.matrix.MatrTranspose();
             coord.pos = -Amatrix.Matr_x_Vect(coord.pos);
         }
 
@@ -258,7 +265,7 @@ namespace chrono
         public virtual void SetRot(ChMatrix33<Real> mA)
         {
             coord.rot = mA.Get_A_quaternion();
-            Amatrix.CopyFromMatrix(mA);
+            Amatrix.nm.matrix.CopyFromMatrix(mA.nm.matrix);
         }
 
         /// Impose the translation
@@ -270,11 +277,11 @@ namespace chrono
         public virtual void SetIdentity()
         {
             coord.SetIdentity();
-            Amatrix.SetIdentity();
+            Amatrix.nm.matrix.SetIdentity();
         }
 
-        public ChFrameMoving<Real> GetInverse() {
-            ChFrameMoving<Real> tmp = new ChFrameMoving<Real>(this);
+        public ChFrame<Real> GetInverse() {
+            ChFrame<Real> tmp = new ChFrame<Real>(this);
             tmp.Invert();
             return tmp;
         }
@@ -287,18 +294,18 @@ namespace chrono
             double de1 = 2 * mq.e1;
             double de2 = 2 * mq.e2;
             double de3 = 2 * mq.e3;
-            Gl[0] = -de1;
-            Gl[1] = de0;
-            Gl[2] = de3;
-            Gl[3] = -de2;
-            Gl[4] = -de2;
-            Gl[5] = -de3;
-            Gl[6] = de0;
-            Gl[7] = de1;
-            Gl[8] = -de3;
-            Gl[9] = de2;
-            Gl[10] = -de1;
-            Gl[11] = de0;
+            Gl.matrix[0] = -de1;
+            Gl.matrix[1] = de0;
+            Gl.matrix[2] = de3;
+            Gl.matrix[3] = -de2;
+            Gl.matrix[4] = -de2;
+            Gl.matrix[5] = -de3;
+            Gl.matrix[6] = de0;
+            Gl.matrix[7] = de1;
+            Gl.matrix[8] = -de3;
+            Gl.matrix[9] = de2;
+            Gl.matrix[10] = -de1;
+            Gl.matrix[11] = de0;
         }
 
         /// Fast fill a 3x4 matrix [Gl(q)], as in local angular speed conversion
@@ -332,53 +339,53 @@ namespace chrono
             double de1 = 2 * mq.e1;
             double de2 = 2 * mq.e2;
             double de3 = 2 * mq.e3;
-            Gw[0] = -de1;
-            Gw[1] = de0;
-            Gw[2] = -de3;
-            Gw[3] = de2;
-            Gw[4] = -de2;
-            Gw[5] = de3;
-            Gw[6] = de0;
-            Gw[7] = -de1;
-            Gw[8] = -de3;
-            Gw[9] = -de2;
-            Gw[10]= de1;
-            Gw[11] = de0;
+            Gw.matrix[0] = -de1;
+            Gw.matrix[1] = de0;
+            Gw.matrix[2] = -de3;
+            Gw.matrix[3] = de2;
+            Gw.matrix[4] = -de2;
+            Gw.matrix[5] = de3;
+            Gw.matrix[6] = de0;
+            Gw.matrix[7] = -de1;
+            Gw.matrix[8] = -de3;
+            Gw.matrix[9] = -de2;
+            Gw.matrix[10]= de1;
+            Gw.matrix[11] = de0;
         }
 
         /// Fills a 3x4 matrix [Fp(q)], as in  [Fp(q)]*[Fm(q)]' = [A(q)]
         public static void SetMatrix_Fp(ref ChMatrixNM<IntInterface.Three, IntInterface.Four> Fp,  ChQuaternion mq) {
             //Debug.Assert((Fp.GetRows() == 3) && (Fp.GetColumns() == 4));
-            Fp[0] = mq.e1;
-            Fp[1] = mq.e0;
-            Fp[2] = -mq.e3;
-            Fp[3] = mq.e2;
-            Fp[4] = mq.e2;
-            Fp[5] = mq.e3;
-            Fp[6] = mq.e0;
-            Fp[7] = -mq.e1;
-            Fp[8] = mq.e3;
-            Fp[9] = -mq.e2;
-            Fp[10] = mq.e1;
-            Fp[11] = mq.e0;
+            Fp.matrix[0] = mq.e1;
+            Fp.matrix[1] = mq.e0;
+            Fp.matrix[2] = -mq.e3;
+            Fp.matrix[3] = mq.e2;
+            Fp.matrix[4] = mq.e2;
+            Fp.matrix[5] = mq.e3;
+            Fp.matrix[6] = mq.e0;
+            Fp.matrix[7] = -mq.e1;
+            Fp.matrix[8] = mq.e3;
+            Fp.matrix[9] = -mq.e2;
+            Fp.matrix[10] = mq.e1;
+            Fp.matrix[11] = mq.e0;
         }
 
         /// Fills a 3x4 matrix [Fm(q)], as in  [Fp(q)]*[Fm(q)]' = [A(q)]
         public static void SetMatrix_Fm(ref ChMatrixNM<IntInterface.Three, IntInterface.Four> Fp,  ChQuaternion mq)
         {
            // Debug.Assert((Fp.GetRows() == 3) && (Fp.GetColumns() == 4));
-            Fp[0] = mq.e1;
-            Fp[1] = mq.e0;
-            Fp[2] = mq.e3;
-            Fp[3] = -mq.e2;
-            Fp[4] = mq.e2;
-            Fp[5] = -mq.e3;
-            Fp[6] = mq.e0;
-            Fp[7] = mq.e1;
-            Fp[8] = mq.e3;
-            Fp[9] = mq.e2;
-            Fp[10] = -mq.e1;
-            Fp[11] = mq.e0;
+            Fp.matrix[0] = mq.e1;
+            Fp.matrix[1] = mq.e0;
+            Fp.matrix[2] = mq.e3;
+            Fp.matrix[3] = -mq.e2;
+            Fp.matrix[4] = mq.e2;
+            Fp.matrix[5] = -mq.e3;
+            Fp.matrix[6] = mq.e0;
+            Fp.matrix[7] = mq.e1;
+            Fp.matrix[8] = mq.e3;
+            Fp.matrix[9] = mq.e2;
+            Fp.matrix[10] = -mq.e1;
+            Fp.matrix[11] = mq.e0;
         }
 
 

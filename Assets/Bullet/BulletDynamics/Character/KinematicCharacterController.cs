@@ -92,7 +92,7 @@ namespace BulletXNA.BulletDynamics
 						}
 					}
 
-					//manifold->clearManifold();
+					//manifold.clearManifold();
 				}
 			}
 			IndexedMatrix newTrans = m_ghostObject.GetWorldTransform();
@@ -309,7 +309,7 @@ namespace BulletXNA.BulletDynamics
 
 			if (callback.HasHit())
 			{
-				// we dropped a fraction of the height -> hit floor
+				// we dropped a fraction of the height . hit floor
 				m_currentPosition = MathUtil.Interpolate3(ref m_currentPosition, ref m_targetPosition, callback.m_closestHitFraction);
                 m_verticalVelocity = 0.0f;
                 m_verticalOffset = 0.0f;
@@ -619,7 +619,7 @@ namespace BulletXNA.BulletDynamics
 	///@todo Interact with dynamic objects,
 	///Ride kinematicly animated platforms properly
 	///More realistic (or maybe just a config option) falling
-	/// -> Should integrate falling velocity manually and use that in stepDown()
+	/// . Should integrate falling velocity manually and use that in stepDown()
 	///Support jumping
 	///Support ducking
 	public class KinematicClosestNotMeRayResultCallback : ClosestRayResultCallback

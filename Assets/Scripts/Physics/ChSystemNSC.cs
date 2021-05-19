@@ -101,6 +101,10 @@ namespace chrono
 
                 // Set default solver
                 SetSolverType(solverType);
+
+                // Set default collision envelope and margin.
+                collision.ChCollisionModel.SetDefaultSuggestedEnvelope(0.03);
+               // collision.ChCollisionModel.SetDefaultSuggestedMargin(0.01);
             }
         }
 

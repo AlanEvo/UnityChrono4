@@ -40,8 +40,8 @@ namespace BulletXNA.BulletCollision
                                         convexB, ref transB,
                                         ref guessVector, ref results))
             {
-                //	debugDraw->drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
-                //resultOut->addContactPoint(results.normal,results.witnesses[1],-results.depth);
+                //	debugDraw.drawLine(results.witnesses[1],results.witnesses[1]+results.normal,btVector3(255,0,0));
+                //resultOut.addContactPoint(results.normal,results.witnesses[1],-results.depth);
                 wWitnessOnA = results.witnesses0;
                 wWitnessOnB = results.witnesses1;
                 v = results.normal;

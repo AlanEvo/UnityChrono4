@@ -123,7 +123,7 @@ namespace chrono
 
         /* U* PointerUpCast()
          {
-             try { this->thrower(); }
+             try { this.thrower(); }
              catch (U* ptr) { return static_cast<U*>(ptr); }
              catch (...) { }
              return 0;
@@ -232,7 +232,7 @@ namespace chrono
             cut_all_pointers = false;
 
             internal_ptr_id.Clear();
-            internal_ptr_id[0] = (0);  // ID=0 -> null pointer.
+            internal_ptr_id[0] = (0);  // ID=0 . null pointer.
             currentID = 0;
         }
 

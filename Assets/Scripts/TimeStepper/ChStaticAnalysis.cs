@@ -76,7 +76,7 @@ namespace chrono
             mintegrable.StateGather(ref X, ref V, ref T);  // state <- system
 
             // Set V speed to zero
-            V.FillElem(0);
+            V.matrix.FillElem(0);
             mintegrable.StateScatter(X, V, T);  // state -> system
 
             // Solve:
@@ -149,7 +149,7 @@ namespace chrono
             mintegrable.StateGather(ref X, ref V, ref T);  // state <- system
 
             // Set speed to zero
-            V.FillElem(0);
+            V.matrix.FillElem(0);
 
             // Extrapolate a prediction as warm start
             Xnew = X;
@@ -173,7 +173,7 @@ namespace chrono
 
                 //	GetLog()<< "Non-linear statics iteration=" << i << "  |R|=" << R.NormInf() << "  |Qc|=" << Qc.NormInf()
                 //<< "\n";
-                if ((R.NormInf() < this.GetTolerance()) && (Qc.NormInf() < this.GetTolerance()))
+                if ((R.matrix.NormInf() < this.GetTolerance()) && (Qc.matrix.NormInf() < this.GetTolerance()))
                     break;
 
                 mintegrable.StateSolveCorrection(

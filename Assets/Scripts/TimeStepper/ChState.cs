@@ -15,7 +15,7 @@ namespace chrono
 
         public ChState(int nrows, ChIntegrable mint) : base(nrows) { integrable = mint; }
 
-        public ChState(ChMatrixDynamic<double> matr, ChIntegrable mint) : base(matr) {
+        public ChState(ChMatrixDynamic<double> matr, ChIntegrable mint) : base(matr.matrix) {
             integrable = mint;
         }
 
@@ -41,7 +41,7 @@ namespace chrono
     public static ChState operator -(ChState a, ChMatrix matbis)
         {
             ChState result = new ChState(matbis.rows, a.integrable);
-            result.MatrSub(result, matbis);
+            result.matrix.MatrSub(result.matrix, matbis);
             return result;
         }
 
@@ -75,7 +75,7 @@ namespace chrono
 
         public ChStateDelta(int nrows, ChIntegrable mint) : base(nrows) { integrable = mint; }
 
-        public ChStateDelta(ChMatrixDynamic<double> matr, ChIntegrable mint) : base(matr) {
+        public ChStateDelta(ChMatrixDynamic<double> matr, ChIntegrable mint) : base(matr.matrix) {
             integrable = mint;
         }
 
@@ -85,7 +85,7 @@ namespace chrono
         /// Increments this matrix by another matrix, in place
         public static ChStateDelta operator +(ChStateDelta state, ChMatrix matbis)
         {
-            state.MatrInc(matbis);
+            state.matrix.MatrInc(matbis);
             return state;
         }
 
@@ -94,21 +94,21 @@ namespace chrono
         public static ChStateDelta operator -(ChStateDelta a, ChMatrix matbis)
         {
             ChStateDelta result = new ChStateDelta(matbis.rows, a.integrable);
-            result.MatrSub(a, matbis);
+            result.matrix.MatrSub(a.matrix, matbis);
             return result;
         }
 
         public static ChStateDelta operator -(ChStateDelta a, ChStateDelta matbis)
         {
-            ChStateDelta result = new ChStateDelta(matbis.rows, a.integrable);
-            result.MatrSub(a, matbis);
+            ChStateDelta result = new ChStateDelta(matbis.matrix.rows, a.integrable);
+            result.matrix.MatrSub(a.matrix, matbis.matrix);
             return result;
         }
 
         public static ChStateDelta operator *(ChStateDelta a, double factor)
         {
             ChStateDelta result = new ChStateDelta(a);
-            result.MatrScale(factor);
+            result.matrix.MatrScale(factor);
             return result;
         }
 
@@ -116,7 +116,7 @@ namespace chrono
         // Performance warning: a new object is created.
         public static ChStateDelta operator -(ChStateDelta a)
         {
-            a.MatrNeg();
+            a.matrix.MatrNeg();
             return a;
         }
 

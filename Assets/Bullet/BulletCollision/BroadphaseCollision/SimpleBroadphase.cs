@@ -233,7 +233,7 @@ namespace BulletXNA.BulletCollision
 
                             if (hasOverlap)
                             {
-                                needsRemoval = false;//callback->processOverlap(pair);
+                                needsRemoval = false;//callback.processOverlap(pair);
                             }
                             else
                             {

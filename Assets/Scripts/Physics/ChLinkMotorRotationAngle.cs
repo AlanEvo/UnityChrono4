@@ -56,10 +56,18 @@ namespace chrono
             msystem.AddLink(this);
         }
 
-        /// Set the rotation angle function of time a(t).
-        /// This function should be C0 continuous and, to prevent acceleration spikes,
-        /// it should ideally be C1 continuous.
-        public void SetAngleFunction(ChFunction function) { SetMotorFunction(function); }
+        protected virtual void OnDrawGizmos()
+        {
+
+            Gizmos.color = new Color(0, 255, 0);
+            Gizmos.DrawLine(transform.position, transform.position + (transform.forward * 0.2f));
+
+        }
+
+            /// Set the rotation angle function of time a(t).
+            /// This function should be C0 continuous and, to prevent acceleration spikes,
+            /// it should ideally be C1 continuous.
+            public void SetAngleFunction(ChFunction function) { SetMotorFunction(function); }
 
         /// Get the rotation angle function f(t).
         public ChFunction GetAngleFunction() { return GetMotorFunction();
@@ -85,13 +93,13 @@ namespace chrono
 
             if (this.Body1 != null && this.Body2 != null)
             {
-                ChFrame<double> aframe1 = ChFrame<double>.BitShiftRight(this.frame1 , (this.Body1));
-                ChFrame<double> aframe2 = ChFrame<double>.BitShiftRight(this.frame2 , (this.Body2));
+                ChFrame<double> aframe1 = this.frame1.BitShiftRight(this.Body1);
+                ChFrame<double> aframe2 = this.frame2.BitShiftRight(this.Body2);
 
-                ChFrame<double> aframe12 = new ChFrame<double>();
+                ChFrame<double> aframe12 = new ChFrame<double>();// ChFrame<double>.FNULL;
                 aframe2.TransformParentToLocal(aframe1, aframe12);
 
-                ChFrame<double> aframe2rotating = new ChFrame<double>();
+                ChFrame<double> aframe2rotating = new ChFrame<double>();// ChFrame<double>.FNULL;
 
                 double aux_rotation;
 
@@ -100,26 +108,26 @@ namespace chrono
                 aframe2rotating.SetRot(aframe2.GetRot() * ChQuaternion.Q_from_AngAxis2(aux_rotation, ChVector.VECT_Z));
 
                 ChFrame<double> aframe12rotating = new ChFrame<double>();
-                //aframe2rotating.TransformParentToLocal(aframe1, aframe12rotating);
+               // aframe2rotating.TransformParentToLocal(aframe1, aframe12rotating);
 
-                ChMatrix33<double> Jw1 = new ChMatrix33<double>(), Jw2 = new ChMatrix33<double>();
-                ChMatrix33<double> mtempM = new ChMatrix33<double>(), mtempQ = new ChMatrix33<double>();
+                ChMatrix33<double> Jw1 = new ChMatrix33<double>(0), Jw2 = new ChMatrix33<double>(0);
+                ChMatrix33<double> mtempM = new ChMatrix33<double>(0), mtempQ = new ChMatrix33<double>(0);
 
                 ChMatrix33<double> abs_plane_rotating = aframe2rotating.GetA();
 
-                Jw1.MatrTMultiply(abs_plane_rotating, Body1.GetA());
-                Jw2.MatrTMultiply(abs_plane_rotating, Body2.GetA());
+                Jw1.nm.matrix.MatrTMultiply(abs_plane_rotating.nm.matrix, Body1.GetA().nm.matrix);
+                Jw2.nm.matrix.MatrTMultiply(abs_plane_rotating.nm.matrix, Body2.GetA().nm.matrix);
 
-                Jw2.MatrNeg();
+                Jw2.nm.matrix.MatrNeg();
 
                 // Premultiply by Jw1 and Jw2 by  0.5*[Fp(q_resid)]' to get residual as imaginary part of a quaternion.
-               /* mtempM.Set_X_matrix((aframe12rotating.GetRot().GetVector()) * 0.5);
-                mtempM[0, 0] = 0.5 * aframe12rotating.GetRot().e0;
-                mtempM[1, 1] = 0.5 * aframe12rotating.GetRot().e0;
-                mtempM[2, 2] = 0.5 * aframe12rotating.GetRot().e0;
-                mtempQ.MatrTMultiply(mtempM, Jw1);
+              /*  mtempM.Set_X_matrix((aframe12rotating.GetRot().GetVector()) * 0.5);
+                mtempM.nm.matrix[0, 0] = 0.5 * aframe12rotating.GetRot().e0;
+                mtempM.nm.matrix[1, 1] = 0.5 * aframe12rotating.GetRot().e0;
+                mtempM.nm.matrix[2, 2] = 0.5 * aframe12rotating.GetRot().e0;
+                mtempQ.nm.matrix.MatrTMultiply(mtempM.nm.matrix, Jw1.nm.matrix);
                 Jw1 = mtempQ;
-                mtempQ.MatrTMultiply(mtempM, Jw2);
+                mtempQ.nm.matrix.MatrTMultiply(mtempM.nm.matrix, Jw2.nm.matrix);
                 Jw2 = mtempQ;*/
 
                 int nc = 0;
@@ -138,29 +146,29 @@ namespace chrono
                 }
                 if (c_rx)
                 {
-                    this.C.ElementN(nc) = aframe12rotating.GetRot().e1;
+                    this.C.matrix.ElementN(nc) = aframe12rotating.GetRot().e1;
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 0, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 0, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 0, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 0, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_ry)
                 {
-                    this.C.ElementN(nc) = aframe12rotating.GetRot().e2;
+                    this.C.matrix.ElementN(nc) = aframe12rotating.GetRot().e2;
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 1, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 1, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 1, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 1, 0, 1, 3, 0, 3);
                     nc++;
                 }
                 if (c_rz)
                 {
-                    this.C.ElementN(nc) = aframe12rotating.GetRot().e3;
+                    this.C.matrix.ElementN(nc) = aframe12rotating.GetRot().e3;
                     this.mask.Constr_N(nc).Get_Cq_a().FillElem(0);
                     this.mask.Constr_N(nc).Get_Cq_b().FillElem(0);
-                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1, 2, 0, 1, 3, 0, 3);
-                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2, 2, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_a().PasteClippedMatrix(Jw1.nm.matrix, 2, 0, 1, 3, 0, 3);
+                    this.mask.Constr_N(nc).Get_Cq_b().PasteClippedMatrix(Jw2.nm.matrix, 2, 0, 1, 3, 0, 3);
                     nc++;
                 }
             }
@@ -174,7 +182,7 @@ namespace chrono
             int ncrz = mask.nconstr - 1;
             if (mask.Constr_N(ncrz).IsActive())
             {
-                Qc[off_L + ncrz] += c * mCt;
+                Qc.matrix[off_L + ncrz] += c * mCt;
             }
         }
 

@@ -83,9 +83,9 @@ namespace BulletXNA.BulletDynamics
                     out info.m_solverConstraints[2].m_relpos1CrossNormal);
             }
 
-            /*info->m_J2linearAxis[0] = -1;
-            info->m_J2linearAxis[s+1] = -1;
-            info->m_J2linearAxis[2*s+2] = -1;
+            /*info.m_J2linearAxis[0] = -1;
+            info.m_J2linearAxis[s+1] = -1;
+            info.m_J2linearAxis[2*s+2] = -1;
             */
 
             IndexedVector3 a2 = body1_trans._basis * GetPivotInB();
@@ -109,7 +109,7 @@ namespace BulletXNA.BulletDynamics
             for (j = 0; j < 3; j++)
             {
                 info.m_solverConstraints[j].m_rhs = k * (a2[j] + body1Origin[j] - a1[j] - body0Origin[j]);
-                //printf("info->m_constraintError[%d]=%f\n",j,info->m_constraintError[j]);
+                //printf("info.m_constraintError[%d]=%f\n",j,info.m_constraintError[j]);
             }
 
             if ((m_flags & Point2PointFlags.BT_P2P_FLAGS_CFM) != 0)

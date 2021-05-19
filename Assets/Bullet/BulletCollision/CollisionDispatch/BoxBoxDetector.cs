@@ -601,8 +601,8 @@ namespace BulletXNA.BulletCollision
                 for (int j = 0; j < maxc; j++)
                 {
                     //      dContactGeom *con = CONTACT(contact,skip*j);
-                    //    for (i=0; i<3; i++) con->pos[i] = point[iret[j]*3+i] + pa[i];
-                    //  con->depth = dep[iret[j]];
+                    //    for (i=0; i<3; i++) con.pos[i] = point[iret[j]*3+i] + pa[i];
+                    //  con.depth = dep[iret[j]];
                     IndexedVector3 posInWorldFA = new IndexedVector3(); ;
                     for (int i = 0; i < 3; i++)
                     {

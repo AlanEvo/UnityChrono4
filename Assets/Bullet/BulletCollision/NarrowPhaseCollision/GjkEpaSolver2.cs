@@ -869,9 +869,9 @@ namespace BulletXNA.BulletCollision
             }
             public static void Remove(IList<sFace> list,sFace face)
             {
-                //if(face->l[1]) face->l[1]->l[0]=face->l[0];
-                //if(face->l[0]) face->l[0]->l[1]=face->l[1];
-                //if(face==list.root) list.root=face->l[1];
+                //if(face.l[1]) face.l[1].l[0]=face.l[0];
+                //if(face.l[0]) face.l[0].l[1]=face.l[1];
+                //if(face==list.root) list.root=face.l[1];
                 //--list.count;
                 list.Remove(face);
             }

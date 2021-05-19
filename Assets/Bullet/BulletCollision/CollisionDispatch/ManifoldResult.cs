@@ -174,7 +174,7 @@ namespace BulletXNA.BulletCollision
             ///@todo, check this for any side effects
             if (insertIndex >= 0)
             {
-                //const btManifoldPoint& oldPoint = m_manifoldPtr->getContactPoint(insertIndex);
+                //const btManifoldPoint& oldPoint = m_manifoldPtr.getContactPoint(insertIndex);
                 m_manifoldPtr.ReplaceContactPoint(newPt, insertIndex);
             }
             else
@@ -218,7 +218,7 @@ namespace BulletXNA.BulletCollision
             }
         }
 
-        ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+        ///User can override this material combiner by implementing gContactAddedCallback and setting body0.m_collisionFlags |= btCollisionObject::customMaterialCallback;
         private float CalculateCombinedFriction(CollisionObject body0, CollisionObject body1)
         {
             float friction = body0.GetFriction() * body1.GetFriction();

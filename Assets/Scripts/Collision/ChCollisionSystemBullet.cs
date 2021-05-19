@@ -254,16 +254,60 @@ namespace chrono
 
 
             /// Perform a ray-hit test with the collision models.
-            public override bool RayHit(ChVector from, ChVector to, ref ChRayhitResult mresult) { return false; }
+            public override bool RayHit(ChVector from, 
+                                        ChVector to,
+                                        ChCollisionModel model,
+                                        ref ChRayhitResult mresult) {
+                return RayHit(from, to, model, ref mresult, CollisionFilterGroups.DefaultFilter, CollisionFilterGroups.AllFilter); 
+            }
 
             /// Perform a ray-hit test with the specified collision model.
             public override bool RayHit(ChVector from,
                         ChVector to,
-
                         ChCollisionModel model,
-                        ref ChRayhitResult mresult)
+                        ref ChRayhitResult mresult,
+                        CollisionFilterGroups filter_group,
+                        CollisionFilterGroups filter_mask)
             {
-                return false;
+                IndexedVector3 btfrom = new IndexedVector3((float)from.x, (float)from.y, (float)from.z);
+                IndexedVector3 btto = new IndexedVector3((float)to.x, (float)to.y, (float)to.z);
+
+                BulletXNA.BulletCollision.AllHitsRayResultCallback rayCallback = new AllHitsRayResultCallback(btfrom, btto);
+                rayCallback.m_collisionFilterGroup = filter_group;
+                rayCallback.m_collisionFilterMask = filter_mask;
+
+                this.bt_collision_world.rayTest(btfrom, btto, rayCallback);
+
+                // Find the closest hit result on the specified model (if any)
+                int hit = -1;
+                float fraction = 1;
+                for (int i = 0; i < rayCallback.m_collisionObjects.Count; ++i)
+                {
+                    if (rayCallback.m_collisionObjects[i].GetUserPointer() == model && rayCallback.m_hitFractions[i] < fraction)
+                    {
+                        hit = i;
+                        fraction = rayCallback.m_hitFractions[i];
+                    }
+                }
+
+                // Ray does not hit specified model
+                if (hit == -1)
+                {
+                    mresult.hit = false;
+                    return false;
+                }
+
+                // Return the closest hit on the specified model
+                mresult.hit = true;
+                mresult.hitModel = (ChCollisionModel)(rayCallback.m_collisionObjects[hit].GetUserPointer());
+                mresult.abs_hitPoint.Set(rayCallback.m_hitPointWorld[hit].X, rayCallback.m_hitPointWorld[hit].Y,
+                                         rayCallback.m_hitPointWorld[hit].Z);
+                mresult.abs_hitNormal.Set(rayCallback.m_hitNormalWorld[hit].X, rayCallback.m_hitNormalWorld[hit].Y,
+                                          rayCallback.m_hitNormalWorld[hit].Z);
+                mresult.abs_hitNormal.Normalize();
+                mresult.dist_factor = fraction;
+                mresult.abs_hitPoint = mresult.abs_hitPoint - mresult.abs_hitNormal * mresult.hitModel.GetEnvelope();
+                return true;
             }
 
 

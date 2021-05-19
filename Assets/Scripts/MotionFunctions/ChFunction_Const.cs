@@ -39,7 +39,7 @@ namespace chrono
 
         public void Awake()
         {
-            Set_yconst(constant_val);
+          //  Set_yconst(constant_val);
         }
     }
 

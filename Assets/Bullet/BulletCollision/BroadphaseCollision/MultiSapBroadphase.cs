@@ -76,7 +76,7 @@ namespace BulletXNA.BulletCollision
 
         public virtual BroadphaseProxy CreateProxy(ref IndexedVector3 aabbMin, ref IndexedVector3 aabbMax, BroadphaseNativeTypes shapeType, Object userPtr, CollisionFilterGroups collisionFilterGroup, CollisionFilterGroups collisionFilterMask, IDispatcher dispatcher, Object multiSapProxy)
         {
-            //void* ignoreMe -> we could think of recursive multi-sap, if someone is interested
+            //void* ignoreMe . we could think of recursive multi-sap, if someone is interested
 
             MultiSapProxy proxy = new MultiSapProxy(ref aabbMin, ref aabbMax, shapeType, userPtr, collisionFilterGroup, collisionFilterMask);
             m_multiSapProxies.Add(proxy);
@@ -136,29 +136,29 @@ namespace BulletXNA.BulletCollision
                 {
                     btBroadphaseInterface* childBroadphase = getBroadphaseArray()[i];
                     btVector3 worldAabbMin,worldAabbMax;
-                    childBroadphase->getBroadphaseAabb(worldAabbMin,worldAabbMax);
-                    bool overlapsBroadphase = TestAabbAgainstAabb2(worldAabbMin,worldAabbMax,multiProxy->m_aabbMin,multiProxy->m_aabbMax);
+                    childBroadphase.getBroadphaseAabb(worldAabbMin,worldAabbMax);
+                    bool overlapsBroadphase = TestAabbAgainstAabb2(worldAabbMin,worldAabbMax,multiProxy.m_aabbMin,multiProxy.m_aabbMax);
 			
-                //	fullyContained = fullyContained || boxIsContainedWithinBox(worldAabbMin,worldAabbMax,multiProxy->m_aabbMin,multiProxy->m_aabbMax);
+                //	fullyContained = fullyContained || boxIsContainedWithinBox(worldAabbMin,worldAabbMax,multiProxy.m_aabbMin,multiProxy.m_aabbMax);
                     int containingBroadphaseIndex = -1;
 			
                     //if already contains this
 			
-                    for (int i=0;i<multiProxy->m_bridgeProxies.size();i++)
+                    for (int i=0;i<multiProxy.m_bridgeProxies.size();i++)
                     {
-                        if (multiProxy->m_bridgeProxies[i]->m_childBroadphase == childBroadphase)
+                        if (multiProxy.m_bridgeProxies[i].m_childBroadphase == childBroadphase)
                         {
                             containingBroadphaseIndex = i;
                         }
-                        alreadyInSimple = alreadyInSimple || (multiProxy->m_bridgeProxies[i]->m_childBroadphase == m_simpleBroadphase);
+                        alreadyInSimple = alreadyInSimple || (multiProxy.m_bridgeProxies[i].m_childBroadphase == m_simpleBroadphase);
                     }
 
                     if (overlapsBroadphase)
                     {
                         if (containingBroadphaseIndex<0)
                         {
-                            btBroadphaseProxy* childProxy = childBroadphase->createProxy(aabbMin,aabbMax,multiProxy->m_shapeType,multiProxy->m_clientObject,multiProxy->m_collisionFilterGroup,multiProxy->m_collisionFilterMask, dispatcher);
-                            childProxy->m_multiSapParentProxy = multiProxy;
+                            btBroadphaseProxy* childProxy = childBroadphase.createProxy(aabbMin,aabbMax,multiProxy.m_shapeType,multiProxy.m_clientObject,multiProxy.m_collisionFilterGroup,multiProxy.m_collisionFilterMask, dispatcher);
+                            childProxy.m_multiSapParentProxy = multiProxy;
                             addToChildBroadphase(multiProxy,childProxy,childBroadphase);
                         }
                     } else
@@ -166,13 +166,13 @@ namespace BulletXNA.BulletCollision
                         if (containingBroadphaseIndex>=0)
                         {
                             //remove
-                            btBridgeProxy* bridgeProxy = multiProxy->m_bridgeProxies[containingBroadphaseIndex];
+                            btBridgeProxy* bridgeProxy = multiProxy.m_bridgeProxies[containingBroadphaseIndex];
 
-                            btBroadphaseProxy* childProxy = bridgeProxy->m_childProxy;
-                            bridgeProxy->m_childBroadphase->destroyProxy(childProxy,dispatcher);
+                            btBroadphaseProxy* childProxy = bridgeProxy.m_childProxy;
+                            bridgeProxy.m_childBroadphase.destroyProxy(childProxy,dispatcher);
 					
-                            multiProxy->m_bridgeProxies.swap( containingBroadphaseIndex,multiProxy->m_bridgeProxies.size()-1);
-                            multiProxy->m_bridgeProxies.pop_back();
+                            multiProxy.m_bridgeProxies.swap( containingBroadphaseIndex,multiProxy.m_bridgeProxies.size()-1);
+                            multiProxy.m_bridgeProxies.pop_back();
                         }
                     }
                 }
@@ -180,22 +180,22 @@ namespace BulletXNA.BulletCollision
 
                 ///If we are in no other child broadphase, stick the proxy in the global 'simple' broadphase (brute force)
                 ///hopefully we don't end up with many entries here (can assert/provide feedback on stats)
-                if (0)//!multiProxy->m_bridgeProxies.size())
+                if (0)//!multiProxy.m_bridgeProxies.size())
                 {
                     ///we don't pass the userPtr but our multisap proxy. We need to patch this, before processing an actual collision
                     ///this is needed to be able to calculate the aabb overlap
-                    btBroadphaseProxy* childProxy = m_simpleBroadphase->createProxy(aabbMin,aabbMax,multiProxy->m_shapeType,multiProxy->m_clientObject,multiProxy->m_collisionFilterGroup,multiProxy->m_collisionFilterMask, dispatcher);
-                    childProxy->m_multiSapParentProxy = multiProxy;
+                    btBroadphaseProxy* childProxy = m_simpleBroadphase.createProxy(aabbMin,aabbMax,multiProxy.m_shapeType,multiProxy.m_clientObject,multiProxy.m_collisionFilterGroup,multiProxy.m_collisionFilterMask, dispatcher);
+                    childProxy.m_multiSapParentProxy = multiProxy;
                     addToChildBroadphase(multiProxy,childProxy,m_simpleBroadphase);
                 }
             }
 
-            if (!multiProxy->m_bridgeProxies.size())
+            if (!multiProxy.m_bridgeProxies.size())
             {
                 ///we don't pass the userPtr but our multisap proxy. We need to patch this, before processing an actual collision
                 ///this is needed to be able to calculate the aabb overlap
-                btBroadphaseProxy* childProxy = m_simpleBroadphase->createProxy(aabbMin,aabbMax,multiProxy->m_shapeType,multiProxy->m_clientObject,multiProxy->m_collisionFilterGroup,multiProxy->m_collisionFilterMask, dispatcher);
-                childProxy->m_multiSapParentProxy = multiProxy;
+                btBroadphaseProxy* childProxy = m_simpleBroadphase.createProxy(aabbMin,aabbMax,multiProxy.m_shapeType,multiProxy.m_clientObject,multiProxy.m_collisionFilterGroup,multiProxy.m_collisionFilterMask, dispatcher);
+                childProxy.m_multiSapParentProxy = multiProxy;
                 addToChildBroadphase(multiProxy,childProxy,m_simpleBroadphase);
             }
         */
@@ -287,7 +287,7 @@ namespace BulletXNA.BulletCollision
 
                         if (hasOverlap)
                         {
-                            needsRemoval = false;//callback->processOverlap(pair);
+                            needsRemoval = false;//callback.processOverlap(pair);
                         }
                         else
                         {

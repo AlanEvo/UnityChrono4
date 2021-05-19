@@ -102,9 +102,9 @@ namespace chrono
             //   C = d_error - d_setpoint - d_offset
             // with d_error = x_pos_A- x_pos_B, and d_setpoint = x(t)
             if (this.avoid_position_drift)
-                C.ElementN(0) = this.mpos - aux_dt - this.pos_offset;
+                C.matrix.ElementN(0) = this.mpos - aux_dt - this.pos_offset;
             else
-                C.ElementN(0) = 0.0;
+                C.matrix.ElementN(0) = 0.0;
         }
 
         //
@@ -118,8 +118,8 @@ namespace chrono
                                 int off_v,
                                 ref ChStateDelta v,
                                 ref double T) {
-            x[off_x] = 0;  // aux;
-            v[off_v] = aux_dt;
+            x.matrix[off_x] = 0;  // aux;
+            v.matrix[off_v] = aux_dt;
             T = GetChTime();
         }
 
@@ -129,23 +129,23 @@ namespace chrono
                                  ChStateDelta v,
                                  double T) {
             // aux = x(off_x);
-            aux_dt = v[off_v];
+            aux_dt = v.matrix[off_v];
         }
         public override void IntStateGatherAcceleration(int off_a, ref ChStateDelta a) {
-            a[off_a] = aux_dtdt;
+            a.matrix[off_a] = aux_dtdt;
         }
         public override void IntStateScatterAcceleration(int off_a, ChStateDelta a) {
-            aux_dtdt = a[off_a];
+            aux_dtdt = a.matrix[off_a];
         }
         public override void IntLoadResidual_F(int off, ref ChVectorDynamic<double> R, double c) {
             double imposed_speed = m_func.Get_y(this.GetChTime());
-            R[off] += imposed_speed * c;
+            R.matrix[off] += imposed_speed * c;
         }
         public override void IntLoadResidual_Mv(int off,
                                     ref ChVectorDynamic<double> R,
                                     ChVectorDynamic<double> w,
                                     double c) {
-            R[off] += c * 1.0 * w[off];
+            R.matrix[off] += c * 1.0 * w.matrix[off];
         }
         public override void IntToDescriptor(int off_v,
                                  ChStateDelta v,
@@ -156,8 +156,8 @@ namespace chrono
             // inherit parent
             base.IntToDescriptor(off_v, v, R, off_L, L, Qc);
 
-            this.variable.Get_qb()[0, 0] = v[off_v];
-            this.variable.Get_fb()[0, 0] = R[off_v];
+            this.variable.Get_qb().matrix[0, 0] = v.matrix[off_v];
+            this.variable.Get_fb().matrix[0, 0] = R.matrix[off_v];
         }
         public override void IntFromDescriptor(int off_v,
                                    ref ChStateDelta v,
@@ -166,14 +166,14 @@ namespace chrono
             // inherit parent
             base.IntFromDescriptor(off_v, ref v, off_L, ref L);
 
-            v[off_v] = this.variable.Get_qb()[0, 0];
+            v.matrix[off_v] = this.variable.Get_qb().matrix[0, 0];
         }
 
         public override void IntLoadConstraint_Ct(int off_L, ref ChVectorDynamic<double> Qc, double c) {
             double mCt = -m_func.Get_y(this.GetChTime());
             if (mask.Constr_N(0).IsActive())
             {
-                Qc[off_L + 0] += c * mCt;
+                Qc.matrix[off_L + 0] += c * mCt;
             }
         }
 
@@ -182,24 +182,24 @@ namespace chrono
         //
 
         public override void VariablesFbReset() {
-            variable.Get_fb().FillElem(0.0);
+            variable.Get_fb().matrix.FillElem(0.0);
         }
         public override void VariablesFbLoadForces(double factor = 1) {
             double imposed_speed = m_func.Get_y(this.GetChTime());
-            variable.Get_fb().ElementN(0) += imposed_speed * factor;
+            variable.Get_fb().matrix.ElementN(0) += imposed_speed * factor;
         }
         public override void VariablesQbLoadSpeed() {
             // set current speed in 'qb', it can be used by the solver when working in incremental mode
-            variable.Get_qb().SetElement(0, 0, aux_dt);
+            variable.Get_qb().matrix.SetElement(0, 0, aux_dt);
         }
         public override void VariablesFbIncrementMq() {
-            variable.Compute_inc_Mb_v(ref variable.Get_fb(), variable.Get_qb());
+            variable.Compute_inc_Mb_v(ref variable.Get_fb().matrix, variable.Get_qb().matrix);
         }
         public override void VariablesQbSetSpeed(double step = 0) {
             double old_dt = aux_dt;
 
             // from 'qb' vector, sets body speed, and updates auxiliary data
-            aux_dt = variable.Get_qb().GetElement(0, 0);
+            aux_dt = variable.Get_qb().matrix.GetElement(0, 0);
 
             // Compute accel. by BDF (approximate by differentiation); not needed
         }

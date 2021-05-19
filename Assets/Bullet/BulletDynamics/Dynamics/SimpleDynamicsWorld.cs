@@ -168,16 +168,16 @@ namespace BulletXNA.BulletDynamics
 		public override void UpdateAabbs()
 		{
 			//IndexedMatrix predictedTrans = IndexedMatrix.Identity;
-			foreach (CollisionObject colObj in m_collisionObjects)
+			for(int i = 0; i < m_collisionObjects.Count; i++)
 			{
-				RigidBody body = RigidBody.Upcast(colObj);
+				RigidBody body = RigidBody.Upcast(m_collisionObjects[i]);
 				if (body != null)
 				{
 					if (body.IsActive() && (!body.IsStaticObject()))
 					{
 						IndexedVector3 minAabb;
 						IndexedVector3 maxAabb;
-						colObj.GetCollisionShape().GetAabb(colObj.GetWorldTransform(), out minAabb, out maxAabb);
+						m_collisionObjects[i].GetCollisionShape().GetAabb(m_collisionObjects[i].GetWorldTransform(), out minAabb, out maxAabb);
 						IBroadphaseInterface bp = GetBroadphase();
 						bp.SetAabb(body.GetBroadphaseHandle(), ref minAabb, ref maxAabb, m_dispatcher1);
 					}
@@ -189,9 +189,9 @@ namespace BulletXNA.BulletDynamics
 		public override void SynchronizeMotionStates()
 		{
 			///@todo: iterate over awake simulation islands!
-			foreach (CollisionObject colObj in m_collisionObjects)
+			for(int i = 0; i < m_collisionObjects.Count; i++)
 			{
-				RigidBody body = RigidBody.Upcast(colObj);
+				RigidBody body = RigidBody.Upcast(m_collisionObjects[i]);
 				if (body != null && body.GetMotionState() != null)
 				{
 					if (body.GetActivationState() != ActivationState.ISLAND_SLEEPING)

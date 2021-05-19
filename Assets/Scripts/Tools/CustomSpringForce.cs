@@ -5,7 +5,7 @@ using UnityEngine;
 namespace chrono
 {
     // Functor class implementing the force for a ChLinkSpringCB link.
-    public class CustomSpringForce : ForceFunctor
+    public class CustomSpringForce : ChLinkSpringCB.ForceFunctor
     {
         public double rest_length = 1.5;
         public double spring_coef = 50;

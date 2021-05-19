@@ -5,7 +5,7 @@ using UnityEngine;
 namespace chrono
 {
 
-    public abstract class ForceFunctor : MonoBehaviour
+   /* public abstract class ForceFunctor : MonoBehaviour
     {
         /// Calculate and return the general spring-damper force at the specified configuration.
         public virtual double this[double time,          //< current time
@@ -20,6 +20,6 @@ namespace chrono
         {
             int a = 1;
         }
-    }
+    }*/
 
 }

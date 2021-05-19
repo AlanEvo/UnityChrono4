@@ -349,7 +349,7 @@ namespace BulletXNA.BulletCollision
                 case BroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE:
                     {
                         SphereShape sphereShape = this as SphereShape;
-                        float radius = sphereShape.GetImplicitShapeDimensions().X;// * convexShape->getLocalScaling().getX();
+                        float radius = sphereShape.GetImplicitShapeDimensions().X;// * convexShape.getLocalScaling().getX();
                         float margin = radius + sphereShape.GetMarginNonVirtual();
                         IndexedVector3 center = t._origin;
                         IndexedVector3 extent = new IndexedVector3(margin);

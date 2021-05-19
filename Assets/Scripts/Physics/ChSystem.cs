@@ -95,6 +95,10 @@ namespace chrono
     /// Further info at the @ref simulation_system  manual page.
     public abstract class ChSystem : ChAssembly, ChIntegrableIIorder
     {
+        // TEST
+        ChVectorDynamic<double> R = new ChVectorDynamic<double>(0);
+        ChVectorDynamic<double> Qc = new ChVectorDynamic<double>(0);
+
 
         public ChSystem() : base()
         {
@@ -169,8 +173,8 @@ namespace chrono
             ChState mx = new ChState(GetNcoords_x(), y.GetIntegrable());
             ChStateDelta mv = new ChStateDelta(GetNcoords_v(), y.GetIntegrable());
             this.StateGather(ref mx, ref mv, ref T);
-            y.PasteMatrix(mx, 0, 0);
-            y.PasteMatrix(mv, GetNcoords_x(), 0);
+            y.matrix.PasteMatrix(mx.matrix, 0, 0);
+            y.matrix.PasteMatrix(mv.matrix, GetNcoords_x(), 0);
         }
 
         /// Scatter the states from the provided array to the system.
@@ -181,8 +185,8 @@ namespace chrono
         {
             ChState mx = new ChState(GetNcoords_x(), y.GetIntegrable());
             ChStateDelta mv = new ChStateDelta(GetNcoords_v(), y.GetIntegrable());
-            mx.PasteClippedMatrix(y, 0, 0, GetNcoords_x(), 1, 0, 0);
-            mv.PasteClippedMatrix(y, GetNcoords_x(), 0, GetNcoords_v(), 1, 0, 0);
+            mx.matrix.PasteClippedMatrix(y.matrix, 0, 0, GetNcoords_x(), 1, 0, 0);
+            mv.matrix.PasteClippedMatrix(y.matrix, GetNcoords_x(), 0, GetNcoords_v(), 1, 0, 0);
             StateScatter(mx, mv, T);
         }
 
@@ -193,14 +197,14 @@ namespace chrono
             ChStateDelta mv = new ChStateDelta(GetNcoords_v(), Dydt.GetIntegrable());
             ChStateDelta ma = new ChStateDelta(GetNcoords_v(), Dydt.GetIntegrable());
             StateGatherAcceleration(ref ma);
-            Dydt.PasteMatrix(mv, 0, 0);
-            Dydt.PasteMatrix(ma, GetNcoords_v(), 0);
+            Dydt.matrix.PasteMatrix(mv.matrix, 0, 0);
+            Dydt.matrix.PasteMatrix(ma.matrix, GetNcoords_v(), 0);
         }
 
         public void StateScatterDerivative(ChStateDelta Dydt)
         {
             ChStateDelta ma = new ChStateDelta(GetNcoords_v(), Dydt.GetIntegrable());
-            ma.PasteClippedMatrix(Dydt, GetNcoords_v(), 0, GetNcoords_v(), 1, 0, 0);
+            ma.matrix.PasteClippedMatrix(Dydt.matrix, GetNcoords_v(), 0, GetNcoords_v(), 1, 0, 0);
             StateScatterAcceleration(ma);
         }
 
@@ -221,36 +225,36 @@ namespace chrono
                                ChStateDelta Dy  //< state increment Dy
                                )
         {
-            double ynew = y_new[1]; // PROBLEM!  Huge cpu drain
-            if (y.GetRows() == this.GetNcoords_x())
+           // double ynew = y_new.matrix[1]; // PROBLEM!  Huge cpu drain
+            if (y.matrix.GetRows() == this.GetNcoords_x())
             {
                 // Incrementing the x part only, user provided only x  in y={x, dx/dt}
                 StateIncrementX(ref y_new, y, Dy);
-                ynew = y_new[1];
+               // ynew = y_new.matrix[1];
                 return;
             }
 
-            if (y.GetRows() == this.GetNcoords_y())
+            if (y.matrix.GetRows() == this.GetNcoords_y())
             {
                 // Incrementing y in y={x, dx/dt}.
                 // PERFORMANCE WARNING! temporary vectors allocated on heap. This is only to support
                 // compatibility with 1st order integrators.
                 ChState mx = new ChState(this.GetNcoords_x(), y.GetIntegrable());
                 ChStateDelta mv = new ChStateDelta(this.GetNcoords_v(), y.GetIntegrable());
-                mx.PasteClippedMatrix(y, 0, 0, this.GetNcoords_x(), 1, 0, 0);
-                mv.PasteClippedMatrix(y, this.GetNcoords_x(), 0, this.GetNcoords_v(), 1, 0, 0);
+                mx.matrix.PasteClippedMatrix(y.matrix, 0, 0, this.GetNcoords_x(), 1, 0, 0);
+                mv.matrix.PasteClippedMatrix(y.matrix, this.GetNcoords_x(), 0, this.GetNcoords_v(), 1, 0, 0);
                 ChStateDelta mDx = new ChStateDelta(this.GetNcoords_v(), y.GetIntegrable());
                 ChStateDelta mDv = new ChStateDelta(this.GetNcoords_a(), y.GetIntegrable());
-                mDx.PasteClippedMatrix(Dy, 0, 0, this.GetNcoords_v(), 1, 0, 0);
-                mDv.PasteClippedMatrix(Dy, this.GetNcoords_v(), 0, this.GetNcoords_a(), 1, 0, 0);
+                mDx.matrix.PasteClippedMatrix(Dy.matrix, 0, 0, this.GetNcoords_v(), 1, 0, 0);
+                mDv.matrix.PasteClippedMatrix(Dy.matrix, this.GetNcoords_v(), 0, this.GetNcoords_a(), 1, 0, 0);
                 ChState mx_new = new ChState(this.GetNcoords_x(), y.GetIntegrable());
                 ChStateDelta mv_new = new ChStateDelta(this.GetNcoords_v(), y.GetIntegrable());
 
                 StateIncrementX(ref mx_new, mx, mDx);  // increment positions
-                mv_new = mv + mDv;                 // increment speeds
+                mv_new = mv + mDv.matrix;                 // increment speeds
 
-                y_new.PasteMatrix(mx_new, 0, 0);
-                y_new.PasteMatrix(mv_new, this.GetNcoords_x(), 0);
+                y_new.matrix.PasteMatrix(mx_new.matrix, 0, 0);
+                y_new.matrix.PasteMatrix(mv_new.matrix, this.GetNcoords_x(), 0);
                 return;
             }
             //  throw new ChException("StateIncrement() called with a wrong number of elements");
@@ -762,18 +766,14 @@ namespace chrono
         /// This function must be called once the system construction is completed.
         public override void SetupInitial()
         {
-            for (int i = 0; i < bodylist.Count; i++)
+            for (int ip = 0; ip < bodylist.Count; ip++)
             {
-                bodylist[i].SetupInitial();
+                bodylist[ip].SetupInitial();
             }
             for (int ip = 0; ip < linklist.Count; ++ip)
             {
                 linklist[ip].SetupInitial();
             }
-            /* for (int ip = 0; ip < meshlist.Count; ++ip)
-             {
-                 meshlist[ip].SetupInitial();
-             }*/
             for (int ip = 0; ip < otherphysicslist.Count; ++ip)
             {
                 otherphysicslist[ip].SetupInitial();
@@ -1302,8 +1302,8 @@ namespace chrono
         {
             ChState mx = new ChState(GetNcoords_x(), y.GetIntegrable());
             ChStateDelta mv = new ChStateDelta(GetNcoords_v(), y.GetIntegrable());
-            mx.PasteClippedMatrix(y, 0, 0, GetNcoords_x(), 1, 0, 0);
-            mv.PasteClippedMatrix(y, GetNcoords_x(), 0, GetNcoords_v(), 1, 0, 0);
+            mx.matrix.PasteClippedMatrix(y.matrix, 0, 0, GetNcoords_x(), 1, 0, 0);
+            mv.matrix.PasteClippedMatrix(y.matrix, GetNcoords_x(), 0, GetNcoords_v(), 1, 0, 0);
             ChStateDelta ma = new ChStateDelta(GetNcoords_v(), y.GetIntegrable());
 
             // Solve with custom II order solver
@@ -1312,8 +1312,8 @@ namespace chrono
                 return false;
             }
 
-            dydt.PasteMatrix(mv, 0, 0);
-            dydt.PasteMatrix(ma, GetNcoords_v(), 0);
+            dydt.matrix.PasteMatrix(mv.matrix, 0, 0);
+            dydt.matrix.PasteMatrix(ma.matrix, GetNcoords_v(), 0);
 
             return true;
 
@@ -1376,8 +1376,10 @@ namespace chrono
             if (force_state_scatter)
                 StateScatter(x, v, T);
 
-            ChVectorDynamic<double> R = new ChVectorDynamic<double>(GetNcoords_v());
-            ChVectorDynamic<double> Qc = new ChVectorDynamic<double>(GetNconstr());
+            //ChVectorDynamic<double> R = new ChVectorDynamic<double>(GetNcoords_v());
+            //ChVectorDynamic<double> Qc = new ChVectorDynamic<double>(GetNconstr());
+            R.New(GetNcoords_v());
+            Qc.New(GetNconstr());
             const double Delta = 1e-6;
 
             LoadResidual_F(ref R, 1.0);
@@ -1387,7 +1389,7 @@ namespace chrono
             // numerical differentiation to get the Qc term in constraints
             ChStateDelta dx = new ChStateDelta(v);
             dx *= Delta;
-            ChState xdx = new ChState(x.GetRows(), this);
+            ChState xdx = new ChState(x.matrix.GetRows(), this);
 
             StateIncrement(ref xdx, x, dx);
             StateScatter(xdx, v, T + Delta);
@@ -1639,7 +1641,7 @@ namespace chrono
 
             for (int ip = 0; ip < otherphysicslist.Count; ++ip)
             {
-                ChContactContainer mcontactcontainer;
+               /* ChContactContainer mcontactcontainer;
                 if (mcontactcontainer = (ChContactContainer)otherphysicslist[ip])
                 {
                     //collision_system.ReportContacts(mcontactcontainer.get()); ***TEST*** if one wants to populate a ChContactContainer this would clear it anyway...
@@ -1650,7 +1652,7 @@ namespace chrono
                 if (mproximitycontainer = (ChProximityContainer)otherphysicslist[ip])
                 {
                     collision_system.ReportProximities(mproximitycontainer);
-                }
+                }*/
             }
 
 
@@ -2098,7 +2100,7 @@ namespace chrono
             descriptor.SetMassFactor(1.0);
 
             // Fill system-level M matrix
-            this.GetSystemDescriptor().ConvertToMatrixForm(null, M, null, null, null, null, false, false);
+           // this.GetSystemDescriptor().ConvertToMatrixForm(null, M, null, null, null, null, false, false);
 
         }
 
@@ -2118,7 +2120,7 @@ namespace chrono
             descriptor.SetMassFactor(0.0);
 
             // Fill system-level K matrix
-            this.GetSystemDescriptor().ConvertToMatrixForm(null, K, null, null, null, null, false, false);
+           // this.GetSystemDescriptor().ConvertToMatrixForm(null, K, null, null, null, null, false, false);
 
         }
 
@@ -2137,7 +2139,7 @@ namespace chrono
             descriptor.SetMassFactor(0.0);
 
             // Fill system-level R matrix
-            this.GetSystemDescriptor().ConvertToMatrixForm(null, R, null, null, null, null, false, false);
+           // this.GetSystemDescriptor().ConvertToMatrixForm(null, R, null, null, null, null, false, false);
 
         }   //< fill this system damping matrix
 
@@ -2153,7 +2155,7 @@ namespace chrono
             this.ConstraintsLoadJacobians();
 
             // Fill system-level R matrix
-            this.GetSystemDescriptor().ConvertToMatrixForm(Cq, null, null, null, null, null, false, false);
+           // this.GetSystemDescriptor().ConvertToMatrixForm(Cq, null, null, null, null, null, false, false);
         }  //< fill this system damping matrix
 
         // ---- KINEMATICS

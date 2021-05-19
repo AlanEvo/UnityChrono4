@@ -29,9 +29,9 @@ namespace chrono
         protected ChCoordsys deltaC_dtdt;  //< user-imposed rel. acceleration
 
         //(only for intermediate calculus)
-        protected ChMatrix Cq1_temp = new ChMatrix();  //<
-        protected ChMatrix Cq2_temp = new ChMatrix();  //<   the temporary "lock" jacobians,
-        protected ChMatrix Qc_temp = new ChMatrix();   //<   i.e. the full x,y,z,r0,r1,r2,r3 joint
+        protected ChMatrixDynamic<double> Cq1_temp = new ChMatrixDynamic<double>();  //<
+        protected ChMatrixDynamic<double> Cq2_temp = new ChMatrixDynamic<double>();  //<   the temporary "lock" jacobians,
+        protected ChMatrixDynamic<double> Qc_temp = new ChMatrixDynamic<double>();   //<   i.e. the full x,y,z,r0,r1,r2,r3 joint
         protected ChCoordsys Ct_temp = new ChCoordsys();
 
 
@@ -77,33 +77,33 @@ namespace chrono
         public double angle;  // current joint relative angle
 
         // TEST
-        ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
-        ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
-        ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
 
-        /*  ChVector vtemp1;  // for intermediate calculus
-          ChVector vtemp2;
-          ChQuaternion qtemp1;
-          ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-          ChQuaternion temp1;// = marker1.FrameMoving.GetCoord_dt().rot;
-          ChQuaternion temp2;//
-          ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>();
-          ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>();
-          ChMatrix33<double> mtemp1 = new ChMatrix33<double>();
-          ChMatrix33<double> mtemp2 = new ChMatrix33<double>();
-          ChMatrix33<double> mtemp3 = new ChMatrix33<double>();
-          ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ1 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
-          ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
-          ChMatrix33<double> CqxT = new ChMatrix33<double>();              // the 3x3 piece of Cq_temp for trasl. link, trasl.coords,
-          ChMatrixNM<IntInterface.Three, IntInterface.Four> CqxR = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();  // the 3x4 piece of Cq_temp for trasl. link,   rotat. coords,
-          ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();  // the 4x4 piece of Cq_temp for rotat..link,   rotat. coords,
-          ChVector Qcx;                 // the 3x1 vector of Qc     for trasl. link
-          ChQuaternion Qcr;             // the 4x1 quaternion of Qc for rotat. link
-          ChMatrix33<double> P1star = new ChMatrix33<double>();  // [P] star matrix of rel pos of mark1
-          ChMatrix33<double> Q2star = new ChMatrix33<double>();  // [Q] star matrix of rel pos of mark2
-          ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-          ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-          ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();*/
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+
+        ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ1 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
+       // ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
+
+        ChMatrix33<double> CqxT = new ChMatrix33<double>(0);              // the 3x3 piece of Cq_temp for trasl. link, trasl.coords,
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> CqxR = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);  // the 3x4 piece of Cq_temp for trasl. link,   rotat. coords,
+   
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+
+        ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>(0);
+        ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>(0);
+
+        ChMatrix33<double> mtemp1 = new ChMatrix33<double>(0);
+        ChMatrix33<double> mtemp2 = new ChMatrix33<double>(0);
+        ChMatrix33<double> mtemp3 = new ChMatrix33<double>(0);
+
+        ChMatrix33<double> P1star = new ChMatrix33<double>(0);  // [P] star matrix of rel pos of mark1
+        ChMatrix33<double> Q2star = new ChMatrix33<double>(0);  // [Q] star matrix of rel pos of mark2
+
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+
+
 
         /// <summary>
         /// Type of link-lock
@@ -182,16 +182,9 @@ namespace chrono
 
         public virtual void Awake()
         {
-            //lineRenderer = gameObject.AddComponent<LineRenderer>();
-            //lineRenderer.startWidth = 0.02f; //thickness of line
-            //lineRenderer.endWidth = 0.02f;
-            // lineRenderer.positionCount = size;
-
             ChCoordsys csys = new ChCoordsys(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation));
             ChangeLinkType(type);
-            // Initialize(body1, body2, csys);
-            ChSystem msystem = FindObjectOfType<ChSystem>();
-            msystem.AddLink(this);
+            ChSystem.system.AddLink(this);
 
             if (enableLimits)
             {
@@ -282,6 +275,8 @@ namespace chrono
                 DrawEllipse(transform.position, transform.forward, transform.up, 0.25f * transform.localScale.x, 0.25f * transform.localScale.y, 32, color);
             }
 
+            Gizmos.color = new Color(0, 255, 0);
+            Gizmos.DrawLine(transform.position, transform.position + (transform.forward * 0.2f));
 
             if (enableLimits)
             {
@@ -305,6 +300,8 @@ namespace chrono
 
                             break;
                         case LinkType.REVOLUTE:
+
+                            Utils.DrawHalfEllipse2(transform.position, transform.rotation.eulerAngles.z, (float)minAngle, (float)maxAngle, 2, 2, 10, new Color(0, 0, 255));
                             float distance = 1.0f;
 
                             Vector3 r0 = new Vector3(transform.position.x, transform.position.y, transform.position.z);
@@ -314,6 +311,7 @@ namespace chrono
                             Gizmos.DrawLine(r0, r0 + distance * r1);
                             Gizmos.color = new Color(255, 0, 0);
                             Gizmos.DrawLine(r0, r0 + distance * r2);
+
                             break;
                         case LinkType.CYLINDRICAL:
 
@@ -552,7 +550,7 @@ namespace chrono
             ChVector vtemp1;  // for intermediate calculus
             ChVector vtemp2;
             ChQuaternion qtemp1;
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            //ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChQuaternion temp1 = marker1.FrameMoving.GetCoord_dt().rot;
             ChQuaternion temp2 = marker2.FrameMoving.GetCoord_dt().rot;
 
@@ -653,9 +651,9 @@ namespace chrono
 
             // q_4 = [Adtdt]'[A]'q + 2[Adt]'[Adt]'q
             //       + 2[Adt]'[A]'qdt + 2[A]'[Adt]'qdt
-            ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adt(ref m2_Rel_A_dt);
-            ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adtdt(ref m2_Rel_A_dtdt);
 
             vtemp1 = Body2.GetA_dt().MatrT_x_Vect(PQw);
@@ -725,9 +723,9 @@ namespace chrono
             relRotaxis = ChVector.Vmul(relAxis, relAngle);
             // relWvel
             ChFrame<double>.SetMatrix_Gw(ref relGw, relM.rot);  // relGw.Set_Gw_matrix(relM.rot);
-            relWvel = relGw.Matr34_x_Quat(relM_dt.rot);
+            relWvel = relGw.matrix.Matr34_x_Quat(relM_dt.rot);
             // relWacc
-            relWacc = relGw.Matr34_x_Quat(relM_dtdt.rot);
+            relWacc = relGw.matrix.Matr34_x_Quat(relM_dtdt.rot);
 
         }
 
@@ -747,15 +745,15 @@ namespace chrono
             ChVector vtemp1;  // for intermediate calculus
             ChVector vtemp2;
 
-            ChMatrix33<double> mtemp1 = new ChMatrix33<double>();
-            ChMatrix33<double> mtemp2 = new ChMatrix33<double>();
-            ChMatrix33<double> mtemp3 = new ChMatrix33<double>();
-            ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ1 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();
+           /* ChMatrix33<double> mtemp1 = new ChMatrix33<double>(0);
+            ChMatrix33<double> mtemp2 = new ChMatrix33<double>(0);
+            ChMatrix33<double> mtemp3 = new ChMatrix33<double>(0);*/
+           /* ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ1 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
+            ChMatrixNM<IntInterface.Four, IntInterface.Four> mtempQ2 = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0);
 
-            ChMatrix33<double> CqxT = new ChMatrix33<double>();              // the 3x3 piece of Cq_temp for trasl. link, trasl.coords,
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> CqxR = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();  // the 3x4 piece of Cq_temp for trasl. link,   rotat. coords,
-            ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>();  // the 4x4 piece of Cq_temp for rotat..link,   rotat. coords,
+            ChMatrix33<double> CqxT = new ChMatrix33<double>(0);              // the 3x3 piece of Cq_temp for trasl. link, trasl.coords,
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> CqxR = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);  // the 3x4 piece of Cq_temp for trasl. link,   rotat. coords,
+            ChMatrixNM<IntInterface.Four, IntInterface.Four> CqrR = new ChMatrixNM<IntInterface.Four, IntInterface.Four>(0); */ // the 4x4 piece of Cq_temp for rotat..link,   rotat. coords,
             ChVector Qcx;                 // the 3x1 vector of Qc     for trasl. link
             ChQuaternion Qcr;             // the 4x1 quaternion of Qc for rotat. link
 
@@ -764,13 +762,13 @@ namespace chrono
 
             // ----------- SOME PRECALCULATED VARIABLES, to optimize speed
 
-            ChMatrix33<double> P1star = new ChMatrix33<double>();  // [P] star matrix of rel pos of mark1
+           // ChMatrix33<double> P1star = new ChMatrix33<double>(0);  // [P] star matrix of rel pos of mark1
             P1star.Set_X_matrix(marker1.FrameMoving.GetCoord().pos);
-            ChMatrix33<double> Q2star = new ChMatrix33<double>();  // [Q] star matrix of rel pos of mark2
+           // ChMatrix33<double> Q2star = new ChMatrix33<double>(0);  // [Q] star matrix of rel pos of mark2
             Q2star.Set_X_matrix(marker2.FrameMoving.GetCoord().pos);
 
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+           // ChMatrixNM<IntInterface.Three, IntInterface.Four> body1Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+          //  ChMatrixNM<IntInterface.Three, IntInterface.Four> body2Gl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
 
             ChFrame<double>.SetMatrix_Gl(ref body1Gl, Body1.GetCoord().rot);
             ChFrame<double>.SetMatrix_Gl(ref body2Gl, Body2.GetCoord().rot);
@@ -800,9 +798,9 @@ namespace chrono
             // +++++++++ COMPUTE THE  Cq Ct Qc    matrices (temporary, for complete lock
             // constraint)
 
-            ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adt(ref m2_Rel_A_dt);
-            ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adtdt(ref m2_Rel_A_dtdt);
 
             // ----------- PARTIAL DERIVATIVE Ct OF CONSTRAINT
@@ -819,52 +817,52 @@ namespace chrono
 
             //  JACOBIANS Cq1_temp, Cq2_temp:
 
-            mtemp1.CopyFromMatrixT(marker2.FrameMoving.GetA());
-            CqxT.MatrMultiplyT(mtemp1, Body2.GetA());  // [CqxT]=[Aq]'[Ao2]'
+            mtemp1.nm.matrix.CopyFromMatrixT(marker2.FrameMoving.GetA().nm.matrix);
+            CqxT.nm.matrix.MatrMultiplyT(mtemp1.nm.matrix, Body2.GetA().nm.matrix);  // [CqxT]=[Aq]'[Ao2]'
 
-            Cq1_temp.PasteMatrix(CqxT, 0, 0);  // *- -- Cq1_temp(1-3)  =[Aqo2]
+            Cq1_temp.matrix.PasteMatrix(CqxT.nm.matrix, 0, 0);  // *- -- Cq1_temp(1-3)  =[Aqo2]
 
-            CqxT.MatrNeg();
-            Cq2_temp.PasteMatrix(CqxT, 0, 0);  // -- *- Cq2_temp(1-3)  =-[Aqo2]
+            CqxT.nm.matrix.MatrNeg();
+            Cq2_temp.matrix.PasteMatrix(CqxT.nm.matrix, 0, 0);  // -- *- Cq2_temp(1-3)  =-[Aqo2]
 
-            mtemp1.MatrMultiply(CqxT, Body1.GetA());
-            mtemp2.MatrMultiply(mtemp1, P1star);
+            mtemp1.nm.matrix.MatrMultiply(CqxT.nm.matrix, Body1.GetA().nm.matrix);
+            mtemp2.nm.matrix.MatrMultiply(mtemp1.nm.matrix, P1star.nm.matrix);
 
-            CqxR.MatrMultiply(mtemp2, body1Gl);
+            CqxR.matrix.MatrMultiply(mtemp2.nm.matrix, body1Gl.matrix);
 
-            Cq1_temp.PasteMatrix(CqxR, 0, 3);  // -* -- Cq1_temp(4-7)
+            Cq1_temp.matrix.PasteMatrix(CqxR.matrix, 0, 3);  // -* -- Cq1_temp(4-7)
 
-            CqxT.MatrNeg();
-            mtemp1.MatrMultiply(CqxT, Body2.GetA());
-            mtemp2.MatrMultiply(mtemp1, Q2star);
-            CqxR.MatrMultiply(mtemp2, body2Gl);
-            Cq2_temp.PasteMatrix(CqxR, 0, 3);
+            CqxT.nm.matrix.MatrNeg();
+            mtemp1.nm.matrix.MatrMultiply(CqxT.nm.matrix, Body2.GetA().nm.matrix);
+            mtemp2.nm.matrix.MatrMultiply(mtemp1.nm.matrix, Q2star.nm.matrix);
+            CqxR.matrix.MatrMultiply(mtemp2.nm.matrix, body2Gl.matrix);
+            Cq2_temp.matrix.PasteMatrix(CqxR.matrix, 0, 3);
 
-            mtemp1.CopyFromMatrixT(marker2.FrameMoving.GetA());
+            mtemp1.nm.matrix.CopyFromMatrixT(marker2.FrameMoving.GetA().nm.matrix);
             mtemp2.Set_X_matrix(Body2.GetA().MatrT_x_Vect(PQw));
-            mtemp3.MatrMultiply(mtemp1, mtemp2);
-            CqxR.MatrMultiply(mtemp3, body2Gl);
+            mtemp3.nm.matrix.MatrMultiply(mtemp1.nm.matrix, mtemp2.nm.matrix);
+            CqxR.matrix.MatrMultiply(mtemp3.nm.matrix, body2Gl.matrix);
 
-            Cq2_temp.PasteSumMatrix(CqxR, 0, 3);  // -- -* Cq1_temp(4-7)
+            Cq2_temp.matrix.PasteSumMatrix(CqxR.matrix, 0, 3);  // -- -* Cq1_temp(4-7)
 
-            mtempQ1.Set_Xq_matrix(ChQuaternion.Qcross(ChQuaternion.Qconjugate(marker2.FrameMoving.GetCoord().rot), ChQuaternion.Qconjugate(Body2.GetCoord().rot)));
-            CqrR.Set_Xq_matrix(marker1.FrameMoving.GetCoord().rot);
-            CqrR.MatrXq_SemiTranspose();
-            mtempQ2.MatrMultiply(mtempQ1, CqrR);
-            mtempQ1.Set_Xq_matrix(ChQuaternion.Qconjugate(deltaC.rot));
-            CqrR.MatrMultiply(mtempQ1, mtempQ2);
+            mtempQ1.matrix.Set_Xq_matrix(ChQuaternion.Qcross(ChQuaternion.Qconjugate(marker2.FrameMoving.GetCoord().rot), ChQuaternion.Qconjugate(Body2.GetCoord().rot)));
+            CqrR.matrix.Set_Xq_matrix(marker1.FrameMoving.GetCoord().rot);
+            CqrR.matrix.MatrXq_SemiTranspose();
+            mtempQ2.matrix.MatrMultiply(mtempQ1.matrix, CqrR.matrix);
+            mtempQ1.matrix.Set_Xq_matrix(ChQuaternion.Qconjugate(deltaC.rot));
+            CqrR.matrix.MatrMultiply(mtempQ1.matrix, mtempQ2.matrix);
 
-            Cq1_temp.PasteMatrix(CqrR, 3, 3);  // =* == Cq1_temp(col 4-7, row 4-7)
+            Cq1_temp.matrix.PasteMatrix(CqrR.matrix, 3, 3);  // =* == Cq1_temp(col 4-7, row 4-7)
 
-            mtempQ1.Set_Xq_matrix(ChQuaternion.Qconjugate(marker2.FrameMoving.GetCoord().rot));
-            CqrR.Set_Xq_matrix(ChQuaternion.Qcross(Body1.GetCoord().rot, marker1.FrameMoving.GetCoord().rot));
-            CqrR.MatrXq_SemiTranspose();
-            CqrR.MatrXq_SemiNeg();
-            mtempQ2.MatrMultiply(mtempQ1, CqrR);
-            mtempQ1.Set_Xq_matrix(ChQuaternion.Qconjugate(deltaC.rot));
-            CqrR.MatrMultiply(mtempQ1, mtempQ2);
+            mtempQ1.matrix.Set_Xq_matrix(ChQuaternion.Qconjugate(marker2.FrameMoving.GetCoord().rot));
+            CqrR.matrix.Set_Xq_matrix(ChQuaternion.Qcross(Body1.GetCoord().rot, marker1.FrameMoving.GetCoord().rot));
+            CqrR.matrix.MatrXq_SemiTranspose();
+            CqrR.matrix.MatrXq_SemiNeg();
+            mtempQ2.matrix.MatrMultiply(mtempQ1.matrix, CqrR.matrix);
+            mtempQ1.matrix.Set_Xq_matrix(ChQuaternion.Qconjugate(deltaC.rot));
+            CqrR.matrix.MatrMultiply(mtempQ1.matrix, mtempQ2.matrix);
 
-            Cq2_temp.PasteMatrix(CqrR, 3, 3);  // == =* Cq2_temp(col 4-7, row 4-7)
+            Cq2_temp.matrix.PasteMatrix(CqrR.matrix, 3, 3);  // == =* Cq2_temp(col 4-7, row 4-7)
 
             //--------- COMPLETE Qc VECTOR
 
@@ -882,9 +880,9 @@ namespace chrono
             Qcx = CqxT.Matr_x_Vect(vtemp1);
 
             mtemp1.Set_X_matrix(Body2.GetWvel_loc());
-            mtemp2.MatrMultiply(mtemp1, mtemp1);
-            mtemp3.MatrMultiply(Body2.GetA(), mtemp2);
-            mtemp3.MatrTranspose();
+            mtemp2.nm.matrix.MatrMultiply(mtemp1.nm.matrix, mtemp1.nm.matrix);
+            mtemp3.nm.matrix.MatrMultiply(Body2.GetA().nm.matrix, mtemp2.nm.matrix);
+            mtemp3.nm.matrix.MatrTranspose();
             vtemp1 = mtemp3.Matr_x_Vect(PQw);
             vtemp2 = marker2.FrameMoving.GetA().MatrT_x_Vect(vtemp1);  // [Aq]'[[A2][w2][w2]]'*Qpq,w
             Qcx = ChVector.Vadd(Qcx, vtemp2);
@@ -893,21 +891,21 @@ namespace chrono
 
             Qcx = ChVector.Vsub(Qcx, deltaC_dtdt.pos);  // ... - deltaC_dtdt
 
-            Qc_temp.PasteVector(Qcx, 0, 0);  // * Qc_temp, for all translational coords
+            Qc_temp.matrix.PasteVector(Qcx, 0, 0);  // * Qc_temp, for all translational coords
 
             Qcr = ChQuaternion.Qcross(ChQuaternion.Qconjugate(deltaC.rot), q_8);
             Qcr = ChQuaternion.Qadd(Qcr, ChQuaternion.Qscale(ChQuaternion.Qcross(ChQuaternion.Qconjugate(deltaC_dt.rot), relM_dt.rot), 2));
             Qcr = ChQuaternion.Qadd(Qcr, ChQuaternion.Qcross(ChQuaternion.Qconjugate(deltaC_dtdt.rot), relM.rot));  // = deltaC'*q_8 + 2*deltaC_dt'*q_dt,po +
                                                                                                                     // deltaC_dtdt'*q,po
 
-            Qc_temp.PasteQuaternion(Qcr, 3, 0);  // * Qc_temp, for all rotational coords
+            Qc_temp.matrix.PasteQuaternion(Qcr, 3, 0);  // * Qc_temp, for all rotational coords
 
             // *** NOTE! The definitive  Qc must change sign, to be used in
             // lagrangian equation:    [Cq]*q_dtdt = Qc
             // because until now we have computed it as [Cq]*q_dtdt + "Qc" = 0,
             // but the most used form is the previous, so let's change sign!!
 
-            Qc_temp.MatrNeg();
+            Qc_temp.matrix.MatrNeg();
 
             // FINALLY.....
             // ---------------------
@@ -920,112 +918,112 @@ namespace chrono
 
             if (mmask.Constr_X().IsActive())  // for X constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 0, 0, 1, 7, index, 0);
-                Cq2.PasteClippedMatrix(Cq2_temp, 0, 0, 1, 7, index, 0);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 0, 0, 1, 7, index, 0);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 0, 0, 1, 7, index, 0);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(0, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(0, 0));
 
-                C.SetElement(index, 0, relC.pos.x);
-                C_dt.SetElement(index, 0, relC_dt.pos.x);
-                C_dtdt.SetElement(index, 0, relC_dtdt.pos.x);
+                C.matrix.SetElement(index, 0, relC.pos.x);
+                C_dt.matrix.SetElement(index, 0, relC_dt.pos.x);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.pos.x);
 
-                Ct.SetElement(index, 0, Ct_temp.pos.x);
+                Ct.matrix.SetElement(index, 0, Ct_temp.pos.x);
 
                 index++;
             }
 
             if (mmask.Constr_Y().IsActive())  // for Y constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 1, 0, 1, 7, index, 0);
-                Cq2.PasteClippedMatrix(Cq2_temp, 1, 0, 1, 7, index, 0);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 1, 0, 1, 7, index, 0);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 1, 0, 1, 7, index, 0);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(1, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(1, 0));
 
-                C.SetElement(index, 0, relC.pos.y);
-                C_dt.SetElement(index, 0, relC_dt.pos.y);
-                C_dtdt.SetElement(index, 0, relC_dtdt.pos.y);
+                C.matrix.SetElement(index, 0, relC.pos.y);
+                C_dt.matrix.SetElement(index, 0, relC_dt.pos.y);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.pos.y);
 
-                Ct.SetElement(index, 0, Ct_temp.pos.y);
+                Ct.matrix.SetElement(index, 0, Ct_temp.pos.y);
 
                 index++;
             }
 
             if (mmask.Constr_Z().IsActive())  // for Z constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 2, 0, 1, 7, index, 0);
-                Cq2.PasteClippedMatrix(Cq2_temp, 2, 0, 1, 7, index, 0);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 2, 0, 1, 7, index, 0);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 2, 0, 1, 7, index, 0);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(2, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(2, 0));
 
-                C.SetElement(index, 0, relC.pos.z);
-                C_dt.SetElement(index, 0, relC_dt.pos.z);
-                C_dtdt.SetElement(index, 0, relC_dtdt.pos.z);
+                C.matrix.SetElement(index, 0, relC.pos.z);
+                C_dt.matrix.SetElement(index, 0, relC_dt.pos.z);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.pos.z);
 
-                Ct.SetElement(index, 0, Ct_temp.pos.z);
+                Ct.matrix.SetElement(index, 0, Ct_temp.pos.z);
 
                 index++;
             }
 
             if (mmask.Constr_E0().IsActive())  // for E0 constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 3, 3, 1, 4, index, 3);
-                Cq2.PasteClippedMatrix(Cq2_temp, 3, 3, 1, 4, index, 3);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 3, 3, 1, 4, index, 3);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 3, 3, 1, 4, index, 3);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(3, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(3, 0));
 
-                C.SetElement(index, 0, relC.rot.e0);
-                C_dt.SetElement(index, 0, relC_dt.rot.e0);
-                C_dtdt.SetElement(index, 0, relC_dtdt.rot.e0);
+                C.matrix.SetElement(index, 0, relC.rot.e0);
+                C_dt.matrix.SetElement(index, 0, relC_dt.rot.e0);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.rot.e0);
 
-                Ct.SetElement(index, 0, Ct_temp.rot.e0);
+                Ct.matrix.SetElement(index, 0, Ct_temp.rot.e0);
 
                 index++;
             }
 
             if (mmask.Constr_E1().IsActive())  // for E1 constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 4, 3, 1, 4, index, 3);
-                Cq2.PasteClippedMatrix(Cq2_temp, 4, 3, 1, 4, index, 3);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 4, 3, 1, 4, index, 3);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 4, 3, 1, 4, index, 3);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(4, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(4, 0));
 
-                C.SetElement(index, 0, relC.rot.e1);
-                C_dt.SetElement(index, 0, relC_dt.rot.e1);
-                C_dtdt.SetElement(index, 0, relC_dtdt.rot.e1);
+                C.matrix.SetElement(index, 0, relC.rot.e1);
+                C_dt.matrix.SetElement(index, 0, relC_dt.rot.e1);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.rot.e1);
 
-                Ct.SetElement(index, 0, Ct_temp.rot.e1);
+                Ct.matrix.SetElement(index, 0, Ct_temp.rot.e1);
 
                 index++;
             }
 
             if (mmask.Constr_E2().IsActive())  // for E2 constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 5, 3, 1, 4, index, 3);
-                Cq2.PasteClippedMatrix(Cq2_temp, 5, 3, 1, 4, index, 3);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 5, 3, 1, 4, index, 3);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 5, 3, 1, 4, index, 3);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(5, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(5, 0));
 
-                C.SetElement(index, 0, relC.rot.e2);
-                C_dt.SetElement(index, 0, relC_dt.rot.e2);
-                C_dtdt.SetElement(index, 0, relC_dtdt.rot.e2);
+                C.matrix.SetElement(index, 0, relC.rot.e2);
+                C_dt.matrix.SetElement(index, 0, relC_dt.rot.e2);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.rot.e2);
 
-                Ct.SetElement(index, 0, Ct_temp.rot.e2);
+                Ct.matrix.SetElement(index, 0, Ct_temp.rot.e2);
 
                 index++;
             }
 
             if (mmask.Constr_E3().IsActive())  // for E3 constraint...
             {
-                Cq1.PasteClippedMatrix(Cq1_temp, 6, 3, 1, 4, index, 3);
-                Cq2.PasteClippedMatrix(Cq2_temp, 6, 3, 1, 4, index, 3);
+                Cq1.matrix.PasteClippedMatrix(Cq1_temp.matrix, 6, 3, 1, 4, index, 3);
+                Cq2.matrix.PasteClippedMatrix(Cq2_temp.matrix, 6, 3, 1, 4, index, 3);
 
-                Qc.SetElement(index, 0, Qc_temp.GetElement(6, 0));
+                Qc.matrix.SetElement(index, 0, Qc_temp.matrix.GetElement(6, 0));
 
-                C.SetElement(index, 0, relC.rot.e3);
-                C_dt.SetElement(index, 0, relC_dt.rot.e3);
-                C_dtdt.SetElement(index, 0, relC_dtdt.rot.e3);
+                C.matrix.SetElement(index, 0, relC.rot.e3);
+                C_dt.matrix.SetElement(index, 0, relC_dt.rot.e3);
+                C_dtdt.matrix.SetElement(index, 0, relC_dtdt.rot.e3);
 
-                Ct.SetElement(index, 0, Ct_temp.rot.e3);
+                Ct.matrix.SetElement(index, 0, Ct_temp.rot.e3);
 
                 index++;
             }
@@ -1043,7 +1041,7 @@ namespace chrono
 
             // ========== the link-limits "cushion forces"
 
-            /* ChVector m_force = new ChVector(0, 0, 0);
+             ChVector m_force = new ChVector(0, 0, 0);
              ChVector m_torque = new ChVector(0, 0, 0);
              if (limit_X.Get_active())
              {
@@ -1086,7 +1084,7 @@ namespace chrono
                  m_torque = ChVector.Vadd(m_torque, ChVector.Vmul(torq_axis, limit_Rp.GetPolarForce(zenith, zenithspeed, polar)));
              }
              C_force = ChVector.Vadd(C_force, m_force);     // +++
-             C_torque = ChVector.Vadd(C_torque, m_torque);  // +++*/
+             C_torque = ChVector.Vadd(C_torque, m_torque);  // +++
 
             // ========== other forces??
         }
@@ -1468,6 +1466,7 @@ namespace chrono
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
         {
             // parent (from ChConstraint objects to react vector)
+
             base.IntStateGatherReactions(off_L, ref L);
 
             int local_off = this.GetDOC_c();
@@ -1484,17 +1483,17 @@ namespace chrono
             // parent class:
              base.IntLoadResidual_CqL(off_L, ref R, L, c);
 
-            /* int local_offset = this.GetDOC_c();
+             int local_offset = this.GetDOC_c();
              if (limit_X != null && limit_X.Get_active())
              {
                  if (limit_X.constr_lower.IsActive())
                  {
-                     limit_X.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_X.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_X.constr_upper.IsActive())
                  {
-                     limit_X.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_X.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
              }
@@ -1502,12 +1501,12 @@ namespace chrono
              {
                  if (limit_Y.constr_lower.IsActive())
                  {
-                     limit_Y.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Y.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_Y.constr_upper.IsActive())
                  {
-                     limit_Y.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Y.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
              }
@@ -1515,12 +1514,12 @@ namespace chrono
              {
                  if (limit_Z.constr_lower.IsActive())
                  {
-                     limit_Z.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Z.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_Z.constr_upper.IsActive())
                  {
-                     limit_Z.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Z.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
              }
@@ -1528,12 +1527,12 @@ namespace chrono
              {
                  if (limit_Rx.constr_lower.IsActive())
                  {
-                     limit_Rx.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Rx.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_Rx.constr_upper.IsActive())
                  {
-                     limit_Rx.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Rx.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
              }
@@ -1541,12 +1540,12 @@ namespace chrono
              {
                  if (limit_Ry.constr_lower.IsActive())
                  {
-                     limit_Ry.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Ry.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_Ry.constr_upper.IsActive())
                  {
-                     limit_Ry.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Ry.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
              }
@@ -1554,15 +1553,15 @@ namespace chrono
              {
                  if (limit_Rz.constr_lower.IsActive())
                  {
-                     limit_Rz.constr_lower.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Rz.constr_lower.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
                  if (limit_Rz.constr_upper.IsActive())
                  {
-                     limit_Rz.constr_upper.MultiplyTandAdd(R, L[off_L + local_offset] * c);
+                     limit_Rz.constr_upper.MultiplyTandAdd(R.matrix, L.matrix[off_L + local_offset] * c);
                      ++local_offset;
                  }
-             }*/
+             }
         }
         public override void IntLoadConstraint_C(int off_L,
                                      ref ChVectorDynamic<double> Qc,
@@ -1573,7 +1572,7 @@ namespace chrono
             // parent class:
             base.IntLoadConstraint_C(off_L, ref Qc, c, do_clamp, recovery_clamp);
 
-           /* if (!do_clamp)
+            if (!do_clamp)
                 recovery_clamp = 1e24;
 
             int local_offset = this.GetDOC_c();
@@ -1582,12 +1581,12 @@ namespace chrono
             {
                 if (limit_X.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-limit_X.Get_min() + relM.pos.x), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-limit_X.Get_min() + relM.pos.x), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_X.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (limit_X.Get_max() - relM.pos.x), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (limit_X.Get_max() - relM.pos.x), -recovery_clamp);
                     ++local_offset;
                 }
             }
@@ -1595,12 +1594,12 @@ namespace chrono
             {
                 if (limit_Y.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-limit_Y.Get_min() + relM.pos.y), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-limit_Y.Get_min() + relM.pos.y), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_Y.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (limit_Y.Get_max() - relM.pos.y), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (limit_Y.Get_max() - relM.pos.y), -recovery_clamp);
                     ++local_offset;
                 }
             }
@@ -1608,12 +1607,12 @@ namespace chrono
             {
                 if (limit_Z.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-limit_Z.Get_min() + relM.pos.z), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-limit_Z.Get_min() + relM.pos.z), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_Z.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (limit_Z.Get_max() - relM.pos.z), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (limit_Z.Get_max() - relM.pos.z), -recovery_clamp);
                     ++local_offset;
                 }
             }
@@ -1621,12 +1620,12 @@ namespace chrono
             {
                 if (limit_Rx.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Rx.Get_min()) + relM.rot.e1), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Rx.Get_min()) + relM.rot.e1), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_Rx.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Rx.Get_max()) - relM.rot.e1), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Rx.Get_max()) - relM.rot.e1), -recovery_clamp);
                     ++local_offset;
                 }
             }
@@ -1634,12 +1633,12 @@ namespace chrono
             {
                 if (limit_Ry.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Ry.Get_min()) + relM.rot.e2), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Ry.Get_min()) + relM.rot.e2), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_Ry.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Ry.Get_max()) - relM.rot.e2), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Ry.Get_max()) - relM.rot.e2), -recovery_clamp);
                     ++local_offset;
                 }
             }
@@ -1647,15 +1646,15 @@ namespace chrono
             {
                 if (limit_Rz.constr_lower.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Rz.Get_min()) + relM.rot.e3), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (-Math.Sin(0.5 * limit_Rz.Get_min()) + relM.rot.e3), -recovery_clamp);
                     ++local_offset;
                 }
                 if (limit_Rz.constr_upper.IsActive())
                 {
-                    Qc[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Rz.Get_max()) - relM.rot.e3), -recovery_clamp);
+                    Qc.matrix[off_L + local_offset] += ChMaths.ChMax(c * (Math.Sin(0.5 * limit_Rz.Get_max()) - relM.rot.e3), -recovery_clamp);
                     ++local_offset;
                 }
-            }*/
+            }
         }
         public override void IntLoadConstraint_Ct(int off_L, ref ChVectorDynamic<double> Qc, double c)
         {
@@ -1674,20 +1673,20 @@ namespace chrono
             // parent class:
             base.IntToDescriptor(off_v, v, R, off_L, L, Qc);
 
-          /*  int local_offset = this.GetDOC_c();
+            int local_offset = this.GetDOC_c();
 
             if (limit_X != null && limit_X.Get_active())
             {
                 if (limit_X.constr_lower.IsActive())
                 {
-                    limit_X.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_X.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_X.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_X.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_X.constr_upper.IsActive())
                 {
-                    limit_X.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_X.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_X.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_X.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
             }
@@ -1695,14 +1694,14 @@ namespace chrono
             {
                 if (limit_Y.constr_lower.IsActive())
                 {
-                    limit_Y.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_Y.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Y.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Y.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_Y.constr_upper.IsActive())
                 {
-                    limit_Y.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_Y.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Y.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Y.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
             }
@@ -1710,14 +1709,14 @@ namespace chrono
             {
                 if (limit_Z.constr_lower.IsActive())
                 {
-                    limit_Z.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_Z.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Z.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Z.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_Z.constr_upper.IsActive())
                 {
-                    limit_Z.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_Z.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Z.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Z.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
             }
@@ -1725,14 +1724,14 @@ namespace chrono
             {
                 if (limit_Rx.constr_lower.IsActive())
                 {
-                    limit_Rx.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_Rx.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Rx.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Rx.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_Rx.constr_upper.IsActive())
                 {
-                    limit_Rx.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_Rx.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Rx.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Rx.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
             }
@@ -1740,14 +1739,14 @@ namespace chrono
             {
                 if (limit_Ry.constr_lower.IsActive())
                 {
-                    limit_Ry.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_Ry.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Ry.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Ry.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_Ry.constr_upper.IsActive())
                 {
-                    limit_Ry.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_Ry.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Ry.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Ry.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
             }
@@ -1755,17 +1754,17 @@ namespace chrono
             {
                 if (limit_Rz.constr_lower.IsActive())
                 {
-                    limit_Rz.constr_lower.Set_l_i(L[off_L + local_offset]);
-                    limit_Rz.constr_lower.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Rz.constr_lower.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Rz.constr_lower.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
                 if (limit_Rz.constr_upper.IsActive())
                 {
-                    limit_Rz.constr_upper.Set_l_i(L[off_L + local_offset]);
-                    limit_Rz.constr_upper.Set_b_i(Qc[off_L + local_offset]);
+                    limit_Rz.constr_upper.Set_l_i(L.matrix[off_L + local_offset]);
+                    limit_Rz.constr_upper.Set_b_i(Qc.matrix[off_L + local_offset]);
                     ++local_offset;
                 }
-            }*/
+            }
         }
         public override void IntFromDescriptor(int off_v,
                                    ref ChStateDelta v,
@@ -1775,17 +1774,17 @@ namespace chrono
             // parent class:
             base.IntFromDescriptor(off_L, ref v, off_L, ref L);
 
-             /* int local_offset = this.GetDOC_c();
+              int local_offset = this.GetDOC_c();
               if (limit_X != null && limit_X.Get_active())
               {
                   if (limit_X.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_X.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_X.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_X.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_X.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_X.constr_upper.Get_l_i();
                       ++local_offset;
                   }
               }
@@ -1793,12 +1792,12 @@ namespace chrono
               {
                   if (limit_Y.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Y.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Y.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_Y.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Y.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Y.constr_upper.Get_l_i();
                       ++local_offset;
                   }
               }
@@ -1806,12 +1805,12 @@ namespace chrono
               {
                   if (limit_Z.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Z.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Z.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_Z.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Z.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Z.constr_upper.Get_l_i();
                       ++local_offset;
                   }
               }
@@ -1819,12 +1818,12 @@ namespace chrono
               {
                   if (limit_Rx.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Rx.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Rx.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_Rx.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Rx.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Rx.constr_upper.Get_l_i();
                       ++local_offset;
                   }
               }
@@ -1832,12 +1831,12 @@ namespace chrono
               {
                   if (limit_Ry.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Ry.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Ry.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_Ry.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Ry.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Ry.constr_upper.Get_l_i();
                       ++local_offset;
                   }
               }
@@ -1845,15 +1844,15 @@ namespace chrono
               {
                   if (limit_Rz.constr_lower.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Rz.constr_lower.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Rz.constr_lower.Get_l_i();
                       ++local_offset;
                   }
                   if (limit_Rz.constr_upper.IsActive())
                   {
-                      L[off_L + local_offset] = limit_Rz.constr_upper.Get_l_i();
+                      L.matrix[off_L + local_offset] = limit_Rz.constr_upper.Get_l_i();
                       ++local_offset;
                   }
-              }*/
+              }
         }
 
         //
@@ -1951,7 +1950,7 @@ namespace chrono
             // parent
             base.ConstraintsBiReset();
 
-             /* if (limit_X != null && limit_X.Get_active())
+              if (limit_X != null && limit_X.Get_active())
               {
                   if (limit_X.constr_lower.IsActive())
                   {
@@ -2016,14 +2015,14 @@ namespace chrono
                   {
                       limit_Rz.constr_upper.Set_b_i(0.0);
                   }
-              }*/
+              }
         }
         public override void ConstraintsBiLoad_C(double factor = 1, double recovery_clamp = 0.1, bool do_clamp = false)
         {
             // parent
             base.ConstraintsBiLoad_C(factor, recovery_clamp, do_clamp);
 
-             /* if (limit_X != null && limit_X.Get_active())
+              if (limit_X != null && limit_X.Get_active())
               {
                   if (limit_X.constr_lower.IsActive())
                   {
@@ -2202,7 +2201,7 @@ namespace chrono
                               ChMaths.ChMax(factor * (Math.Sin(0.5 * limit_Rz.Get_max()) - relM.rot.e3), -recovery_clamp));
                       }
                   }
-              }*/
+              }
         }
         public override void ConstraintsBiLoad_Ct(double factor = 1)
         {
@@ -2218,22 +2217,22 @@ namespace chrono
         public void Transform_Cq_to_Cqw_row(ChMatrix mCq, int qrow, ChMatrix mCqw, int qwrow, ChBodyFrame mbody)
         {
             // translational part - not changed
-          /*  mCqw.PasteClippedMatrix(mCq, qrow, 0, 1, 3, qwrow, 0);
+            mCqw.PasteClippedMatrix(mCq, qrow, 0, 1, 3, qwrow, 0);
 
             // rotational part [Cq_w] = [Cq_q]*[Gl]'*1/4
             int col, colres;
             double sum;
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            //ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
             ChFrame<double>.SetMatrix_Gl(ref mGl, mbody.GetCoord().rot);
             for (colres = 0; colres < 3; colres++)
             {
                 sum = 0;
                 for (col = 0; col < 4; col++)
                 {
-                    sum += ((mCq.GetElement(qrow, col + 3)) * (mGl.GetElement(colres, col)));
+                    sum += ((mCq.GetElement(qrow, col + 3)) * (mGl.matrix.GetElement(colres, col)));
                 }
                 mCqw.SetElement(qwrow, colres + 3, sum * 0.25);
-            }*/
+            }
         }
 
         public override void ConstraintsLoadJacobians()
@@ -2241,19 +2240,19 @@ namespace chrono
             // parent
             base.ConstraintsLoadJacobians();
 
-           /* if (limit_X != null && limit_X.Get_active())
+            if (limit_X != null && limit_X.Get_active())
             {
                 if (limit_X.constr_lower.IsActive())
                 {
                     limit_X.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 0, limit_X.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 0, limit_X.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 0, limit_X.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 0, limit_X.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_X.constr_upper.IsActive())
                 {
                     limit_X.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 0, limit_X.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 0, limit_X.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 0, limit_X.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 0, limit_X.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_X.constr_upper.Get_Cq_a().MatrNeg();
                     limit_X.constr_upper.Get_Cq_b().MatrNeg();
                 }
@@ -2263,14 +2262,14 @@ namespace chrono
                 if (limit_Y.constr_lower.IsActive())
                 {
                     limit_Y.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 1, limit_Y.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 1, limit_Y.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 1, limit_Y.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 1, limit_Y.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_Y.constr_upper.IsActive())
                 {
                     limit_Y.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 1, limit_Y.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 1, limit_Y.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 1, limit_Y.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 1, limit_Y.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_Y.constr_upper.Get_Cq_a().MatrNeg();
                     limit_Y.constr_upper.Get_Cq_b().MatrNeg();
                 }
@@ -2280,14 +2279,14 @@ namespace chrono
                 if (limit_Z.constr_lower.IsActive())
                 {
                     limit_Z.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 2, limit_Z.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 2, limit_Z.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 2, limit_Z.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 2, limit_Z.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_Z.constr_upper.IsActive())
                 {
                     limit_Z.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 2, limit_Z.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 2, limit_Z.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 2, limit_Z.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 2, limit_Z.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_Z.constr_upper.Get_Cq_a().MatrNeg();
                     limit_Z.constr_upper.Get_Cq_b().MatrNeg();
                 }
@@ -2297,14 +2296,14 @@ namespace chrono
                 if (limit_Rx.constr_lower.IsActive())
                 {
                     limit_Rx.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 4, limit_Rx.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 4, limit_Rx.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 4, limit_Rx.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 4, limit_Rx.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_Rx.constr_upper.IsActive())
                 {
                     limit_Rx.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 4, limit_Rx.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 4, limit_Rx.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 4, limit_Rx.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 4, limit_Rx.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_Rx.constr_upper.Get_Cq_a().MatrNeg();
                     limit_Rx.constr_upper.Get_Cq_b().MatrNeg();
                 }
@@ -2314,14 +2313,14 @@ namespace chrono
                 if (limit_Ry.constr_lower.IsActive())
                 {
                     limit_Ry.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 5, limit_Ry.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 5, limit_Ry.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 5, limit_Ry.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 5, limit_Ry.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_Ry.constr_upper.IsActive())
                 {
                     limit_Ry.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 5, limit_Ry.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 5, limit_Ry.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 5, limit_Ry.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 5, limit_Ry.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_Ry.constr_upper.Get_Cq_a().MatrNeg();
                     limit_Ry.constr_upper.Get_Cq_b().MatrNeg();
                 }
@@ -2331,18 +2330,18 @@ namespace chrono
                 if (limit_Rz.constr_lower.IsActive())
                 {
                     limit_Rz.constr_lower.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 6, limit_Rz.constr_lower.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 6, limit_Rz.constr_lower.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 6, limit_Rz.constr_lower.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 6, limit_Rz.constr_lower.Get_Cq_b(), 0, Body2);
                 }
                 if (limit_Rz.constr_upper.IsActive())
                 {
                     limit_Rz.constr_upper.SetVariables(Body1.Variables(), Body2.Variables());
-                    Transform_Cq_to_Cqw_row(Cq1_temp, 6, limit_Rz.constr_upper.Get_Cq_a(), 0, Body1);
-                    Transform_Cq_to_Cqw_row(Cq2_temp, 6, limit_Rz.constr_upper.Get_Cq_b(), 0, Body2);
+                    Transform_Cq_to_Cqw_row(Cq1_temp.matrix, 6, limit_Rz.constr_upper.Get_Cq_a(), 0, Body1);
+                    Transform_Cq_to_Cqw_row(Cq2_temp.matrix, 6, limit_Rz.constr_upper.Get_Cq_b(), 0, Body2);
                     limit_Rz.constr_upper.Get_Cq_a().MatrNeg();
                     limit_Rz.constr_upper.Get_Cq_b().MatrNeg();
                 }
-            }*/
+            }
         }
         public override void ConstraintsFetch_react(double factor = 1)
         {

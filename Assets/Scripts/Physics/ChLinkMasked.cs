@@ -36,23 +36,26 @@ namespace chrono
         protected ChLinkForce force_Rz;// = new ChLinkForce();  //< the torque acting about Rz dof
         protected double d_restlength;                       //< the rest length of the "d_spring" spring
 
-        protected ChMatrix C = new ChMatrix();       //< {C(q,q_dt,t)}, <<<<!!!   that is
-        protected ChMatrix C_dt = new ChMatrix();    //< the violation= relC = C(q,qdt,t)
-        protected ChMatrix C_dtdt = new ChMatrix();  //< also speed violations. and acc violations
+        protected ChMatrixDynamic<double> C = new ChMatrixDynamic<double>();       //< {C(q,q_dt,t)}, <<<<!!!   that is
+        protected ChMatrixDynamic<double> C_dt = new ChMatrixDynamic<double>();    //< the violation= relC = C(q,qdt,t)
+        protected ChMatrixDynamic<double> C_dtdt = new ChMatrixDynamic<double>();  //< also speed violations. and acc violations
 
-        protected ChMatrix Cq1 = new ChMatrix();  //< [Cq1], the jacobian of the constraint, for coords1, [ndoc,7]
-        protected ChMatrix Cq2 = new ChMatrix();  //< [Cq2], the jacobian of the constraint, for coords2. [ndoc,7]
+        protected ChMatrixDynamic<double> Cq1 = new ChMatrixDynamic<double>();  //< [Cq1], the jacobian of the constraint, for coords1, [ndoc,7]
+        protected ChMatrixDynamic<double> Cq2 = new ChMatrixDynamic<double>();  //< [Cq2], the jacobian of the constraint, for coords2. [ndoc,7]
 
 
 
-        protected ChMatrix Cqw1 = new ChMatrix();  //< [Cqw1], the jacobian [ndoc,6] for 3 Wl rot.coordinates instead of quaternions
-        protected ChMatrix Cqw2 = new ChMatrix();  //< [Cqw2], the jacobian [ndoc,6] for 3 Wl rot.coordinates instead of quaternions
+        protected ChMatrixDynamic<double> Cqw1 = new ChMatrixDynamic<double>();  //< [Cqw1], the jacobian [ndoc,6] for 3 Wl rot.coordinates instead of quaternions
+        protected ChMatrixDynamic<double> Cqw2 = new ChMatrixDynamic<double>();  //< [Cqw2], the jacobian [ndoc,6] for 3 Wl rot.coordinates instead of quaternions
 
-        protected ChMatrix Qc = new ChMatrix();  //< {Qc}, the known part, {Qc}=-{C_dtdt}-([Cq]{q_dt})q-2[Cq_dt]{q_dt}
+        protected ChMatrixDynamic<double> Qc = new ChMatrixDynamic<double>();  //< {Qc}, the known part, {Qc}=-{C_dtdt}-([Cq]{q_dt})q-2[Cq_dt]{q_dt}
 
-        protected ChMatrix Ct = new ChMatrix();  //< partial derivative of the link kin. equation wrt to time
+        protected ChMatrixDynamic<double> Ct = new ChMatrixDynamic<double>();  //< partial derivative of the link kin. equation wrt to time
 
-        public ChMatrix react = new ChMatrix();  //< {l}, the lagrangians forces in the constraints
+        public ChMatrixDynamic<double> react = new ChMatrixDynamic<double>();  //< {l}, the lagrangians forces in the constraints
+
+        // TEST
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
 
 
         public ChLinkMasked()
@@ -123,7 +126,7 @@ namespace chrono
             }
             else
             {
-                C = null;
+               /* C = null;
                 C_dt = null;
                 C_dtdt = null;
                 react = null;
@@ -132,7 +135,7 @@ namespace chrono
                 Cq1 = null;
                 Cq2 = null;
                 Cqw1 = null;
-                Cqw2 = null;
+                Cqw2 = null;*/
             }
         }
 
@@ -141,7 +144,7 @@ namespace chrono
         {
             if (ndoc > 0)
             {
-                if (C != null)
+                /*if (C != null)
                 {
                     C = null;
                 }
@@ -184,7 +187,7 @@ namespace chrono
                 if (react != null)
                 {
                     react = null;
-                }
+                }*/
             }
 
             ndoc = 0;
@@ -266,8 +269,8 @@ namespace chrono
         // (override/implement interfaces for global state vectors, see ChPhysicsItem for comments.)
         public override void IntStateGatherReactions(int off_L, ref ChVectorDynamic<double> L)
         {
-            if (react != null)
-                L.PasteMatrix(react, off_L, 0);
+           // if (react != null)
+                L.matrix.PasteMatrix(react.matrix, off_L, 0);
         }
 
         public override void IntStateScatterReactions(int off_L, ChVectorDynamic<double> L)
@@ -275,8 +278,8 @@ namespace chrono
             react_force = new ChVector(0, 0, 0);   // Do not update 'intuitive' react force and torque here: just set as 0.
             react_torque = new ChVector(0, 0, 0);  // Child classes implementations should compute them.
 
-            if (react != null)
-                react.PasteClippedMatrix(L, off_L, 0, react.GetRows(), 1, 0, 0);
+           // if (react != null)
+                react.matrix.PasteClippedMatrix(L.matrix, off_L, 0, react.matrix.GetRows(), 1, 0, 0);
         }
 
         public override void IntLoadResidual_CqL(int off_L,
@@ -289,7 +292,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).MultiplyTandAdd(R, L[off_L + cnt] * c);
+                    mask.Constr_N(i).MultiplyTandAdd(R.matrix, L.matrix[off_L + cnt] * c);
                     cnt++;
                 }
             }
@@ -306,13 +309,13 @@ namespace chrono
                 if (mask.Constr_N(i).IsActive()) {
                     if (do_clamp){
                         if (mask.Constr_N(i).IsUnilateral()){
-                            Qc[off_L + cnt] += ChMaths.ChMax(c * C.ElementN(cnt), -recovery_clamp);
+                            Qc.matrix[off_L + cnt] += ChMaths.ChMax(c * C.matrix.ElementN(cnt), -recovery_clamp);
                         } else {
-                            Qc[off_L + cnt] += ChMaths.ChMin(ChMaths.ChMax(c * C.ElementN(cnt), -recovery_clamp), recovery_clamp);
+                            Qc.matrix[off_L + cnt] += ChMaths.ChMin(ChMaths.ChMax(c * C.matrix.ElementN(cnt), -recovery_clamp), recovery_clamp);
                         }  
                         
                     } else 
-                        Qc[off_L + cnt] += c * C.ElementN(cnt);
+                        Qc.matrix[off_L + cnt] += c * C.matrix.ElementN(cnt);
                     cnt++;     // The Gremlin in the works was here!   I had accidently locked this variable in the above else, causing joint jittering          
                 }
             }
@@ -323,7 +326,7 @@ namespace chrono
             int cnt = 0;
             for (int i = 0; i < mask.nconstr; i++) {
                 if (mask.Constr_N(i).IsActive()) {
-                    Qc[off_L + cnt] += c * Ct.ElementN(cnt);
+                    Qc.matrix[off_L + cnt] += c * Ct.matrix.ElementN(cnt);
                     cnt++;
                 }
             }
@@ -339,8 +342,8 @@ namespace chrono
             int cnt = 0;
             for (int i = 0; i < mask.nconstr; i++) {
                 if (mask.Constr_N(i).IsActive()) {
-                    mask.Constr_N(i).Set_l_i(L[off_L + cnt]); // This isn't the l_i problem!
-                    mask.Constr_N(i).Set_b_i(Qc[off_L + cnt]);
+                    mask.Constr_N(i).Set_l_i(L.matrix[off_L + cnt]); // This isn't the l_i problem!
+                    mask.Constr_N(i).Set_b_i(Qc.matrix[off_L + cnt]);
                     cnt++;
                 }
             }
@@ -353,7 +356,7 @@ namespace chrono
             int cnt = 0;
             for (int i = 0; i < mask.nconstr; i++) {
                 if (mask.Constr_N(i).IsActive()) {
-                    L[off_L + cnt] = mask.Constr_N(i).Get_l_i(); // PROBLEM not return correct l_i values
+                    L.matrix[off_L + cnt] = mask.Constr_N(i).Get_l_i(); // PROBLEM not return correct l_i values
                     cnt++;
                 }
             }
@@ -387,13 +390,13 @@ namespace chrono
                     if (do_clamp) {
                         if (mask.Constr_N(i).IsUnilateral())
                             mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() +
-                                                     ChMaths.ChMax(factor * C.ElementN(cnt), -recovery_clamp));
+                                                     ChMaths.ChMax(factor * C.matrix.ElementN(cnt), -recovery_clamp));
                         else
                             mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() +
-                                                      ChMaths.ChMin(ChMaths.ChMax(factor * C.ElementN(cnt), -recovery_clamp), recovery_clamp));
+                                                      ChMaths.ChMin(ChMaths.ChMax(factor * C.matrix.ElementN(cnt), -recovery_clamp), recovery_clamp));
                     }
                     else
-                        mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * C.ElementN(cnt));
+                        mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * C.matrix.ElementN(cnt));
 
                     cnt++;
                 }
@@ -406,7 +409,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Ct.ElementN(cnt));
+                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Ct.matrix.ElementN(cnt));
                     cnt++;
                 }
             }
@@ -418,7 +421,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Qc.ElementN(cnt));
+                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Qc.matrix.ElementN(cnt));
                     cnt++;
                 }
             }
@@ -433,8 +436,8 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    mask.Constr_N(i).Get_Cq_a().PasteClippedMatrix(Cqw1, cnt, 0, 1, this.Cqw1.GetColumns(), 0, 0);
-                    mask.Constr_N(i).Get_Cq_b().PasteClippedMatrix(Cqw2, cnt, 0, 1, this.Cqw2.GetColumns(), 0, 0);
+                    mask.Constr_N(i).Get_Cq_a().PasteClippedMatrix(Cqw1.matrix, cnt, 0, 1, this.Cqw1.matrix.GetColumns(), 0, 0);
+                    mask.Constr_N(i).Get_Cq_b().PasteClippedMatrix(Cqw2.matrix, cnt, 0, 1, this.Cqw2.matrix.GetColumns(), 0, 0);
                     cnt++;
 
                      // sets also the CFM term
@@ -453,7 +456,7 @@ namespace chrono
             {
                 if (mask.Constr_N(i).IsActive())
                 {
-                    react.ElementN(cnt) = mask.Constr_N(i).Get_l_i() * factor;
+                    react.matrix.ElementN(cnt) = mask.Constr_N(i).Get_l_i() * factor;
                     cnt++;
                 }
             }
@@ -467,8 +470,8 @@ namespace chrono
         /////////
         public void Transform_Cq_to_Cqw(ChMatrix mCq, ChMatrix mCqw, ChBodyFrame mbody)
         {
-            if (mCq == null)
-                return;
+           // if (mCq == null)
+            //    return;
 
             // translational part - not changed
             mCqw.PasteClippedMatrix(mCq, 0, 0, mCq.GetRows(), 3, 0, 0);
@@ -477,7 +480,7 @@ namespace chrono
             int col, row, colres;
             double sum;
 
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+           // ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChFrame<double>.SetMatrix_Gl(ref mGl, mbody.GetCoord().rot);
 
             for (colres = 0; colres < 3; colres++)
@@ -487,7 +490,7 @@ namespace chrono
                     sum = 0;
                     for (col = 0; col < 4; col++)
                     {
-                        sum += ((mCq.GetElement(row, col + 3)) * (mGl.GetElement(colres, col)));
+                        sum += ((mCq.GetElement(row, col + 3)) * (mGl.matrix.GetElement(colres, col)));
                     }
                     mCqw.SetElement(row, colres + 3, sum * 0.25);
                 }
@@ -514,8 +517,8 @@ namespace chrono
             //    return;
 
            // ChLinkMasked tran = new ChLinkMasked();
-            this.Transform_Cq_to_Cqw(Cq1, Cqw1, Body1);
-            this.Transform_Cq_to_Cqw(Cq2, Cqw2, Body2);
+            this.Transform_Cq_to_Cqw(Cq1.matrix, Cqw1.matrix, Body1);
+            this.Transform_Cq_to_Cqw(Cq2.matrix, Cqw2.matrix, Body2);
         }
 
         /// Inherits, and updates the C_force and C_torque 'intuitive' forces,
@@ -646,11 +649,11 @@ namespace chrono
         // i.e. the residual of the constraint equations and their time derivatives
 
         /// Link violation (residuals of the link constraint equations)
-        public ChMatrix GetC() { return C; }
+        public ChMatrix GetC() { return C.matrix; }
         /// Time derivatives of link violations
-        public ChMatrix GetC_dt() { return C_dt; }
+        public ChMatrix GetC_dt() { return C_dt.matrix; }
         /// Double time derivatives of link violations
-        public ChMatrix GetC_dtdt() { return C_dtdt; }
+        public ChMatrix GetC_dtdt() { return C_dtdt.matrix; }
 
         // LINK STATE MATRICES
         //
@@ -662,23 +665,23 @@ namespace chrono
         // functions above.
 
         /// The jacobian (body n.1 part, i.e. columns= 7 ,  rows= ndoc)
-        public ChMatrix GetCq1() { return Cq1; }
+        public ChMatrix GetCq1() { return Cq1.matrix; }
         /// The jacobian (body n.2 part, i.e. columns= 7 ,  rows= ndoc)
-        public ChMatrix GetCq2() { return Cq2; }
+        public ChMatrix GetCq2() { return Cq2.matrix; }
 
         /// The jacobian for Wl (col 6, rows= ndoc), as [Cqw1_rot]=[Cq_rot]*[Gl_1]'
-        public ChMatrix GetCqw1() { return Cqw1; }
+        public ChMatrix GetCqw1() { return Cqw1.matrix; }
         /// The jacobian for Wl (col 6, rows= ndoc)	as [Cqw2_rot]=[Cq_rot]*[Gl_2]'
-        public ChMatrix GetCqw2() { return Cqw2; }
+        public ChMatrix GetCqw2() { return Cqw2.matrix; }
 
         /// The gamma vector used in dynamics,  [Cq]x''=Qc
-        public ChMatrix GetQc() { return Qc; }
+        public ChMatrix GetQc() { return Qc.matrix; }
 
         /// The Ct vector used in kinematics,  [Cq]x'=Ct
-        public ChMatrix GetCt() { return Ct; }
+        public ChMatrix GetCt() { return Ct.matrix; }
 
         /// Access the reaction vector, after dynamics computations
-        public ChMatrix GetReact() { return react; }
+        public ChMatrix GetReact() { return react.matrix; }
 
         //
         // OTHER DATA

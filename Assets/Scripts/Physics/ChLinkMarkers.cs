@@ -39,6 +39,17 @@ namespace chrono
         protected ChVector C_force = new ChVector(0, 0, 0);     //< internal force  applied by springs/dampers/actuators
         protected ChVector C_torque = new ChVector(0, 0, 0);    //< internal torque applied by springs/dampers/actuators
 
+        // TEST
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+
+        ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>(0);
+        ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>(0);
+
+        ChQuaternion q_AD = ChQuaternion.QNULL;
+        ChQuaternion  q_BC = ChQuaternion.QNULL;
+        ChQuaternion q_8 = ChQuaternion.QNULL;
+        ChVector q_4 = ChVector.VNULL;
+
         public ChLinkMarkers()
         {
             marker1 = null;
@@ -241,11 +252,11 @@ namespace chrono
             ChVector vtemp2;
             ChQuaternion qtemp1;
 
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChQuaternion q_AD;
+           // ChMatrixNM<IntInterface.Three, IntInterface.Four> relGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+           /* ChQuaternion q_AD;
             ChQuaternion q_BC;
             ChQuaternion q_8;
-            ChVector q_4;
+            ChVector q_4;*/
 
              ChQuaternion temp1 = marker1.FrameMoving.GetCoord_dt().rot;
              ChQuaternion temp2 = marker2.FrameMoving.GetCoord_dt().rot;
@@ -261,7 +272,7 @@ namespace chrono
                                         ChQuaternion.Qcross((marker1.GetBody().BodyFrame.GetCoord().rot), (marker1.FrameMoving.GetCoord_dt().rot)))));
             }
             else
-                q_AD = ChQuaternion.QNULL;
+                //q_AD = ChQuaternion.QNULL;
 
             q_BC =  // qq'qq + qqq'q
                  ChQuaternion.Qadd( ChQuaternion.Qcross( ChQuaternion.Qconjugate(marker2.FrameMoving.GetCoord().rot),
@@ -280,7 +291,7 @@ namespace chrono
                                      ChQuaternion.Qcross(Body1.GetCoord().rot,
                                            marker1.FrameMoving.GetCoord().rot)));  // q_dtdt'm2 * q'o2 * q,o1 * q,m1
             else
-                q_8 = ChQuaternion.QNULL;
+                //q_8 = ChQuaternion.QNULL;
             temp1 = marker1.FrameMoving.GetCoord_dtdt().rot;
             if ( ChQuaternion.Qnotnull(temp1))
             {
@@ -345,9 +356,9 @@ namespace chrono
 
             // q_4 = [Adtdt]'[A]'q + 2[Adt]'[Adt]'q
             //       + 2[Adt]'[A]'qdt + 2[A]'[Adt]'qdt
-            ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adt(ref m2_Rel_A_dt);
-            ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>();
+           // ChMatrix33<double> m2_Rel_A_dtdt = new ChMatrix33<double>(0);
             marker2.FrameMoving.Compute_Adtdt(ref m2_Rel_A_dtdt);
 
             vtemp1 = Body2.GetA_dt().MatrT_x_Vect(PQw);
@@ -417,9 +428,9 @@ namespace chrono
             relRotaxis = ChVector.Vmul(relAxis, relAngle);
             // relWvel
             ChFrame<double>.SetMatrix_Gw(ref relGw, relM.rot);  // relGw.Set_Gw_matrix(relM.rot);
-            relWvel = relGw.Matr34_x_Quat(relM_dt.rot);
+            relWvel = relGw.matrix.Matr34_x_Quat(relM_dt.rot);
             // relWacc
-            relWacc = relGw.Matr34_x_Quat(relM_dtdt.rot);
+            relWacc = relGw.matrix.Matr34_x_Quat(relM_dtdt.rot);
         }
 
         ///  Updates auxiliary forces caused by springs/dampers/etc. which may
@@ -430,8 +441,8 @@ namespace chrono
         /// and their application point is the origin of marker1 (the SLAVE marker).
         public virtual void UpdateForces(double mytime)
         {
-            C_force = new ChVector(0, 0, 0);  // initialize int.forces accumulators
-            C_torque = new ChVector(0, 0, 0);
+            C_force = ChVector.VNULL;  // initialize int.forces accumulators
+            C_torque = ChVector.VNULL;
 
             // First and only operation: add the 'externally set' script forces (torques)
             C_force = ChVector.Vadd(C_force, Scr_force);
@@ -483,8 +494,8 @@ namespace chrono
                                               marker1.GetAbsCoord().pos,  // absolute application point is always marker1
                                               false,                       // from abs. space
                                               ref mbody_force, ref mbody_torque);  // resulting force-torque, both in abs coords
-                    R.PasteSumVector(mbody_force * -c, Body2.Variables().GetOffset(), 0);
-                    R.PasteSumVector(Body2.TransformDirectionParentToLocal(mbody_torque) * -c,
+                    R.matrix.PasteSumVector(mbody_force * -c, Body2.Variables().GetOffset(), 0);
+                    R.matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(mbody_torque) * -c,
                                      Body2.Variables().GetOffset() + 3, 0);
                 }
 
@@ -494,8 +505,8 @@ namespace chrono
                                               marker1.GetAbsCoord().pos,  // absolute application point is always marker1
                                               false,                       // from abs. space
                                               ref mbody_force, ref mbody_torque);  // resulting force-torque, both in abs coords
-                    R.PasteSumVector(mbody_force * c, Body1.Variables().GetOffset(), 0);
-                    R.PasteSumVector(Body1.TransformDirectionParentToLocal(mbody_torque) * c,
+                    R.matrix.PasteSumVector(mbody_force * c, Body1.Variables().GetOffset(), 0);
+                    R.matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(mbody_torque) * c,
                                      Body1.Variables().GetOffset() + 3, 0);
                 }
             }
@@ -505,12 +516,12 @@ namespace chrono
                 // load torques in 'fb' vector accumulator of body variables (torques in local coords)
                 if (Body1.Variables().IsActive())
                 {
-                    R.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * c,
+                    R.matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * c,
                                      Body1.Variables().GetOffset() + 3, 0);
                 }
                 if (Body2.Variables().IsActive())
                 {
-                    R.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -c,
+                    R.matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -c,
                                      Body2.Variables().GetOffset() + 3, 0);
                 }
             }
@@ -542,23 +553,23 @@ namespace chrono
                                           marker1.GetAbsCoord().pos,  // absolute application point is always marker1
                                           false,                       // from abs. space
                                           ref mbody_force, ref mbody_torque);  // resulting force-torque, both in abs coords
-                Body2.Variables().Get_fb().PasteSumVector(mbody_force * -factor, 0, 0);
-                Body2.Variables().Get_fb().PasteSumVector(Body2.TransformDirectionParentToLocal(mbody_torque) * -factor, 3,
+                Body2.Variables().Get_fb().matrix.PasteSumVector(mbody_force * -factor, 0, 0);
+                Body2.Variables().Get_fb().matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(mbody_torque) * -factor, 3,
                                                            0);
 
                 Body1.To_abs_forcetorque(m_abs_force,
                                           marker1.GetAbsCoord().pos,  // absolute application point is always marker1
                                           false,                       // from abs. space
                                           ref mbody_force, ref mbody_torque);  // resulting force-torque, both in abs coords
-                Body1.Variables().Get_fb().PasteSumVector(mbody_force * factor, 0, 0);
-                Body1.Variables().Get_fb().PasteSumVector(Body1.TransformDirectionParentToLocal(mbody_torque) * factor, 3, 0);
+                Body1.Variables().Get_fb().matrix.PasteSumVector(mbody_force * factor, 0, 0);
+                Body1.Variables().Get_fb().matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(mbody_torque) * factor, 3, 0);
             }
             if (ChVector.Vnotnull(C_torque))
             {
                 ChVector m_abs_torque = Body2.GetA().Matr_x_Vect(marker2.FrameMoving.GetA().Matr_x_Vect(C_torque));
                 // load torques in 'fb' vector accumulator of body variables (torques in local coords)
-                Body1.Variables().Get_fb().PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * factor, 3, 0);
-                Body2.Variables().Get_fb().PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -factor, 3,
+                Body1.Variables().Get_fb().matrix.PasteSumVector(Body1.TransformDirectionParentToLocal(m_abs_torque) * factor, 3, 0);
+                Body2.Variables().Get_fb().matrix.PasteSumVector(Body2.TransformDirectionParentToLocal(m_abs_torque) * -factor, 3,
                                                            0);
             }
         }

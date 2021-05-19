@@ -157,7 +157,7 @@ Other matrices (like ChCSMatrix) can acquire the sparsity pattern information fr
            // ListExtras.Resize<int, aligned_allocator<int, IntInterface.SixtyFour>>(leadIndex, leading_dimension + 1);
            // ListExtras.Resize<int, aligned_allocator<int, IntInterface.SixtyFour>>(trailIndex, nonzeros);
            // ListExtras.Resize<double, aligned_allocator<double, IntInterface.SixtyFour>>(values, nonzeros);
-            ListExtras.Resize<bool>(initialized_element, nonzeros);
+           // ListExtras.Resize<bool>(initialized_element, nonzeros);
             /* for(int i = 0; i <= initialized_element.Count; i++)
              {
                  initialized_element.Add(false);

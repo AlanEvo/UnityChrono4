@@ -26,8 +26,16 @@ namespace chrono
         public ChCoordsys coord_dt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));    //< Rotation and position speed, as vector+quaternion
         public ChCoordsys coord_dtdt = new ChCoordsys(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0));  //< Rotation and position acceleration, as vector+quaternion
 
-        //Test
-        ChMatrix33<double> mr = new ChMatrix33<double>();
+        public static ChFrameMoving<Real> FMNULL = new ChFrameMoving<Real>();
+
+        //Test  Nested these variables because it has made a large difference in performance without errors.
+        ChMatrix33<double> mr = new ChMatrix33<double>(0);
+
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> Fpdt = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0); //ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> Fm = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> ma = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> mb = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
 
         public ChFrameMoving(): base(new ChVector(0, 0, 0), new ChQuaternion(1, 0, 0, 0)){
             coord_dt.rot = coord_dtdt.rot = new ChQuaternion(0, 0, 0, 0);
@@ -79,11 +87,18 @@ namespace chrono
         public static ChFrameMoving<Real> BitShiftRight(ChFrameMoving<Real> Fa, ChFrameMoving<Real> Fb)
         {
             ChFrameMoving<Real> res = new ChFrameMoving<Real>();
-            Fb.TransformLocalToParent(Fa, ref res);
+            Fb.TransformLocalToParent(Fa, res);
             return res;
         }
 
-        
+        public ChFrameMoving<Real> BitShiftRight(ChFrameMoving<Real> Fb)
+        {
+            ChFrameMoving<Real> res = new ChFrameMoving<Real>();
+            Fb.TransformLocalToParent(this, res);
+            return res;
+        }
+
+
         //
         // FUNCTIONS
         //
@@ -114,35 +129,35 @@ namespace chrono
         /// Computes the actual angular speed (expressed in local coords)
         public ChVector GetWvel_loc()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = ChMatrixNM<IntInterface.Three, IntInterface.Four>.NMNULL3_4;// new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChFrame<Real>.SetMatrix_Gl(ref tempGl, this.coord.rot);
 
-            return tempGl.Matr34_x_Quat(coord_dt.rot);  // wl=[Gl]*q_dt
+            return tempGl.matrix.Matr34_x_Quat(coord_dt.rot);  // wl=[Gl]*q_dt
         }
 
         /// Computes the actual angular speed (expressed in parent coords)
         public ChVector GetWvel_par()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = ChMatrixNM<IntInterface.Three, IntInterface.Four>.NMNULL3_4; //new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChFrame<Real>.SetMatrix_Gw(ref tempGw, this.coord.rot);
-            return tempGw.Matr34_x_Quat(coord_dt.rot);  // ww=[Gw]*q_dt
+            return tempGw.matrix.Matr34_x_Quat(coord_dt.rot);  // ww=[Gw]*q_dt
         }
 
         /// Computes the actual angular acceleration (expressed in local coords)
         public ChVector GetWacc_loc()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGl = ChMatrixNM<IntInterface.Three, IntInterface.Four>.NMNULL3_4; //new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             //ChFrame<Real> gl = new ChFrame<Real>();
             ChFrame<Real>.SetMatrix_Gl(ref tempGl, this.coord.rot);
-            return tempGl.Matr34_x_Quat(coord_dtdt.rot);  // al=[Gl]*q_dtdt
+            return tempGl.matrix.Matr34_x_Quat(coord_dtdt.rot);  // al=[Gl]*q_dtdt
         }
 
         /// Computes the actual angular acceleration (expressed in parent coords)
         public ChVector GetWacc_par()
         {
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            ChMatrixNM<IntInterface.Three, IntInterface.Four> tempGw = ChMatrixNM<IntInterface.Three, IntInterface.Four>.NMNULL3_4; //new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChFrame<Real>.SetMatrix_Gw(ref tempGw, this.coord.rot);
-            return tempGw.Matr34_x_Quat(coord_dtdt.rot);  // aw=[Gw]*q_dtdt
+            return tempGw.matrix.Matr34_x_Quat(coord_dtdt.rot);  // aw=[Gw]*q_dtdt
 
         }
 
@@ -208,37 +223,37 @@ namespace chrono
         public void Compute_Adt(ref ChMatrix33<Real> mA_dt)
         {
             //  [A_dt]=2[dFp/dt][Fm]'=2[Fp(q_dt)][Fm(q)]'
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> Fpdt = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(); //ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> Fm = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+            //ChMatrixNM<IntInterface.Three, IntInterface.Four> Fpdt = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0); //ChMatrixNM<IntInterface.Four, IntInterface.Four>.NMNULL3_4;
+           // ChMatrixNM<IntInterface.Three, IntInterface.Four> Fm = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
             ChFrame<Real>.SetMatrix_Fp(ref Fpdt, coord_dt.rot);
             ChFrame<Real>.SetMatrix_Fm(ref Fm, this.coord.rot);
-            mA_dt.MatrMultiplyT(Fpdt, Fm);
-            mA_dt.MatrScale(2);
+            mA_dt.nm.matrix.MatrMultiplyT(Fpdt.matrix, Fm.matrix);
+            mA_dt.nm.matrix.MatrScale(2);
         }
 
         /// Computes the 2nd time derivative of rotation matrix, mAdtdt.
         public void Compute_Adtdt(ref ChMatrix33<Real> mA_dtdt)
         {
             //  [A_dtdt]=2[Fp(q_dtdt)][Fm(q)]'+2[Fp(q_dt)][Fm(q_dt)]'
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> ma = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrixNM<IntInterface.Three, IntInterface.Four> mb = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
-            ChMatrix33<double> mr = new ChMatrix33<double>();
+          //  ChMatrixNM<IntInterface.Three, IntInterface.Four> ma = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+          //  ChMatrixNM<IntInterface.Three, IntInterface.Four> mb = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
+           // ChMatrix33<double> mr = new ChMatrix33<double>(0);
 
             ChFrame<Real>.SetMatrix_Fp(ref ma, coord_dtdt.rot);
             ChFrame<Real>.SetMatrix_Fm(ref mb, this.coord.rot);
-            mr.MatrMultiplyT(ma, mb);
+            mr.nm.matrix.MatrMultiplyT(ma.matrix, mb.matrix);
             ChFrame<Real>.SetMatrix_Fp(ref ma, coord_dt.rot);
             ChFrame<Real>.SetMatrix_Fm(ref mb, coord_dt.rot);
-            mA_dtdt.MatrMultiplyT(ma, mb);
-            mA_dtdt.MatrInc(mr);
-            mA_dtdt.MatrScale(2);
+            mA_dtdt.nm.matrix.MatrMultiplyT(ma.matrix, mb.matrix);
+            mA_dtdt.nm.matrix.MatrInc(mr.nm.matrix);
+            mA_dtdt.nm.matrix.MatrScale(2);
         }
 
         /// Computes and returns an Adt matrix (-note: prefer using
         /// Compute_Adt() directly for better performance)
         public ChMatrix33<Real> GetA_dt()
         {
-            ChMatrix33<Real> res = new ChMatrix33<Real>();
+            ChMatrix33<Real> res = new ChMatrix33<Real>(0);
             Compute_Adt(ref res);
             return res;
         }
@@ -247,7 +262,7 @@ namespace chrono
         /// Compute_Adtdt() directly for better performance)
         public ChMatrix33<Real> GetA_dtdt()
         {
-            ChMatrix33<Real> res = new ChMatrix33<Real>();
+            ChMatrix33<Real> res = new ChMatrix33<Real>(0);
             Compute_Adtdt(ref res);
             return res;
         }
@@ -259,9 +274,9 @@ namespace chrono
         /// by the other frame T:   this'= T * this;  or this' = this >> T
         public void ConcatenatePreTransformation(ChFrameMoving<Real> T)
         {
-            ChFrameMoving<Real> res = new ChFrameMoving<Real>();
-            T.TransformLocalToParent(this, ref res);
-            //this = res;
+            ChFrameMoving<Real> res = FMNULL;// new ChFrameMoving<Real>();
+            T.TransformLocalToParent(this, res);
+           // this = res;
         }
 
         /// Apply a transformation (rotation and translation) represented by
@@ -269,8 +284,8 @@ namespace chrono
         /// post-multiply this frame by the other frame T:   this'= this * T; or this' = T >> this
         public void ConcatenatePostTransformation(ChFrameMoving<Real> T)
         {
-            ChFrameMoving<Real> res = new ChFrameMoving<Real>();
-            this.TransformLocalToParent(T, ref res);
+            ChFrameMoving<Real> res = FMNULL;// new ChFrameMoving<Real>();
+            this.TransformLocalToParent(T, res);
             //*this = res;
         }
 
@@ -333,15 +348,16 @@ namespace chrono
         public ChVector PointAccelerationParentToLocal(ChVector parentpos,
                                                   ChVector parentspeed,
                                                   ChVector parentacc) {
-            ChFrame<Real> f = this;// new ChFrame<Real>();
-            ChVector localpos = f.TransformParentToLocal(parentpos);
-            ChVector localspeed = PointSpeedParentToLocal(parentpos, parentspeed);
+             ChFrame<Real> f = this;// new ChFrame<Real>();
+             ChVector localpos = f.TransformParentToLocal(parentpos);
+             ChVector localspeed = PointSpeedParentToLocal(parentpos, parentspeed);
 
-            return this.Amatrix.MatrT_x_Vect(
-                parentacc - coord_dtdt.pos -
-                (coord_dtdt.rot % new ChQuaternion(0, localpos) % this.coord.rot.GetConjugate()).GetVector() * 2 -
-                (coord_dt.rot % new ChQuaternion(0, localpos) % coord_dt.rot.GetConjugate()).GetVector() * 2 -
-                (coord_dt.rot % new ChQuaternion(0, localspeed) % this.coord.rot.GetConjugate()).GetVector() * 4);
+             return this.Amatrix.MatrT_x_Vect(
+                 parentacc - coord_dtdt.pos -
+                 (coord_dtdt.rot % new ChQuaternion(0, localpos) % this.coord.rot.GetConjugate()).GetVector() * 2 -
+                 (coord_dt.rot % new ChQuaternion(0, localpos) % coord_dt.rot.GetConjugate()).GetVector() * 2 -
+                 (coord_dt.rot % new ChQuaternion(0, localspeed) % this.coord.rot.GetConjugate()).GetVector() * 4);
+
         }
 
         /// This function transforms a frame from 'this' local coordinate
@@ -349,11 +365,11 @@ namespace chrono
         /// and acceleration of the frame.
         public void TransformLocalToParent(
             ChFrameMoving<Real> local,  //< frame to transform, given in local frame coordinates
-            ref ChFrameMoving<Real> parent        //< transformed frame, in parent coordinates, will be stored here
+            ChFrameMoving<Real> parent        //< transformed frame, in parent coordinates, will be stored here
             ) {
             // pos & rot
             //ChFrame<Real> f = this;
-            TransformLocalToParent(local, parent); // Problem here?
+            base.TransformLocalToParent(local, parent); // Problem here?
 
             // pos_dt
             parent.coord_dt.pos = PointSpeedLocalToParent(local.coord.pos, local.coord_dt.pos);
