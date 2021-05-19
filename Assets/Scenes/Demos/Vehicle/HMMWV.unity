@@ -517,7 +517,7 @@ MonoBehaviour:
   density: 1000
   automaticMass: 0
   bodyfixed: 0
-  collide: 0
+  collide: 1
   mass: 37.6
   inertiaMoments: {x: 3.84, y: 6.69, z: 3.84}
   inertiaProducts: {x: 0, y: 0, z: 0}
@@ -527,8 +527,8 @@ MonoBehaviour:
   rot: 0
   showFrameGizmo: 1
   materialType: 1
-  type: 0
-  friction: 0.9
+  type: 2
+  friction: 0.7
   rolling_friction: 0
   spinning_friction: 0
   restitution: 0.1
@@ -620,7 +620,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 340316115}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3078d2d5edf4944957d10f3845dfaf, type: 3}
   m_Name: 
@@ -913,7 +913,7 @@ MonoBehaviour:
   density: 1000
   automaticMass: 0
   bodyfixed: 0
-  collide: 0
+  collide: 1
   mass: 37.6
   inertiaMoments: {x: 3.84, y: 6.69, z: 3.84}
   inertiaProducts: {x: 0, y: 0, z: 0}
@@ -923,8 +923,8 @@ MonoBehaviour:
   rot: 0
   showFrameGizmo: 1
   materialType: 1
-  type: 0
-  friction: 0.9
+  type: 2
+  friction: 0.7
   rolling_friction: 0
   spinning_friction: 0
   restitution: 0.1
@@ -1016,7 +1016,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 651576428}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3078d2d5edf4944957d10f3845dfaf, type: 3}
   m_Name: 
@@ -1870,7 +1870,7 @@ MonoBehaviour:
   density: 1000
   automaticMass: 0
   bodyfixed: 0
-  collide: 0
+  collide: 1
   mass: 37.6
   inertiaMoments: {x: 3.84, y: 6.69, z: 3.84}
   inertiaProducts: {x: 0, y: 0, z: 0}
@@ -1880,8 +1880,8 @@ MonoBehaviour:
   rot: 0
   showFrameGizmo: 1
   materialType: 1
-  type: 0
-  friction: 0.9
+  type: 2
+  friction: 0.7
   rolling_friction: 0
   spinning_friction: 0
   restitution: 0.1
@@ -1973,7 +1973,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1269059652}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3078d2d5edf4944957d10f3845dfaf, type: 3}
   m_Name: 
@@ -2558,7 +2558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1727881305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3166,7 +3166,7 @@ MonoBehaviour:
   density: 1000
   automaticMass: 0
   bodyfixed: 0
-  collide: 0
+  collide: 1
   mass: 37.6
   inertiaMoments: {x: 3.84, y: 6.69, z: 3.84}
   inertiaProducts: {x: 0, y: 0, z: 0}
@@ -3176,8 +3176,8 @@ MonoBehaviour:
   rot: 0
   showFrameGizmo: 1
   materialType: 1
-  type: 0
-  friction: 0.9
+  type: 2
+  friction: 0.7
   rolling_friction: 0
   spinning_friction: 0
   restitution: 0.1
@@ -3269,7 +3269,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891286281}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3078d2d5edf4944957d10f3845dfaf, type: 3}
   m_Name: 
