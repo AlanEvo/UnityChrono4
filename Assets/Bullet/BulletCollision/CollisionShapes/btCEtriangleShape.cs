@@ -61,29 +61,32 @@ namespace BulletXNA.BulletCollision
             owns_edge_3 = mowns_edge_3;
             sphereswept_rad = msphereswept_rad;
 
-            //m_shapeType = CE_TRIANGLE_SHAPE_PROXYTYPE;
+            m_shapeType = BroadphaseNativeTypes.CE_TRIANGLE_SHAPE_PROXYTYPE;
         }
 
-        IndexedVector3 localGetSupportingVertexWithoutMargin(IndexedVector3 vec0)
+        public override IndexedVector3 LocalGetSupportingVertexWithoutMargin(ref IndexedVector3 vec0)
         {
             IndexedVector3 supVec = new IndexedVector3(0.0f, 0.0f, 0.0f);
             float newDot, maxDot = -(float)BT_LARGE_FLOAT;
             IndexedVector3 vtx;
             vtx = new IndexedVector3((float)this.p1.x, (float)this.p1.y, (float)this.p1.z);
             newDot = vec0.Dot(vtx);
-            if (newDot > maxDot) {
+            if (newDot > maxDot)
+            {
                 maxDot = newDot;
                 supVec = vtx;
             }
             vtx = new IndexedVector3((float)this.p2.x, (float)this.p2.y, (float)this.p2.z);
             newDot = vec0.Dot(vtx);
-            if (newDot > maxDot) {
+            if (newDot > maxDot)
+            {
                 maxDot = newDot;
                 supVec = vtx;
             }
             vtx = new IndexedVector3((float)this.p3.x, (float)this.p3.y, (float)this.p3.z);
             newDot = vec0.Dot(vtx);
-            if (newDot > maxDot) {
+            if (newDot > maxDot)
+            {
                 maxDot = newDot;
                 supVec = vtx;
             }
@@ -91,14 +94,12 @@ namespace BulletXNA.BulletCollision
             return supVec;  //+ vec0.normalized()*this.sphereswept_rad; //***TODO*** add the sphereswept_rad layer (but gives seldom jittering.. why?)
         }
 
-        ///CollisionShape Interface
-        public virtual void calculateLocalInertia(float mass, ref IndexedVector3 inertia)
-        {
+        /*public override void CalculateLocalInertia(float mass, out IndexedVector3 inertia) {
             //***TO DO***
             //as an approximation, take the inertia of an average radius sphere
 
-           // IndexedBasisMatrix ident = new IndexedBasisMatrix();
-           // ident.setIdentity();
+            // IndexedBasisMatrix ident = new IndexedBasisMatrix();
+            // ident.setIdentity();
 
             IndexedVector3 halfExtents = new IndexedVector3();
             double radius = chrono.ChMaths.ChMax((p2 - p1).Length(), (p3 - p1).Length());
@@ -119,7 +120,9 @@ namespace BulletXNA.BulletCollision
             inertia[0] = scaledmass * (y2 + z2);
             inertia[1] = scaledmass * (x2 + z2);
             inertia[2] = scaledmass * (x2 + y2);
-        }
+        } */     
+
+
 
         public override void BatchedUnitVectorGetSupportingVertexWithoutMargin(IndexedVector3[] vectors, IndexedVector4[] supportVerticesOut, int numVectors)
         {
@@ -136,11 +139,13 @@ namespace BulletXNA.BulletCollision
                   return "CEtriangleShape";
               }*/
 
-        public virtual void getAabb(IndexedMatrix t, ref IndexedVector3 aabbMin, ref IndexedVector3 aabbMax)
+        public override void GetAabb(ref IndexedMatrix trans, out IndexedVector3 aabbMin, out IndexedVector3 aabbMax)
         {
-            IndexedVector3 p1_w = t._origin + t._basis * new IndexedVector3((float)this.p1.x, (float)this.p1.y, (float)this.p1.z);
-            IndexedVector3 p2_w = t._origin + t._basis * new IndexedVector3((float)this.p2.x, (float)this.p2.y, (float)this.p2.z);
-            IndexedVector3 p3_w = t._origin + t._basis * new IndexedVector3((float)this.p3.x, (float)this.p3.y, (float)this.p3.z);
+           // base.GetAabb(ref trans, out aabbMin, out aabbMax);
+
+            IndexedVector3 p1_w = trans._origin + trans._basis * new IndexedVector3((float)this.p1.x, (float)this.p1.y, (float)this.p1.z);
+            IndexedVector3 p2_w = trans._origin + trans._basis * new IndexedVector3((float)this.p2.x, (float)this.p2.y, (float)this.p2.z);
+            IndexedVector3 p3_w = trans._origin + trans._basis * new IndexedVector3((float)this.p3.x, (float)this.p3.y, (float)this.p3.z);
 
             chrono.collision.ChModelBullet triModel = (chrono.collision.ChModelBullet)this.GetUserPointer();
 

@@ -269,6 +269,9 @@ namespace BulletXNA.BulletCollision
         BOX_2D_SHAPE_PROXYTYPE,
         CONVEX_2D_SHAPE_PROXYTYPE,
         CUSTOM_CONVEX_SHAPE_TYPE,
+        BARREL_SHAPE_PROXYTYPE,   //***ALEX***
+        POINT_SHAPE_PROXYTYPE,   //***ALEX***
+        CE_TRIANGLE_SHAPE_PROXYTYPE,   //***ALEX***
         //concave shapes
         CONCAVE_SHAPES_START_HERE,
         //keep all the convex shapetype below here, for the check IsConvexShape in broadphase proxy!

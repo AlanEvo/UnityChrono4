@@ -183,6 +183,10 @@ namespace BulletXNA.BulletCollision
                     input.m_transformA = body0.GetWorldTransform();
                     input.m_transformB = body1.GetWorldTransform();
 
+                    BroadphaseNativeTypes m0 = min0.GetShapeType();
+                    BroadphaseNativeTypes m1 = min1.GetShapeType();
+                    bool flap1 = min0.IsPolyhedral();
+                    bool flap2 = min1.IsPolyhedral();
 
                     if (min0.IsPolyhedral() && min1.IsPolyhedral())
                     {
