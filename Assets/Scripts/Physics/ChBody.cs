@@ -82,8 +82,14 @@ namespace chrono
 
         public bool showFrameGizmo = true;
 
+        public Texture2D texture;
+        public RenderTexture myRenderTexture;
+        protected List<int> tris = new List<int>();
+        protected List<Vector3> verts = new List<Vector3>();
+
         ChQuaternion mdeltarot = new ChQuaternion(1, 0, 0, 0);
 
+        //TEST
         ChMatrix33<double> Jx1 = new ChMatrix33<double>(0);
         ChMatrix33<double> Jr1 = new ChMatrix33<double>(0);
         ChMatrix33<double> Ps1 = new ChMatrix33<double>(0);
@@ -106,7 +112,8 @@ namespace chrono
             Cube,
             Sphere,
             Cylinder,
-            Mesh
+            Mesh,
+            Terrain
         }
 
         public CollisionType type = CollisionType.Cube;
@@ -138,7 +145,7 @@ namespace chrono
 
         public int Masta { get { return 0; } }
 
-        public virtual void Awake()
+        public virtual void Start()
         {
 
             switch (materialType)
@@ -311,14 +318,18 @@ namespace chrono
                     Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
                     double sweep_sphere_radius = 0.1;
 
-                    geometry.ChTriangleMeshConnected trimesh = new geometry.ChTriangleMeshConnected();
-                    trimesh.LoadWavefrontMesh(mesh);
+                    //  geometry.ChTriangleMeshConnected trimesh = new geometry.ChTriangleMeshConnected();
+                    //  trimesh.LoadWavefrontMesh(mesh);
 
                     // Create the collision model
-                    GetCollisionModel().ClearModel();
-                    GetCollisionModel().AddTriangleMesh(trimesh, true, false, ChVector.VNULL, new ChMatrix33<double>(1),
-                                                                        sweep_sphere_radius);
-                    GetCollisionModel().BuildModel();
+
+                    if (collide)
+                    {
+                        GetCollisionModel().ClearModel();
+                        GetCollisionModel().AddTriangleMesh(mesh, true, false, ChVector.VNULL, new ChMatrix33<double>(1));
+                        GetCollisionModel().BuildModel();
+                        SetCollide(true);
+                    }
 
                     this.SetDensity((float)density);
                     this.SetMass(mass);
@@ -337,7 +348,71 @@ namespace chrono
                     // ChSystem msystem3 = FindObjectOfType<ChSystem>();
                     // msystem3.AddBody(this);
                     ChSystem.system.AddBody(this);
+                    break;
+                case CollisionType.Terrain:
 
+                    //Texture2D hMap = Resources.Load("Heightmap") as Texture2D;
+
+                    Terrain terrain = GetComponent<Terrain>();
+                    Texture2D texture2D = new Texture2D(512, 512, TextureFormat.RGB24, false);
+
+                    myRenderTexture = terrain.terrainData.heightmapTexture;
+
+                    RenderTexture.active = myRenderTexture;
+                    texture2D.ReadPixels(new Rect(0, 0, myRenderTexture.width, myRenderTexture.height), 0, 0);
+                    texture2D.Apply();
+                    texture = texture2D;
+
+                    // List<Vector3> verts = new List<Vector3>();
+                    //List<int> tris = new List<int>();
+
+                    int dimensions = 65;
+
+                    //Bottom left section of the map, other sections are similar
+                    for (int i = 0; i < dimensions; i++)
+                    {
+                        for (int j = 0; j < dimensions; j++)
+                        {
+                            //Add each new vertex in the plane
+                            verts.Add(new Vector3(i, texture.GetPixel(i, j).grayscale * 50, j));
+                            //Skip if a new square on the plane hasn't been formed
+                            if (i == 0 || j == 0) continue;
+                            //Adds the index of the three vertices in order to make up each of the two tris
+                            tris.Add(dimensions * i + j); //Top right
+                            tris.Add(dimensions * i + j - 1); //Bottom right
+                            tris.Add(dimensions * (i - 1) + j - 1); //Bottom left - First triangle
+                            tris.Add(dimensions * (i - 1) + j - 1); //Bottom left 
+                            tris.Add(dimensions * (i - 1) + j); //Top left
+                            tris.Add(dimensions * i + j); //Top right - Second triangle
+                        }
+                    }
+
+                    Mesh procMesh = new Mesh();
+                    procMesh.vertices = verts.ToArray(); //Assign verts, uvs, and tris to the mesh
+                                                         // procMesh.uv = uvs;
+                    procMesh.triangles = tris.ToArray();
+                    procMesh.RecalculateNormals(); //Determines which way the triangles are facing
+
+                    if (collide)
+                    {
+                        GetCollisionModel().ClearModel();
+                        GetCollisionModel().AddTriangleMesh(procMesh, true, false, new ChVector(0, 0, 0), new ChMatrix33<double>(1));
+                        GetCollisionModel().BuildModel();
+                        SetCollide(true);
+                    }
+
+                    this.SetDensity((float)density);
+                    this.SetMass(mass);
+
+                    SetInertiaXX(ToChrono(inertiaMoments));
+                    SetInertiaXY(ToChrono(inertiaProducts));
+
+                    SetBodyFixed(bodyfixed);
+
+                    BodyFrame.SetPos(new ChVector(transform.position.x, transform.position.y, transform.position.z));
+                    BodyFrame.SetRot(new ChQuaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z));
+
+                    ChSystem.system.AddBody(this);
                     break;
             }
 
