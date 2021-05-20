@@ -81,9 +81,9 @@ namespace chrono
           
         }
 
-        public override void Awake()
+        public override void Start()
         {
-            base.Awake();
+            base.Start();
 
             if (init_sys)
             {

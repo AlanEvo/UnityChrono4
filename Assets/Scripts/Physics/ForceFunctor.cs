@@ -16,7 +16,7 @@ namespace chrono
                               ]
         { get { return 0; } }
 
-        public void Awake()
+        public void Start()
         {
             int a = 1;
         }

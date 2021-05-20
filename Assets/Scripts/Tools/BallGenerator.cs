@@ -40,7 +40,7 @@ public class BallGenerator : MonoBehaviour
         // created a ChBody with default parameters. So we must delete the ChBody and invoke
         // UChBody.Awake again to create a body with the new settings.
        // body.Destroy();
-       // body.Awake();
+       // body.Start();
     }
 
     void Start()

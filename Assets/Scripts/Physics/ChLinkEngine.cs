@@ -127,7 +127,7 @@ namespace chrono
 
         }
 
-        public override void Awake()
+        public override void Start()
         {
             ChCoordsys pos = ChCoordsys.CSYSNULL;
             pos.pos.x = transform.position.x;

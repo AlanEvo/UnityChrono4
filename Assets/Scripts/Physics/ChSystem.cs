@@ -105,8 +105,9 @@ namespace chrono
 
         }
 
-        public virtual void Awake()
+        public virtual void Start()
         {
+
             Time.fixedDeltaTime = (float)step;
 
             end_time = 1;
@@ -144,7 +145,6 @@ namespace chrono
 
             // Set default timestepper.
             timestepper = new ChTimestepperEulerImplicitLinearized(this);
-
         }
 
         // public int GetNcoords_y() { return 0; }
@@ -330,13 +330,13 @@ namespace chrono
         public virtual void FixedUpdate()
         {
             // TO DO This doesn't work yet
-            /* bool try_realtime = true;
+             bool try_realtime = true;
 
              double dt;
              if (try_realtime)
                  dt = m_realtime_timer.SuggestSimulationStep(step);
              else
-                 dt = step;*/
+                 dt = step;
             DoStepDynamics(step);
 
             /* // For Build release

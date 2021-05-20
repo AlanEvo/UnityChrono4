@@ -35,7 +35,7 @@ namespace chrono
         public float gn;  //< user-specified normal damping coefficient
         public float gt;  //< user-specified tangential damping coefficient
 
-        public void Awake()
+        public void Start()
         {
 
         }

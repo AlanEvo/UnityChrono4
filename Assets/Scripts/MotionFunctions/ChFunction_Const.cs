@@ -37,7 +37,7 @@ namespace chrono
         /// Get the constant C for the function, y=C.
         public double Get_yconst() { return C; }
 
-        public void Awake()
+        public void Start()
         {
           //  Set_yconst(constant_val);
         }

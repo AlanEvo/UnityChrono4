@@ -35,7 +35,7 @@ namespace chrono
            // private bool wasActive;
 
 
-            void Awake()
+            void Start()
             {
                 currentCamera = 0;
                /* vehicleController = GetComponent<VehicleController>();

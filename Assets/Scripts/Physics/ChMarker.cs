@@ -42,7 +42,7 @@ namespace chrono
         [SerializeField]
         private ChFrameMoving<double> abs_frame = new ChFrameMoving<double>();  //< absolute frame position
 
-       /* public void Awake()
+       /* public void Start()
         {
             FrameMoving = new ChFrameMoving<double>();
             Body = null;

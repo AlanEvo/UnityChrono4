@@ -30,7 +30,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone() { return new ChLinkRotSpringCB(this); }
 
-        public void Awake()
+        public void Start()
         {
             ChCoordsys csys = new ChCoordsys(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation));
             Initialize(body1, body2, csys);

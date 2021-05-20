@@ -54,7 +54,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone() { return new ChLinkSpringCB(this); }
 
-        public void Awake()
+        public void Start()
         {
             Initialize(body1, body2, useRelativePos, Utils.ToChrono(transform.position), Utils.ToChrono(position2.position), autoRestLength, restLength);
 

@@ -20,7 +20,7 @@ namespace chrono
         /// Create the timer (outside the simulation loop, preferably
         /// just before beginning the while{} loop)
         public ChRealtimeStepTimer() { this.start(); }
-       // public void Awake() { this.start(); }
+       // public void Start() { this.start(); }
 
 
         /// Call this function INSIDE the simulation loop, just ONCE

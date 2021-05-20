@@ -64,7 +64,7 @@ namespace chrono
         
         }
 
-        public void Awake()
+        public void Start()
         {
            
         }

@@ -17,7 +17,7 @@ namespace chrono
             public bool active = false;
             public float modulation;
 
-            public void Awake()
+            public void Start()
             {               
                 m_brake = GameObject.FindObjectOfType<ChLinkBrake>();
             }

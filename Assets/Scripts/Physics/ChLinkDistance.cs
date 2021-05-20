@@ -63,7 +63,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone()  { return new ChLinkDistance(this); }
 
-        public void Awake()
+        public void Start()
         {
             pos1.x = transform.position.x;
             pos1.y = transform.position.y;

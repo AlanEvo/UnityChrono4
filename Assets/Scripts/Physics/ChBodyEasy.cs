@@ -21,9 +21,9 @@ namespace chrono
         }
 
         // Use this for initialization
-     /*   public new void Awake()
+     /*   public new void Start()
         {
-            base.Awake();
+            base.Start();
 
             switch (collisionType)
             {

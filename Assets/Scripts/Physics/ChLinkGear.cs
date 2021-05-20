@@ -87,7 +87,7 @@ namespace chrono
         public override ChObj Clone() { return new ChLinkGear(this);
     }
 
-        public override void Awake()
+        public override void Start()
         {
            // shaft1Direction = new Vector3(0, 0, 1);
            // shaft2Direction = new Vector3(0, 0, 1);

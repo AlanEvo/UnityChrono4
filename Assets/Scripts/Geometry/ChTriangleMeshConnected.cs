@@ -71,14 +71,14 @@ namespace chrono
 
                 triangles = mesh.triangles;
 
-                for (int i = 0; i < triangles.Length; i += 3)
+                for (int i = 0; i < triangles.Length; i+=3)
                 {
                     indices.Add(triangles[i + 0]);
                     indices.Add(triangles[i + 1]);
                     indices.Add(triangles[i + 2]);
                 }
 
-                for (int iv = 0; iv < mesh.vertices.Length; iv += 3)
+                for (int iv = 0; iv < mesh.triangles.Length; iv ++)
                 {
                     this.m_vertices.Add(new ChVector(mesh.vertices[iv].x, mesh.vertices[iv + 1].y, mesh.vertices[iv + 2].z));
                 }

@@ -112,7 +112,7 @@ namespace chrono
                 (itercontact) = null;
                 ++itercontact;
             }*/
-            contactlist.Clear();
+           // contactlist.Clear();
             //lastcontact = contactlist.First<Tcont>();
             n_added = 0;
 

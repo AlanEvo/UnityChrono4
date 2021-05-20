@@ -48,7 +48,7 @@ namespace chrono
             return new ContactMethod();
         }
 
-        public void Awake()
+        public void Start()
         {
 
         }

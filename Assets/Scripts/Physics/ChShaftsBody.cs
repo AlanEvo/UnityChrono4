@@ -42,7 +42,7 @@ namespace chrono
             return new ChShaftsBody(this);
         }
 
-        public void Awake()
+        public void Start()
         {
             shaft_dir.x = shaftDirection.x;
             shaft_dir.y = shaftDirection.y;

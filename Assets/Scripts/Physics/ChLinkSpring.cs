@@ -72,7 +72,7 @@ namespace chrono
             mod_r_speed = new ChFunction(other.mod_r_speed.Clone());
         }
 
-        public void Awake()
+        public void Start()
         {
             Initialize(body1, body2, useRelativePos, Utils.ToChrono(transform.position), Utils.ToChrono(position2.position), autoRestLength, restLength);
             Set_SpringK(springCoefficient);

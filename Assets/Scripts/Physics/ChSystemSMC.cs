@@ -61,11 +61,11 @@ namespace chrono
         }
 
         // Use this for initialization
-        public override void Awake()
+        public override void Start()
         {
             out_step = 2000 * step;
 
-            base.Awake();
+            base.Start();
 
             if (init_sys)
             {

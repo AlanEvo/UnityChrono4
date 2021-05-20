@@ -53,7 +53,7 @@ namespace chrono
             m_multipliers[1] = other.m_multipliers[1];
         }
 
-        public void Awake()
+        public void Start()
         {
             ChCoordsys csys = new ChCoordsys(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation));
             Initialize(body1.BodyFrame, body2.BodyFrame, csys, m_dist);

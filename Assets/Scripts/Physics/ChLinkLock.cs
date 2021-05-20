@@ -101,7 +101,7 @@ namespace chrono
         ChMatrix33<double> P1star = new ChMatrix33<double>(0);  // [P] star matrix of rel pos of mark1
         ChMatrix33<double> Q2star = new ChMatrix33<double>(0);  // [Q] star matrix of rel pos of mark2
 
-        ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>();
+        ChMatrixNM<IntInterface.Three, IntInterface.Four> mGl = new ChMatrixNM<IntInterface.Three, IntInterface.Four>(0);
 
 
 
@@ -180,7 +180,7 @@ namespace chrono
             BuildLinkType(LinkType.SPHERICAL);
         }
 
-        public virtual void Awake()
+        public virtual void Start()
         {
             ChCoordsys csys = new ChCoordsys(Utils.ToChrono(transform.position), Utils.ToChrono(transform.rotation));
             ChangeLinkType(type);

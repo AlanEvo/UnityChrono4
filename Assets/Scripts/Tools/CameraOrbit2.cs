@@ -33,7 +33,7 @@ public class CameraOrbit2 : MonoBehaviour
     private Vector3 lastOffsettemp;
 
 
-    void Start() { Init(); }
+    void Awake() { Init(); }
     void OnEnable() { Init(); }
     public void Init()
     {

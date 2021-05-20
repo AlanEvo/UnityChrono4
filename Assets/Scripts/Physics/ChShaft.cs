@@ -83,7 +83,7 @@ namespace chrono
         /// "Virtual" copy constructor (covariant return type).
         public override ChObj Clone() { return new ChShaft(this); }
 
-        public void Awake()
+        public void Start()
         {
             SetInertia(inertia);
             SetPos_dt(0);

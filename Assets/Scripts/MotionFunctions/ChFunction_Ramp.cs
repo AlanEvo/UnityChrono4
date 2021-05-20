@@ -39,7 +39,7 @@ namespace chrono
         public void Set_ang(double m_ang) { ang = m_ang; }
         public double Get_ang() { return ang; }
 
-        public void Awake()
+        public void Start()
         {
             Set_y0(y0);
             Set_ang(ang);

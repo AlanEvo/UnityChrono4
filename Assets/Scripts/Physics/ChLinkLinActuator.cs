@@ -82,7 +82,7 @@ namespace chrono
         }
 
         // Note, *always!" override the Awake function inheriting from LinkLock!  Otherwise the LinkLock Awake is executed.
-        public override void Awake()
+        public override void Start()
         {
             dist_funct = gameObject.AddComponent<ChFunction_Const>();
 

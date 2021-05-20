@@ -64,10 +64,10 @@ namespace racingsimulation
                 }
             }
 
-            private void Awake()
+           /* private void Start()
             {
                 needle = transform.Find("Needle").gameObject;
-            }
+            }*/
 
             private void Start()
             {

@@ -52,7 +52,7 @@ namespace chrono {
         public override ChObj Clone() { return new ChLinkBrake(this); }
 
         // Note, always override the Awake on inheritting from LinkLock!
-        public override void Awake()
+        public override void Start()
         {
            /* System.Type mbf1 = typeof(ChBody);
 
