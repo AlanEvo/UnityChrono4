@@ -57,12 +57,12 @@ namespace chrono
                  bt_dispatcher->registerCollisionCreateFunc(ARC_SHAPE_PROXYTYPE, ARC_SHAPE_PROXYTYPE, m_collision_arc_arc);*/
 
                 // custom collision for C::E triangles:
-                /* btCollisionAlgorithmCreateFunc* m_collision_cetri_cetri = new btCEtriangleShapeCollisionAlgorithm::CreateFunc;
-                 bt_dispatcher->registerCollisionCreateFunc(CE_TRIANGLE_SHAPE_PROXYTYPE, CE_TRIANGLE_SHAPE_PROXYTYPE, m_collision_cetri_cetri);
+               //  CollisionAlgorithmCreateFunc m_collision_cetri_cetri = new CEtriangleShapeCollisionAlgorithm.CreateFunc;
+                // bt_dispatcher.RegisterCollisionCreateFunc((int)BroadphaseNativeTypes.CE_TRIANGLE_SHAPE_PROXYTYPE, (int)BroadphaseNativeTypes.CE_TRIANGLE_SHAPE_PROXYTYPE, m_collision_cetri_cetri);
 
                  // custom collision for point-point case (in point clouds, just never create point-point contacts)
                  //btCollisionAlgorithmCreateFunc* m_collision_point_point = new btPointPointCollisionAlgorithm::CreateFunc;
-                 void* mem = btAlignedAlloc(sizeof(btEmptyAlgorithm::CreateFunc), 16);
+                /* void* mem = btAlignedAlloc(sizeof(btEmptyAlgorithm::CreateFunc), 16);
                  btCollisionAlgorithmCreateFunc* m_emptyCreateFunc = new (mem) btEmptyAlgorithm::CreateFunc;
                  bt_dispatcher->registerCollisionCreateFunc(POINT_SHAPE_PROXYTYPE, POINT_SHAPE_PROXYTYPE, m_emptyCreateFunc);
                  bt_dispatcher->registerCollisionCreateFunc(POINT_SHAPE_PROXYTYPE, BOX_SHAPE_PROXYTYPE, bt_collision_configuration->getCollisionAlgorithmCreateFunc(SPHERE_SHAPE_PROXYTYPE, BOX_SHAPE_PROXYTYPE)); // just for speedup

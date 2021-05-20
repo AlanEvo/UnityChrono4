@@ -160,7 +160,7 @@ namespace chrono
                     CompoundShape mcompound = new CompoundShape(true);
                     shapes[0] = mcompound;
                     bt_collision_object.SetCollisionShape(mcompound);
-                    //mtransform.SetIdentity();
+                    //mtransform.setIdentity();
                     mcompound.AddChildShape(ref mtransform, shapes[1]);
                     ChPosMatrToBullet(pos, rot, ref mtransform);
                     mcompound.AddChildShape(ref mtransform, shapes[2]);
@@ -172,7 +172,7 @@ namespace chrono
                 {
                     IndexedMatrix mtransform = new IndexedMatrix();
                     shapes.Add(mshape);
-                   // ChPosMatrToBullet(pos, rot, ref mtransform);
+                    ChPosMatrToBullet(pos, rot, ref mtransform);
                     CollisionShape mcom = shapes[0];
                     ((CompoundShape)mcom).AddChildShape(ref mtransform, mshape);
                     // vector=  | compound | old | old.. | new shape | ...
@@ -295,7 +295,7 @@ namespace chrono
             /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
             /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
             public override bool AddTriangleMesh(                           //
-                  geometry.ChTriangleMeshConnected trimesh,  //< the triangle mesh
+                  Mesh trimesh,  //< the triangle mesh
                   bool is_static,                                     //< true if model doesn't move. May improve performance.
                   bool is_convex,                                     //< if true, a convex hull is used. May improve robustness.
                   ChVector pos,               //< displacement respect to COG
@@ -304,65 +304,89 @@ namespace chrono
                   )
             {
 
-
-                // iterate on triangles
-                for (int it = 0; it < trimesh.m_face_v_indices.Count; it++)
+                for (int it = 0; it < trimesh.triangles.Length; it+=3)
                 {
+                    ChVector point1 = new ChVector(0, 0, 0);
+                    ChVector point2 = new ChVector(0, 0, 0);
+                    ChVector point3 = new ChVector(0, 0, 0);
+                    Vector3 p1 = trimesh.vertices[trimesh.triangles[it + 0]];
+                    Vector3 p2 = trimesh.vertices[trimesh.triangles[it + 1]];
+                    Vector3 p3 = trimesh.vertices[trimesh.triangles[it + 2]];
 
-                    this.AddTriangleProxy(trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].x],
-                                           trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].y],
-                                           trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].z],
+                    point1.x = p1.x;
+                    point1.y = p1.y;
+                    point1.z = p1.z;
+                    point2.x = p2.x;
+                    point2.y = p2.y;
+                    point2.z = p2.z;
+                    point3.x = p3.x;
+                    point3.y = p3.y;
+                    point3.z = p3.z;
+
+                    this.AddTriangleProxy(point1,
+                                           point2,
+                                           point3,
                             new ChVector(), new ChVector(), new ChVector(),
                                 false, false, false, false, false, false, sphereswept_thickness);
                 }
-                
-            
-                   /* TriangleMesh bulletMesh = new TriangleMesh();
-                    /// Store containing triangle indices for vertices
-                    for (int i = 0; i < mesh.triangles.Length; i+=3)
-                    {
-                        ChVector point1 = new ChVector(0, 0, 0);
-                        ChVector point2 = new ChVector(0, 0, 0);
-                        ChVector point3 = new ChVector(0, 0, 0);
-                        Vector3 p1 = mesh.vertices[mesh.triangles[i + 0]];
-                        Vector3 p2 = mesh.vertices[mesh.triangles[i + 1]];
-                        Vector3 p3 = mesh.vertices[mesh.triangles[i + 2]];
+                // iterate on triangles
+                /* for (int it = 0; it < trimesh.m_face_v_indices.Count; it++)
+                 {
 
-                        point1.x = p1.x;
-                        point1.y = p1.y;
-                        point1.z = p1.z;
-                        point2.x = p2.x;
-                        point2.y = p2.y;
-                        point2.z = p2.z;
-                        point3.x = p3.x;
-                        point3.y = p3.y;
-                        point3.z = p3.z;
+                     this.AddTriangleProxy(trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].x],
+                                            trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].y],
+                                            trimesh.m_vertices[(int)trimesh.m_face_v_indices[it].z],
+                             new ChVector(), new ChVector(), new ChVector(),
+                                 false, false, false, false, false, false, sphereswept_thickness);
+                 }*/
 
-                        // bulletMesh.m_weldingThreshold = ...
-                        bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
-                            ChVectToBullet(point3),
-                            true);  // try to remove duplicate vertices
-                    }
 
-                     TriangleMesh bulletMesh = new TriangleMesh();
-                     for (int i = 0; i < trimesh.triangles.Length; i++)
-                     {
-                         // bulletMesh.m_weldingThreshold = ...
-                         bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
-                             ChVectToBullet(point3),
-                             false);  // try to remove duplicate vertices
-                     }*/
+                /* TriangleMesh bulletMesh = new TriangleMesh();
+                 /// Store containing triangle indices for vertices
+                 for (int i = 0; i < mesh.triangles.Length; i+=3)
+                 {
+                     ChVector point1 = new ChVector(0, 0, 0);
+                     ChVector point2 = new ChVector(0, 0, 0);
+                     ChVector point3 = new ChVector(0, 0, 0);
+                     Vector3 p1 = mesh.vertices[mesh.triangles[i + 0]];
+                     Vector3 p2 = mesh.vertices[mesh.triangles[i + 1]];
+                     Vector3 p3 = mesh.vertices[mesh.triangles[i + 2]];
 
-                    // CollisionShape pShape = (BvhTriangleMeshShape)new btBvhTriangleMeshShape_handlemesh(bulletMesh);
-                   // CollisionShape pShape = new TriangleMeshShape(bulletMesh);
-                    // pShape.setMargin((btScalar)this.GetSafeMargin());
-                    // ((btBvhTriangleMeshShape*)pShape).refitTree();
-                    // btCollisionShape* pShape = new btGImpactMeshShape_handlemesh(bulletMesh);
-                    // pShape.setMargin((btScalar) this.GetSafeMargin() );
-                    //((btGImpactMeshShape_handlemesh*)pShape).updateBound();
-                   // _injectShape(pos, rot, pShape);
+                     point1.x = p1.x;
+                     point1.y = p1.y;
+                     point1.z = p1.z;
+                     point2.x = p2.x;
+                     point2.y = p2.y;
+                     point2.z = p2.z;
+                     point3.x = p3.x;
+                     point3.y = p3.y;
+                     point3.z = p3.z;
 
-                    return true;
+                     // bulletMesh.m_weldingThreshold = ...
+                     bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
+                         ChVectToBullet(point3),
+                         true);  // try to remove duplicate vertices
+                 }
+
+                  TriangleMesh bulletMesh = new TriangleMesh();
+                  for (int i = 0; i < trimesh.triangles.Length; i++)
+                  {
+                      // bulletMesh.m_weldingThreshold = ...
+                      bulletMesh.AddTriangle(ChVectToBullet(point1), ChVectToBullet(point2),
+                          ChVectToBullet(point3),
+                          false);  // try to remove duplicate vertices
+                  }*/
+
+                // CollisionShape pShape = (BvhTriangleMeshShape)new btBvhTriangleMeshShape_handlemesh(bulletMesh);
+                // CollisionShape pShape = new TriangleMeshShape(bulletMesh);
+                // pShape.setMargin((btScalar)this.GetSafeMargin());
+                // ((btBvhTriangleMeshShape*)pShape).refitTree();
+                // btCollisionShape* pShape = new btGImpactMeshShape_handlemesh(bulletMesh);
+                // pShape.setMargin((btScalar) this.GetSafeMargin() );
+                //((btGImpactMeshShape_handlemesh*)pShape).updateBound();
+                // _injectShape(pos, rot, pShape);
+
+                return true;
                 }
             
 

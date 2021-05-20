@@ -136,12 +136,12 @@ namespace chrono
             /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
             /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
             public abstract bool AddTriangleMesh(                           //
-                geometry.ChTriangleMeshConnected trimesh,  //< the triangle mesh
+                Mesh trimesh,  //< the triangle mesh
                 bool is_static,                                     //< true if model doesn't move. May improve performance.
                 bool is_convex,                                     //< if true, a convex hull is used. May improve robustness.
                 ChVector pos,               //< displacement respect to COG
                 ChMatrix33<double> rot,          //< the rotation of the mesh
-                double sphereswept_thickness                  //< outward sphere-swept layer (when supported)
+                double sphereswept_thickness = 0.0                  //< outward sphere-swept layer (when supported)
                 );
 
             /// Sets the position and orientation of the collision
