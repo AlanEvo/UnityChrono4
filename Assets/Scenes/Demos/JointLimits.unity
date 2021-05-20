@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   body1: {fileID: 1370988593}
   body2: {fileID: 1527163015}
-  enableLimits: 0
+  enableLimits: 1
   showLimits: 1
   minAngle: 0
   maxAngle: 2.35
@@ -279,6 +279,10 @@ MonoBehaviour:
   sliding_friction: 0
   constant_adhesion: 0
   adhesionMultDMT: 0
+  kn: 0
+  kt: 0
+  gn: 0
+  gt: 0
   COM: {x: 0, y: 0.67, z: 0}
 --- !u!4 &1370988594
 Transform:
@@ -436,6 +440,10 @@ MonoBehaviour:
   sliding_friction: 0
   constant_adhesion: 0
   adhesionMultDMT: 0
+  kn: 0
+  kt: 0
+  gn: 0
+  gt: 0
 --- !u!23 &1527163016
 MeshRenderer:
   m_ObjectHideFlags: 0
